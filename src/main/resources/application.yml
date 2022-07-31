@@ -1,0 +1,7 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://${props.db.hostname}:5432/rosebot
+    username: ${props.db.username}
+    password: ${props.db.password}
+  jooq:
+    sql-dialect: Postgres
