@@ -11,4 +11,4 @@ import jooq.tables.Tweets
 /**
  * The table <code>public.tweets</code>.
  */
-val TWEETS = Tweets.TWEETS
+val TWEETS: Tweets = Tweets.TWEETS

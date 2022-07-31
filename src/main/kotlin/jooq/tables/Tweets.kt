@@ -6,19 +6,20 @@ package jooq.tables
 
 import java.time.LocalDateTime
 import java.util.UUID
+import java.util.function.Function
 
 import jooq.Public
 import jooq.keys.TWEETS_PKEY
 import jooq.tables.records.TweetsRecord
 
-import kotlin.collections.List
-
 import org.jooq.Field
 import org.jooq.ForeignKey
 import org.jooq.Name
 import org.jooq.Record
+import org.jooq.Records
 import org.jooq.Row3
 import org.jooq.Schema
+import org.jooq.SelectField
 import org.jooq.Table
 import org.jooq.TableField
 import org.jooq.TableOptions
@@ -54,7 +55,7 @@ open class Tweets(
         /**
          * The reference instance of <code>public.tweets</code>
          */
-        val TWEETS = Tweets()
+        val TWEETS: Tweets = Tweets()
     }
 
     /**
@@ -96,11 +97,11 @@ open class Tweets(
     constructor(): this(DSL.name("tweets"), null)
 
     constructor(child: Table<out Record>, key: ForeignKey<out Record, TweetsRecord>): this(Internal.createPathAlias(child, key), child, key, TWEETS, null)
-    override fun getSchema(): Schema = Public.PUBLIC
+    override fun getSchema(): Schema? = if (aliased()) null else Public.PUBLIC
     override fun getPrimaryKey(): UniqueKey<TweetsRecord> = TWEETS_PKEY
-    override fun getKeys(): List<UniqueKey<TweetsRecord>> = listOf(TWEETS_PKEY)
     override fun `as`(alias: String): Tweets = Tweets(DSL.name(alias), this)
     override fun `as`(alias: Name): Tweets = Tweets(alias, this)
+    override fun `as`(alias: Table<*>): Tweets = Tweets(alias.getQualifiedName(), this)
 
     /**
      * Rename this table
@@ -112,8 +113,24 @@ open class Tweets(
      */
     override fun rename(name: Name): Tweets = Tweets(name, null)
 
+    /**
+     * Rename this table
+     */
+    override fun rename(name: Table<*>): Tweets = Tweets(name.getQualifiedName(), null)
+
     // -------------------------------------------------------------------------
     // Row3 type methods
     // -------------------------------------------------------------------------
     override fun fieldsRow(): Row3<UUID?, LocalDateTime?, LocalDateTime?> = super.fieldsRow() as Row3<UUID?, LocalDateTime?, LocalDateTime?>
+
+    /**
+     * Convenience mapping calling {@link SelectField#convertFrom(Function)}.
+     */
+    fun <U> mapping(from: (UUID?, LocalDateTime?, LocalDateTime?) -> U): SelectField<U> = convertFrom(Records.mapping(from))
+
+    /**
+     * Convenience mapping calling {@link SelectField#convertFrom(Class,
+     * Function)}.
+     */
+    fun <U> mapping(toType: Class<U>, from: (UUID?, LocalDateTime?, LocalDateTime?) -> U): SelectField<U> = convertFrom(toType, Records.mapping(from))
 }

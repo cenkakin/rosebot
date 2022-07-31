@@ -18,18 +18,18 @@ import org.jooq.impl.SchemaImpl
  */
 @Suppress("UNCHECKED_CAST")
 open class Public : SchemaImpl("public", DefaultCatalog.DEFAULT_CATALOG) {
-    companion object {
+    public companion object {
 
         /**
          * The reference instance of <code>public</code>
          */
-        val PUBLIC = Public()
+        val PUBLIC: Public = Public()
     }
 
     /**
      * The table <code>public.tweets</code>.
      */
-    val TWEETS get() = Tweets.TWEETS
+    val TWEETS: Tweets get() = Tweets.TWEETS
 
     override fun getCatalog(): Catalog = DefaultCatalog.DEFAULT_CATALOG
 

@@ -1,7 +1,11 @@
 spring:
-  datasource:
-    url: jdbc:postgresql://${props.db.hostname}:5432/rosebot
+  r2dbc:
+    url: r2dbc:pool:postgresql://${props.db.hostname}:5432/rosebot
     username: ${props.db.username}
+    password: ${props.db.password}
+  flyway:
+    url: jdbc:postgresql://${props.db.hostname}:5432/rosebot
+    user: ${props.db.username}
     password: ${props.db.password}
   jooq:
     sql-dialect: Postgres

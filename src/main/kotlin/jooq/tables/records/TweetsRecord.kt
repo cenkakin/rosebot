@@ -22,17 +22,17 @@ import org.jooq.impl.UpdatableRecordImpl
 @Suppress("UNCHECKED_CAST")
 open class TweetsRecord() : UpdatableRecordImpl<TweetsRecord>(Tweets.TWEETS), Record3<UUID?, LocalDateTime?, LocalDateTime?> {
 
-    var id: UUID?
-        set(value) = set(0, value)
-        get() = get(0) as UUID?
+    open var id: UUID?
+        set(value): Unit = set(0, value)
+        get(): UUID? = get(0) as UUID?
 
-    var createdAt: LocalDateTime?
-        set(value) = set(1, value)
-        get() = get(1) as LocalDateTime?
+    open var createdAt: LocalDateTime?
+        set(value): Unit = set(1, value)
+        get(): LocalDateTime? = get(1) as LocalDateTime?
 
-    var updatedAt: LocalDateTime?
-        set(value) = set(2, value)
-        get() = get(2) as LocalDateTime?
+    open var updatedAt: LocalDateTime?
+        set(value): Unit = set(2, value)
+        get(): LocalDateTime? = get(2) as LocalDateTime?
 
     // -------------------------------------------------------------------------
     // Primary key information
