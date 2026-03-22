@@ -1,11 +1,14 @@
-version: '3'
-
 services:
-  rosebotdb:
-    image: postgres:14.4-alpine
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: rosebot
+      POSTGRES_USER: rosebot
+      POSTGRES_PASSWORD: rosebot
     ports:
       - "5432:5432"
-    environment:
-      - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=admin
-      - POSTGRES_DB=rosebot
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

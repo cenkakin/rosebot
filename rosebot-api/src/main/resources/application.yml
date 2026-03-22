@@ -1,0 +1,7 @@
+spring:
+  datasource:
+    url: ${prop.spring.datasource.url}
+    username: ${prop.spring.datasource.username}
+    password: ${prop.spring.datasource.password}
+  jooq:
+    sql-dialect: POSTGRES
