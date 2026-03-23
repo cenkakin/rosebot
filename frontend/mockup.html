@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rosebot — Mockup</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f5f5;
+      color: #212121;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── AppBar ── */
+    .appbar {
+      background: #c62828;
+      color: #fff;
+      padding: 0 24px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,.2);
+      z-index: 10;
+    }
+    .appbar-logo { font-size: 20px; font-weight: 700; letter-spacing: .5px; }
+    .appbar-logo span { opacity: .75; font-weight: 400; font-size: 14px; margin-left: 12px; }
+    .appbar-right { display: flex; align-items: center; gap: 16px; }
+    .appbar-date { font-size: 13px; opacity: .85; }
+    .icon-btn {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255,255,255,.15);
+      color: #fff;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+    .icon-btn:hover { background: rgba(255,255,255,.25); }
+
+    /* ── Layout ── */
+    .layout { display: flex; flex: 1; overflow: hidden; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 220px;
+      flex-shrink: 0;
+      background: #fff;
+      border-right: 1px solid #e0e0e0;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      padding: 16px 0;
+    }
+    .sidebar-section { margin-bottom: 8px; }
+    .sidebar-label {
+      font-size: 11px; font-weight: 700; letter-spacing: 1px;
+      color: #9e9e9e; padding: 6px 20px 4px; text-transform: uppercase;
+    }
+    .sidebar-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 7px 20px; font-size: 13.5px; color: #424242;
+      cursor: pointer; transition: background .15s;
+    }
+    .sidebar-item:hover { background: #fce4e4; color: #c62828; }
+    .sidebar-item.active { background: #ffebee; color: #c62828; font-weight: 600; }
+    .sidebar-item .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .dot-news    { background: #1565c0; }
+    .dot-reddit  { background: #e64a19; }
+    .dot-twitter { background: #0288d1; }
+    .sidebar-count {
+      margin-left: auto; font-size: 11px; background: #c62828;
+      color: #fff; border-radius: 10px; padding: 1px 7px; font-weight: 600;
+    }
+    .sidebar-divider { border: none; border-top: 1px solid #f0f0f0; margin: 8px 0; }
+    .add-source {
+      margin: 8px 12px 0; padding: 8px 12px;
+      border: 1.5px dashed #e0e0e0; border-radius: 8px;
+      font-size: 13px; color: #9e9e9e; cursor: pointer; text-align: center;
+      transition: border-color .2s, color .2s;
+    }
+    .add-source:hover { border-color: #c62828; color: #c62828; }
+    .sidebar-item-saved {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 20px; font-size: 13.5px; font-weight: 600; color: #424242;
+      cursor: pointer; border-bottom: 1px solid #f0f0f0; margin-bottom: 8px;
+      transition: background .15s;
+    }
+    .sidebar-item-saved:hover { background: #fce4e4; color: #c62828; }
+
+    /* ── Feed + Panel wrapper ── */
+    .feed-and-panel {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ── Feed ── */
+    .feed-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 24px;
+      transition: margin-right .3s ease;
+    }
+    .feed-container.panel-open { margin-right: 0; }
+
+    /* Filter chips */
+    .filter-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+    .chip {
+      padding: 4px 14px; border-radius: 16px; font-size: 13px; cursor: pointer;
+      border: 1.5px solid #e0e0e0; background: #fff; color: #616161; transition: all .15s;
+    }
+    .chip:hover { border-color: #c62828; color: #c62828; }
+    .chip.active { background: #c62828; border-color: #c62828; color: #fff; font-weight: 600; }
+
+    /* New-since banner */
+    .new-banner {
+      background: linear-gradient(135deg, #c62828, #e53935);
+      color: #fff; border-radius: 10px; padding: 12px 18px; margin-bottom: 20px;
+      display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 500;
+      box-shadow: 0 2px 8px rgba(198,40,40,.25);
+    }
+    .new-banner .pulse {
+      width: 10px; height: 10px; background: #fff; border-radius: 50%;
+      flex-shrink: 0; box-shadow: 0 0 0 3px rgba(255,255,255,.3);
+    }
+    .new-banner strong { font-weight: 700; }
+
+    /* Time divider */
+    .time-divider { display: flex; align-items: center; gap: 12px; margin: 20px 0 14px; }
+    .time-divider span {
+      font-size: 11px; font-weight: 700; letter-spacing: 1px;
+      text-transform: uppercase; color: #9e9e9e; white-space: nowrap;
+    }
+    .time-divider::before, .time-divider::after { content: ''; flex: 1; height: 1px; background: #e0e0e0; }
+
+    /* ── Card ── */
+    .card {
+      background: #fff; border-radius: 10px; border: 1px solid #e8e8e8;
+      padding: 16px 18px; margin-bottom: 12px;
+      transition: box-shadow .2s, border-color .2s;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .card:hover { box-shadow: 0 3px 12px rgba(0,0,0,.08); border-color: #d0d0d0; }
+    .card.panel-active { border-color: #c62828; box-shadow: 0 3px 12px rgba(198,40,40,.15); }
+
+    .card-header { display: flex; align-items: center; gap: 8px; }
+    .source-badge {
+      font-size: 11px; font-weight: 700; letter-spacing: .5px;
+      padding: 2px 8px; border-radius: 4px; text-transform: uppercase;
+    }
+    .badge-news    { background: #e3f0ff; color: #1565c0; }
+    .badge-reddit  { background: #fbe9e7; color: #bf360c; }
+    .badge-twitter { background: #e1f5fe; color: #0277bd; }
+    .card-source-name { font-size: 12px; color: #757575; font-weight: 500; }
+    .card-time { margin-left: auto; font-size: 12px; color: #bdbdbd; }
+    .save-btn {
+      background: none; border: none; cursor: pointer;
+      font-size: 16px; color: #bdbdbd; padding: 0 2px; transition: color .15s;
+    }
+    .save-btn:hover { color: #c62828; }
+    .card-title {
+      font-size: 15px; font-weight: 600; color: #212121; line-height: 1.35;
+      cursor: pointer; text-decoration: none; display: block;
+    }
+    .card-title:hover { color: #c62828; }
+    .card-content { font-size: 13.5px; color: #616161; line-height: 1.5; }
+
+    /* Card body with optional thumbnail */
+    .card-body {
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .card-body-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+    .card-thumbnail {
+      width: 80px; height: 80px; flex-shrink: 0;
+      border-radius: 8px; object-fit: cover;
+      background: #f0f0f0;
+    }
+
+    .card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 2px; }
+    .card-meta { font-size: 12px; color: #9e9e9e; display: flex; gap: 12px; }
+
+    /* Summary button (news/reddit only) */
+    .summary-btn {
+      font-size: 12px; font-weight: 600; color: #757575;
+      background: none; border: 1px solid #e0e0e0; border-radius: 6px;
+      padding: 4px 12px; cursor: pointer; transition: all .15s;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .summary-btn:hover { border-color: #c62828; color: #c62828; }
+    .summary-btn.active { background: #ffebee; border-color: #c62828; color: #c62828; }
+
+    /* ── Side Panel ── */
+    .side-panel {
+      width: 360px;
+      flex-shrink: 0;
+      background: #fff;
+      border-left: 1px solid #e0e0e0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transform: translateX(100%);
+      transition: transform .3s ease;
+      position: absolute;
+      right: 0; top: 0; bottom: 0;
+      box-shadow: -4px 0 16px rgba(0,0,0,.08);
+    }
+    .side-panel.open { transform: translateX(0); }
+
+    .panel-header {
+      padding: 16px 18px 14px;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex; flex-direction: column; gap: 6px;
+      flex-shrink: 0;
+    }
+    .panel-header-top { display: flex; align-items: center; justify-content: space-between; }
+    .panel-close {
+      background: none; border: none; cursor: pointer;
+      font-size: 18px; color: #9e9e9e; line-height: 1;
+      padding: 2px 4px; border-radius: 4px; transition: color .15s;
+    }
+    .panel-close:hover { color: #212121; }
+    .panel-source { display: flex; align-items: center; gap: 8px; }
+    .panel-title {
+      font-size: 16px; font-weight: 700; color: #212121; line-height: 1.35;
+    }
+    .panel-meta { font-size: 12px; color: #9e9e9e; }
+
+    .panel-body { flex: 1; overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 16px; }
+
+    .panel-section-label {
+      font-size: 11px; font-weight: 700; letter-spacing: .5px;
+      text-transform: uppercase; color: #9e9e9e; margin-bottom: 6px;
+    }
+    .panel-summary-text { font-size: 14px; color: #424242; line-height: 1.65; }
+
+    .panel-footer {
+      padding: 14px 18px;
+      border-top: 1px solid #f0f0f0;
+      flex-shrink: 0;
+    }
+    .panel-open-link {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      width: 100%; padding: 9px;
+      background: #c62828; color: #fff;
+      border: none; border-radius: 8px;
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      text-decoration: none; transition: background .15s;
+    }
+    .panel-open-link:hover { background: #b71c1c; }
+  </style>
+</head>
+<body>
+
+  <!-- AppBar -->
+  <header class="appbar">
+    <div class="appbar-logo">🌹 Rosebot <span>your daily digest</span></div>
+    <div class="appbar-right">
+      <span class="appbar-date">Sunday, March 22</span>
+    </div>
+  </header>
+
+  <div class="layout">
+
+    <!-- Sidebar -->
+    <nav class="sidebar">
+      <div class="sidebar-item-saved">
+        <span>★</span> Saved
+        <span class="sidebar-count" style="background:#757575;">5</span>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">News</div>
+        <div class="sidebar-item active">
+          <span class="dot dot-news"></span> All News
+          <span class="sidebar-count">9</span>
+        </div>
+        <div class="sidebar-item"><span class="dot dot-news"></span> The Verge</div>
+        <div class="sidebar-item"><span class="dot dot-news"></span> BBC World</div>
+        <div class="sidebar-item"><span class="dot dot-news"></span> Wired</div>
+      </div>
+
+      <hr class="sidebar-divider" />
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">Reddit</div>
+        <div class="sidebar-item">
+          <span class="dot dot-reddit"></span> r/technology
+          <span class="sidebar-count">3</span>
+        </div>
+        <div class="sidebar-item"><span class="dot dot-reddit"></span> r/programming</div>
+        <div class="sidebar-item"><span class="dot dot-reddit"></span> r/worldnews</div>
+      </div>
+
+      <hr class="sidebar-divider" />
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">Twitter / X</div>
+        <div class="sidebar-item">
+          <span class="dot dot-twitter"></span> @naval
+          <span class="sidebar-count">2</span>
+        </div>
+        <div class="sidebar-item"><span class="dot dot-twitter"></span> @pmarca</div>
+        <div class="sidebar-item"><span class="dot dot-twitter"></span> @paulg</div>
+      </div>
+
+    </nav>
+
+    <!-- Feed + Panel -->
+    <div class="feed-and-panel">
+
+      <!-- Feed -->
+      <main class="feed-container" id="feed">
+
+        <div class="filter-bar">
+          <div class="chip active">All</div>
+          <div class="chip">📰 News</div>
+          <div class="chip">🔴 Reddit</div>
+          <div class="chip">🐦 Twitter</div>
+        </div>
+
+        <div class="new-banner">
+          <div class="pulse"></div>
+          <span><strong>14 new items</strong> since your last visit · 2 hours ago</span>
+        </div>
+
+        <!-- ── NEW ── -->
+        <div class="time-divider"><span>New</span></div>
+
+        <!-- News card → opens side panel -->
+        <div class="card" id="card-1">
+          <div class="card-header">
+            <span class="source-badge badge-news">News</span>
+            <span class="card-source-name">The Verge</span>
+            <span class="card-time">2h ago</span>
+            <button class="save-btn">☆</button>
+          </div>
+          <a class="card-title" href="#" target="_blank">OpenAI announces GPT-5 with advanced reasoning capabilities</a>
+          <div class="card-content">The model shows significant improvements in multi-step reasoning tasks, scoring 94% on benchmarks previously unseen by any model.</div>
+          <div class="card-footer">
+            <div class="card-meta"><span>5 min read</span></div>
+            <button class="summary-btn" onclick="openPanel('card-1', 'news')">📋 Summary ▸</button>
+          </div>
+        </div>
+
+        <!-- Tweet card with thumbnail -->
+        <div class="card" id="card-2">
+          <div class="card-header">
+            <span class="source-badge badge-twitter">Twitter</span>
+            <span class="card-source-name">@naval</span>
+            <span class="card-time">3h ago</span>
+            <button class="save-btn">☆</button>
+          </div>
+          <div class="card-body">
+            <div class="card-body-text">
+              <a class="card-title" href="#" target="_blank">The thing about AI replacing jobs is that everyone is simultaneously overestimating the short-term and underestimating the long-term.</a>
+              <div class="card-content">We've seen this pattern with the internet, mobile, and cloud. Each time, the immediate disruption was overhyped.</div>
+            </div>
+            <img class="card-thumbnail" src="https://picsum.photos/seed/tweet1/80/80" alt="" />
+          </div>
+          <div class="card-footer">
+            <div class="card-meta"><span>312 likes</span><span>48 retweets</span></div>
+          </div>
+        </div>
+
+        <!-- Reddit card → opens side panel -->
+        <div class="card" id="card-3">
+          <div class="card-header">
+            <span class="source-badge badge-reddit">Reddit</span>
+            <span class="card-source-name">r/technology</span>
+            <span class="card-time">4h ago</span>
+            <button class="save-btn">☆</button>
+          </div>
+          <a class="card-title" href="#" target="_blank">Ask HN: What's your current stack in 2026?</a>
+          <div class="card-content">The top comment thread is fascinating — Spring Boot and React still dominate enterprise but Rust is climbing fast for systems work.</div>
+          <div class="card-footer">
+            <div class="card-meta"><span>847 comments</span><span>2.1k upvotes</span></div>
+            <button class="summary-btn" onclick="openPanel('card-3', 'reddit')">📋 Summary ▸</button>
+          </div>
+        </div>
+
+        <!-- ── EARLIER TODAY ── -->
+        <div class="time-divider"><span>Earlier Today</span></div>
+
+        <!-- News card (already saved) -->
+        <div class="card" id="card-4">
+          <div class="card-header">
+            <span class="source-badge badge-news">News</span>
+            <span class="card-source-name">BBC World</span>
+            <span class="card-time">7h ago</span>
+            <button class="save-btn" style="color:#c62828">★</button>
+          </div>
+          <a class="card-title" href="#" target="_blank">EU passes sweeping AI regulation bill with 312–201 vote</a>
+          <div class="card-content">The legislation requires transparency reports for all frontier models and introduces mandatory red-teaming before public deployment.</div>
+          <div class="card-footer">
+            <div class="card-meta"><span>8 min read</span></div>
+            <button class="summary-btn" onclick="openPanel('card-4', 'news')">📋 Summary ▸</button>
+          </div>
+        </div>
+
+        <!-- Tweet (no image — plain text) -->
+        <div class="card" id="card-5">
+          <div class="card-header">
+            <span class="source-badge badge-twitter">Twitter</span>
+            <span class="card-source-name">@paulg</span>
+            <span class="card-time">9h ago</span>
+            <button class="save-btn">☆</button>
+          </div>
+          <a class="card-title" href="#" target="_blank">Startups that win in downturns aren't the ones that cut the most — they're the ones that cut the right things and double down on what matters.</a>
+          <div class="card-content">The companies that came out strongest after 2008 and 2020 all share one trait: they treated the downturn as a forcing function for focus.</div>
+          <div class="card-footer">
+            <div class="card-meta"><span>1.4k likes</span><span>201 retweets</span></div>
+          </div>
+        </div>
+
+        <!-- ── YESTERDAY ── -->
+        <div class="time-divider"><span>Yesterday</span></div>
+
+        <div class="card" id="card-6">
+          <div class="card-header">
+            <span class="source-badge badge-reddit">Reddit</span>
+            <span class="card-source-name">r/programming</span>
+            <span class="card-time">Yesterday</span>
+            <button class="save-btn">☆</button>
+          </div>
+          <a class="card-title" href="#" target="_blank">Why we migrated 2 million lines of Python to Rust — and what we learned</a>
+          <div class="card-content">A detailed post-mortem from a fintech company covering 18 months of gradual migration. Key takeaway: the wins in latency were real, but the hiring bottleneck was the bigger problem.</div>
+          <div class="card-footer">
+            <div class="card-meta"><span>1.2k comments</span><span>4.3k upvotes</span></div>
+            <button class="summary-btn" onclick="openPanel('card-6', 'reddit')">📋 Summary ▸</button>
+          </div>
+        </div>
+
+      </main>
+
+      <!-- Side Panel -->
+      <aside class="side-panel" id="sidePanel">
+        <div class="panel-header">
+          <div class="panel-header-top">
+            <div class="panel-source" id="panelSource"></div>
+            <button class="panel-close" onclick="closePanel()">✕</button>
+          </div>
+          <div class="panel-title" id="panelTitle"></div>
+          <div class="panel-meta" id="panelMeta"></div>
+        </div>
+        <div class="panel-body">
+          <div>
+            <div class="panel-section-label">Summary</div>
+            <div class="panel-summary-text" id="panelSummary"></div>
+          </div>
+        </div>
+        <div class="panel-footer">
+          <a class="panel-open-link" id="panelOpenLink" href="#" target="_blank">↗ Open full article</a>
+        </div>
+      </aside>
+
+    </div><!-- feed-and-panel -->
+  </div><!-- layout -->
+
+  <script>
+    const panels = {
+      'card-1': {
+        source: '<span class="source-badge badge-news">News</span> <span style="font-size:12px;color:#757575;font-weight:500">The Verge</span>',
+        title: 'OpenAI announces GPT-5 with advanced reasoning capabilities',
+        meta: '5 min read · 2h ago',
+        summary: 'GPT-5 introduces a dedicated "chain-of-thought" API mode that exposes intermediate reasoning steps to developers. The model scores 94% on the MATH benchmark and 87% on competitive coding tasks — both records.\n\nAccess rolls out in two phases: Plus subscribers get it next week, API access follows in 30 days. Pricing is unchanged from GPT-4. OpenAI also announced a new fine-tuning pipeline optimised for reasoning tasks.',
+      },
+      'card-3': {
+        source: '<span class="source-badge badge-reddit">Reddit</span> <span style="font-size:12px;color:#757575;font-weight:500">r/technology</span>',
+        title: 'Ask HN: What\'s your current stack in 2026?',
+        meta: '847 comments · 2.1k upvotes · 4h ago',
+        summary: 'Top comment threads converge on a few themes: Spring Boot + React remains the default enterprise choice, largely due to hiring and tooling maturity. Rust is seeing strong growth in systems and infra work but is still niche for product teams.\n\nSurprising finding: a large cohort still maintains Vue 2 in production. Go continues to dominate for new backend services at mid-sized companies. Several comments call out Kotlin Multiplatform gaining traction for shared business logic.',
+      },
+      'card-4': {
+        source: '<span class="source-badge badge-news">News</span> <span style="font-size:12px;color:#757575;font-weight:500">BBC World</span>',
+        title: 'EU passes sweeping AI regulation bill with 312–201 vote',
+        meta: '8 min read · 7h ago',
+        summary: 'The EU AI Act passed its final vote, requiring transparency reports for all frontier AI models and mandatory independent red-teaming before public deployment. The rules apply to any company serving EU users, regardless of where they\'re headquartered.\n\nCompanies have 18 months to comply. Non-compliance carries fines up to 6% of global annual revenue. The US and UK have signalled they are monitoring the legislation closely but have no immediate plans to adopt equivalent rules.',
+      },
+      'card-6': {
+        source: '<span class="source-badge badge-reddit">Reddit</span> <span style="font-size:12px;color:#757575;font-weight:500">r/programming</span>',
+        title: 'Why we migrated 2 million lines of Python to Rust — and what we learned',
+        meta: '1.2k comments · 4.3k upvotes · Yesterday',
+        summary: 'A fintech company documented 18 months of gradual Python → Rust migration. Latency improvements were real: p99 dropped from 380ms to 42ms on their core pricing engine. Memory usage fell by 70%.\n\nThe unexpected bottleneck: hiring. Rust engineers cost ~40% more and take longer to ramp up. They recommend a hybrid approach — migrate only the hot path, keep Python for glue code and business logic. The post ends with a candid admission: they would not do a full rewrite again.',
+      },
+    };
+
+    let activeCard = null;
+
+    function openPanel(cardId, type) {
+      const data = panels[cardId];
+      if (!data) return;
+
+      // Deactivate previous
+      if (activeCard) {
+        document.getElementById(activeCard)?.classList.remove('panel-active');
+        const prevBtn = document.querySelector(`#${activeCard} .summary-btn`);
+        if (prevBtn) prevBtn.classList.remove('active');
+      }
+
+      // If clicking the same card again, close
+      if (activeCard === cardId) {
+        closePanel();
+        return;
+      }
+
+      activeCard = cardId;
+      document.getElementById(cardId).classList.add('panel-active');
+      const btn = document.querySelector(`#${cardId} .summary-btn`);
+      if (btn) btn.classList.add('active');
+
+      document.getElementById('panelSource').innerHTML = data.source;
+      document.getElementById('panelTitle').textContent = data.title;
+      document.getElementById('panelMeta').textContent = data.meta;
+      document.getElementById('panelSummary').innerHTML = data.summary.replace(/\n\n/g, '<br><br>');
+
+      document.getElementById('sidePanel').classList.add('open');
+      document.getElementById('feed').style.marginRight = '360px';
+    }
+
+    function closePanel() {
+      if (activeCard) {
+        document.getElementById(activeCard)?.classList.remove('panel-active');
+        const prevBtn = document.querySelector(`#${activeCard} .summary-btn`);
+        if (prevBtn) prevBtn.classList.remove('active');
+        activeCard = null;
+      }
+      document.getElementById('sidePanel').classList.remove('open');
+      document.getElementById('feed').style.marginRight = '0';
+    }
+
+  </script>
+
+</body>
+</html>
