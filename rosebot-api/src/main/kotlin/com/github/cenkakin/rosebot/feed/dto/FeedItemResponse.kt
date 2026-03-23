@@ -1,0 +1,16 @@
+package com.github.cenkakin.rosebot.feed.dto
+
+data class FeedItemResponse(
+    val id: Long,
+    val sourceId: Long,
+    val sourceType: String,
+    val sourceName: String,
+    val title: String,
+    val content: String?,
+    val url: String,
+    val thumbnailUrl: String?,
+    val author: String?,
+    val engagement: Map<String, Any>?,
+    val publishedAt: String,
+    val saved: Boolean,
+)

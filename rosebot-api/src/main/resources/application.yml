@@ -5,3 +5,8 @@ spring:
     password: ${prop.spring.datasource.password}
   jooq:
     sql-dialect: POSTGRES
+
+app:
+  jwt:
+    secret: ${prop.app.jwt.secret}
+    expiration-ms: 86400000   # 24 hours
