@@ -77,7 +77,7 @@
         <!-- Frontend static resources -->
         <dependency>
             <groupId>com.github.cenkakin</groupId>
-            <artifactId>rosebot-frontend</artifactId>
+            <artifactId>rosebot-web-app</artifactId>
         </dependency>
 
         <!-- Test -->

@@ -13,9 +13,9 @@ build/
 out/
 
 # Node
-rosebot-frontend/node_modules/
-rosebot-frontend/node/
-rosebot-frontend/dist/
+rosebot-web-app/node_modules/
+rosebot-web-app/node/
+rosebot-web-app/dist/
 
 # IDE
 .idea/

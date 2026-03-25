@@ -3,6 +3,7 @@ package com.github.cenkakin.rosebot.controller
 import com.github.cenkakin.rosebot.auth.AuthenticatedUser
 import com.github.cenkakin.rosebot.feed.dto.FeedItemResponse
 import com.github.cenkakin.rosebot.saved.SavedItemService
+import com.github.cenkakin.rosebot.source.dto.SourceResponse
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -24,7 +25,14 @@ class SavedItemController(
         @AuthenticationPrincipal user: AuthenticatedUser,
         @RequestParam(required = false) before: String?,
         @RequestParam(defaultValue = "20") limit: Int,
-    ): List<FeedItemResponse> = service.getSaved(user.id, before, limit.coerceAtMost(50))
+        @RequestParam(required = false) sourceId: Long?,
+        @RequestParam(required = false) type: String?,
+    ): List<FeedItemResponse> = service.getSaved(user.id, before, limit.coerceAtMost(50), sourceId, type)
+
+    @GetMapping("/sources")
+    fun getSavedSources(
+        @AuthenticationPrincipal user: AuthenticatedUser,
+    ): List<SourceResponse> = service.getSavedSources(user.id)
 
     @PostMapping("/{feedItemId}")
     @ResponseStatus(HttpStatus.CREATED)

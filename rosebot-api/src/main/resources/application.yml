@@ -5,6 +5,8 @@ spring:
     password: ${prop.spring.datasource.password}
   jooq:
     sql-dialect: POSTGRES
+  flyway:
+    baselineOnMigrate: true
 
 app:
   jwt:

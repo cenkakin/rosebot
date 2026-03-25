@@ -1,5 +1,6 @@
 package com.github.cenkakin.rosebot.saved
 
+import com.github.cenkakin.rosebot.source.SourceType
 import jooq.Tables.FEED_ITEM
 import jooq.Tables.SAVED_ITEM
 import jooq.Tables.SOURCE
@@ -15,6 +16,8 @@ class SavedItemRepository(
         userId: Long,
         before: OffsetDateTime?,
         limit: Int,
+        sourceId: Long?,
+        type: SourceType?,
     ): List<Record> =
         dsl
             .select(
@@ -29,8 +32,22 @@ class SavedItemRepository(
             .on(SOURCE.ID.eq(FEED_ITEM.SOURCE_ID))
             .where(SAVED_ITEM.USER_ID.eq(userId))
             .and(before?.let { SAVED_ITEM.SAVED_AT.lt(it) } ?: DSL.noCondition())
+            .and(sourceId?.let { FEED_ITEM.SOURCE_ID.eq(it) } ?: DSL.noCondition())
+            .and(type?.let { SOURCE.TYPE.eq(it.toJooqEnum()) } ?: DSL.noCondition())
             .orderBy(SAVED_ITEM.SAVED_AT.desc())
             .limit(limit)
+            .fetch()
+
+    fun findSourcesByUser(userId: Long): List<Record> =
+        dsl
+            .selectDistinct(SOURCE.asterisk())
+            .from(SAVED_ITEM)
+            .join(FEED_ITEM)
+            .on(FEED_ITEM.ID.eq(SAVED_ITEM.FEED_ITEM_ID))
+            .join(SOURCE)
+            .on(SOURCE.ID.eq(FEED_ITEM.SOURCE_ID))
+            .where(SAVED_ITEM.USER_ID.eq(userId))
+            .orderBy(SOURCE.TYPE, SOURCE.NAME)
             .fetch()
 
     fun save(
@@ -54,4 +71,6 @@ class SavedItemRepository(
                     .eq(userId)
                     .and(SAVED_ITEM.FEED_ITEM_ID.eq(feedItemId)),
             ).execute() > 0
+
+    private fun SourceType.toJooqEnum(): jooq.enums.SourceType = jooq.enums.SourceType.valueOf(name)
 }

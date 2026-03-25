@@ -10,8 +10,8 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>rosebot-frontend</artifactId>
-    <name>rosebot-frontend</name>
+    <artifactId>rosebot-web-app</artifactId>
+    <name>rosebot-web-app</name>
 
     <build>
         <plugins>

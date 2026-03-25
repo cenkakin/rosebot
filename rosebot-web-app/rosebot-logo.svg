@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="logo" width="100%" viewBox="0 0 680 540" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <style>
+    .bg { fill: #1c0a0a; }
+    .ring1 { fill: none; stroke: #7a1c2a; stroke-width: 1; }
+    .ring2 { fill: none; stroke: #7a1c2a; stroke-width: 0.5; }
+    .sled-wood { fill: #8b2a1a; stroke: #a33020; stroke-width: 1.2; }
+    .sled-runner { fill: none; stroke: #c0392b; stroke-width: 2.5; stroke-linecap: round; }
+    .sled-runner-curl { fill: none; stroke: #e05050; stroke-width: 2; stroke-linecap: round; }
+    .sled-slat { fill: #a03525; stroke: #b84030; stroke-width: 0.8; }
+    .sled-brace { fill: none; stroke: #7a1c2a; stroke-width: 1.2; }
+    .petal-outer { fill: #8b1a2e; stroke: #a02038; stroke-width: 0.6; }
+    .petal-mid { fill: #a8243c; stroke: #c02848; stroke-width: 0.5; }
+    .petal-inner { fill: #c42040; stroke: #d83050; stroke-width: 0.4; }
+    .petal-core { fill: #d63050; }
+    .sepal { fill: none; stroke: #5a1a22; stroke-width: 1; }
+    .thorn { fill: #5a1a22; }
+    .snow1 { fill: #f8e8e8; }
+    .snow2 { fill: #f0d0d0; }
+    .text-name { font-family: Georgia, serif; font-size: 36px; font-weight: 400; fill: #d4607a; letter-spacing: 6px; }
+    .star { fill: #c0392b; }
+  </style>
+</defs>
+
+<circle class="bg" cx="340" cy="255" r="200"/>
+<circle class="ring1" cx="340" cy="255" r="195"/>
+<circle class="ring2" cx="340" cy="255" r="188"/>
+
+<g opacity="0.3">
+  <line x1="340" y1="63" x2="340" y2="447" stroke="#7a1c2a" stroke-width="0.4"/>
+  <line x1="148" y1="255" x2="532" y2="255" stroke="#7a1c2a" stroke-width="0.4"/>
+  <line x1="204" y1="119" x2="476" y2="391" stroke="#7a1c2a" stroke-width="0.4"/>
+  <line x1="476" y1="119" x2="204" y2="391" stroke="#7a1c2a" stroke-width="0.4"/>
+</g>
+
+<g transform="translate(340,272)">
+  <rect class="sled-wood" x="-85" y="-18" width="170" height="36" rx="4"/>
+  <rect class="sled-slat" x="-78" y="-14" width="22" height="28" rx="2"/>
+  <rect class="sled-slat" x="-45" y="-14" width="22" height="28" rx="2"/>
+  <rect class="sled-slat" x="-12" y="-14" width="22" height="28" rx="2"/>
+  <rect class="sled-slat" x="21" y="-14" width="22" height="28" rx="2"/>
+  <rect class="sled-slat" x="54" y="-14" width="22" height="28" rx="2"/>
+  <line class="sled-brace" x1="-85" y1="0" x2="85" y2="0"/>
+  <path class="sled-runner" d="M -90,18 C -105,18 -115,22 -115,30 C -115,38 -105,42 -85,42 L 85,42"/>
+  <path class="sled-runner-curl" d="M -85,42 C -72,42 75,42 88,42 C 100,42 108,36 108,28"/>
+  <path class="sled-runner" d="M -90,26 C -98,26 -105,29 -105,34 C -105,39 -98,41 -85,41"/>
+  <line class="sled-brace" x1="-62" y1="18" x2="-62" y2="42"/>
+  <line class="sled-brace" x1="0" y1="18" x2="0" y2="42"/>
+  <line class="sled-brace" x1="62" y1="18" x2="62" y2="42"/>
+  <line class="sled-brace" x1="-85" y1="18" x2="85" y2="18"/>
+  <path class="sled-runner" d="M -90,-18 C -108,-20 -118,-16 -118,-10 L -118,30"/>
+  <path class="sled-runner-curl" d="M -118,-10 C -118,-24 -108,-30 -92,-30"/>
+</g>
+
+<g transform="translate(285,219)">
+  <path class="petal-outer" d="M0,0 C-28,-12 -40,-36 -24,-52 C-8,-68 20,-56 24,-36 C28,-16 16,0 0,0Z"/>
+  <path class="petal-outer" d="M0,0 C12,-30 36,-38 50,-24 C64,-10 54,18 34,22 C14,26 0,0 0,0Z"/>
+  <path class="petal-outer" d="M0,0 C28,12 36,36 20,50 C4,64 -22,54 -24,34 C-26,14 0,0 0,0Z"/>
+  <path class="petal-outer" d="M0,0 C-14,28 -38,36 -52,22 C-66,8 -56,-18 -36,-22 C-16,-26 0,0 0,0Z"/>
+  <path class="petal-outer" d="M0,0 C18,22 16,48 0,56 C-16,64 -36,48 -34,28 C-32,8 0,0 0,0Z"/>
+  <path class="petal-outer" d="M0,0 C22,-18 48,-16 56,0 C64,16 48,36 28,34 C8,32 0,0 0,0Z"/>
+  <path class="petal-mid" d="M0,0 C-18,-8 -26,-24 -14,-34 C-2,-44 16,-36 18,-22 C20,-8 10,0 0,0Z"/>
+  <path class="petal-mid" d="M0,0 C8,-20 24,-26 34,-16 C44,-6 36,12 22,16 C8,20 0,0 0,0Z"/>
+  <path class="petal-mid" d="M0,0 C20,8 26,24 14,34 C2,44 -16,36 -18,22 C-20,8 0,0 0,0Z"/>
+  <path class="petal-mid" d="M0,0 C-8,20 -24,26 -34,16 C-44,6 -36,-12 -22,-16 C-8,-20 0,0 0,0Z"/>
+  <path class="petal-inner" d="M0,0 C-10,-4 -14,-14 -6,-20 C2,-26 14,-18 14,-8 C14,2 6,4 0,0Z"/>
+  <path class="petal-inner" d="M0,0 C4,-12 14,-14 20,-6 C26,2 20,12 10,14 C0,16 0,0 0,0Z"/>
+  <path class="petal-inner" d="M0,0 C10,4 14,14 6,20 C-2,26 -14,18 -14,8 C-14,-2 -4,-2 0,0Z"/>
+  <path class="petal-inner" d="M0,0 C-4,12 -14,14 -20,6 C-26,-2 -20,-12 -10,-14 C0,-16 0,0 0,0Z"/>
+  <circle class="petal-core" cx="0" cy="0" r="8"/>
+  <circle fill="#e8405a" cx="0" cy="0" r="4"/>
+  <path class="sepal" d="M0,56 C-8,70 -6,88 2,96" stroke-linecap="round"/>
+  <path class="sepal" d="M-24,46 C-34,58 -38,76 -32,90" stroke-linecap="round"/>
+  <path class="sepal" d="M24,36 C36,46 42,64 38,80" stroke-linecap="round"/>
+  <path class="thorn" d="M -10,72 L-18,76 L-10,78 Z"/>
+  <path class="thorn" d="M 10,62 L18,64 L12,70 Z"/>
+</g>
+
+<g opacity="0.6">
+  <circle class="snow1" cx="230" cy="148" r="3"/>
+  <circle class="snow2" cx="410" cy="133" r="2"/>
+  <circle class="snow1" cx="460" cy="188" r="2.5"/>
+  <circle class="snow2" cx="200" cy="308" r="2"/>
+  <circle class="snow1" cx="480" cy="338" r="1.5"/>
+  <circle class="snow2" cx="250" cy="378" r="2"/>
+  <circle class="snow1" cx="430" cy="368" r="2.5"/>
+  <circle class="snow2" cx="180" cy="228" r="1.5"/>
+</g>
+
+<polygon class="star" points="340,73 343,82 352,82 345,88 347,98 340,92 333,98 335,88 328,82 337,82"/>
+<polygon class="star" points="174,162 176,168 182,168 177,172 179,178 174,174 169,178 171,172 166,168 172,168"/>
+<polygon class="star" points="506,162 508,168 514,168 509,172 511,178 506,174 501,178 503,172 498,168 504,168"/>
+
+<text class="text-name" x="340" y="478" text-anchor="middle">rosebot</text>
+</svg>

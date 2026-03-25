@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.0.3</version>
+        <version>3.5.11</version>
         <relativePath/>
     </parent>
 
@@ -18,7 +18,7 @@
     <name>rosebot</name>
 
     <modules>
-        <module>rosebot-frontend</module>
+        <module>rosebot-web-app</module>
         <module>rosebot-api</module>
     </modules>
 
@@ -58,7 +58,7 @@
             </dependency>
             <dependency>
                 <groupId>com.github.cenkakin</groupId>
-                <artifactId>rosebot-frontend</artifactId>
+                <artifactId>rosebot-web-app</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>

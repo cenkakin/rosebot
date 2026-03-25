@@ -25,7 +25,6 @@ import org.springframework.security.crypto.password.PasswordEncoder
 @Configuration
 @EnableConfigurationProperties(JwtProperties::class)
 class RosebotApiConfig {
-
     @Bean
     fun jwtService(props: JwtProperties) = JwtService(props)
 
@@ -43,12 +42,16 @@ class RosebotApiConfig {
     fun sourceService(dsl: DSLContext) = SourceService(SourceRepository(dsl))
 
     @Bean
-    fun feedService(dsl: DSLContext, objectMapper: ObjectMapper) =
-        FeedService(FeedItemRepository(dsl), objectMapper)
+    fun feedService(
+        dsl: DSLContext,
+        objectMapper: ObjectMapper,
+    ) = FeedService(FeedItemRepository(dsl), objectMapper)
 
     @Bean
-    fun savedItemService(dsl: DSLContext, objectMapper: ObjectMapper) =
-        SavedItemService(SavedItemRepository(dsl), objectMapper)
+    fun savedItemService(
+        dsl: DSLContext,
+        objectMapper: ObjectMapper,
+    ) = SavedItemService(SavedItemRepository(dsl), objectMapper)
 
     @Bean
     fun appStateService(dsl: DSLContext) = AppStateService(AppStateRepository(dsl))

@@ -3,6 +3,8 @@ package com.github.cenkakin.rosebot.saved
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.cenkakin.rosebot.feed.dto.FeedItemResponse
+import com.github.cenkakin.rosebot.source.SourceType
+import com.github.cenkakin.rosebot.source.dto.SourceResponse
 import jooq.Tables.FEED_ITEM
 import jooq.Tables.SOURCE
 import org.jooq.Record
@@ -16,10 +18,25 @@ class SavedItemService(
         userId: Long,
         before: String?,
         limit: Int,
+        sourceId: Long?,
+        type: String?,
     ): List<FeedItemResponse> {
         val beforeDt = before?.let { OffsetDateTime.parse(it) }
-        return savedItemRepository.findByUser(userId, beforeDt, limit).map { it.toResponse() }
+        val sourceType = type?.let { SourceType.valueOf(it) }
+        return savedItemRepository.findByUser(userId, beforeDt, limit, sourceId, sourceType).map { it.toFeedResponse() }
     }
+
+    fun getSavedSources(userId: Long): List<SourceResponse> =
+        savedItemRepository.findSourcesByUser(userId).map { record ->
+            SourceResponse(
+                id = record.get(SOURCE.ID)!!,
+                type = record.get(SOURCE.TYPE)!!.literal,
+                name = record.get(SOURCE.NAME)!!,
+                url = record.get(SOURCE.URL)!!,
+                enabled = record.get(SOURCE.ENABLED)!!,
+                createdAt = record.get(SOURCE.CREATED_AT)!!.toInstant().toString(),
+            )
+        }
 
     fun save(
         userId: Long,
@@ -35,7 +52,7 @@ class SavedItemService(
         }
     }
 
-    private fun Record.toResponse(): FeedItemResponse {
+    private fun Record.toFeedResponse(): FeedItemResponse {
         val engagement =
             get(FEED_ITEM.ENGAGEMENT)
                 ?.let { objectMapper.readValue<Map<String, Any>>(it.data()) }
