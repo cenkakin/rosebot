@@ -1,18 +1,16 @@
 package com.github.cenkakin.rosebot.saved
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.cenkakin.rosebot.feed.dto.FeedItemResponse
+import com.github.cenkakin.rosebot.feed.toFeedItemResponse
 import com.github.cenkakin.rosebot.source.SourceType
 import com.github.cenkakin.rosebot.source.dto.SourceResponse
-import jooq.Tables.FEED_ITEM
+import jooq.Tables.SAVED_ITEM
 import jooq.Tables.SOURCE
 import org.jooq.Record
 import java.time.OffsetDateTime
 
 class SavedItemService(
     private val savedItemRepository: SavedItemRepository,
-    private val objectMapper: ObjectMapper,
 ) {
     fun getSaved(
         userId: Long,
@@ -23,7 +21,7 @@ class SavedItemService(
     ): List<FeedItemResponse> {
         val beforeDt = before?.let { OffsetDateTime.parse(it) }
         val sourceType = type?.let { SourceType.valueOf(it) }
-        return savedItemRepository.findByUser(userId, beforeDt, limit, sourceId, sourceType).map { it.toFeedResponse() }
+        return savedItemRepository.findByUser(userId, beforeDt, limit, sourceId, sourceType).map { it.toResponse() }
     }
 
     fun getSavedSources(userId: Long): List<SourceResponse> =
@@ -52,23 +50,9 @@ class SavedItemService(
         }
     }
 
-    private fun Record.toFeedResponse(): FeedItemResponse {
-        val engagement =
-            get(FEED_ITEM.ENGAGEMENT)
-                ?.let { objectMapper.readValue<Map<String, Any>>(it.data()) }
-        return FeedItemResponse(
-            id = get(FEED_ITEM.ID)!!,
-            sourceId = get(FEED_ITEM.SOURCE_ID)!!,
-            sourceType = get(SOURCE.TYPE)!!.literal,
-            sourceName = get(SOURCE.NAME)!!,
-            title = get(FEED_ITEM.TITLE)!!,
-            content = get(FEED_ITEM.CONTENT),
-            url = get(FEED_ITEM.URL)!!,
-            thumbnailUrl = get(FEED_ITEM.THUMBNAIL_URL),
-            author = get(FEED_ITEM.AUTHOR),
-            engagement = engagement,
-            publishedAt = get(FEED_ITEM.PUBLISHED_AT)!!.toInstant().toString(),
+    private fun Record.toResponse(): FeedItemResponse =
+        toFeedItemResponse(
             saved = true,
+            savedAt = get(SAVED_ITEM.SAVED_AT)!!.toInstant().toString(),
         )
-    }
 }

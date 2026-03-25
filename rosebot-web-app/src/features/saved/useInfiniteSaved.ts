@@ -18,6 +18,6 @@ export function useInfiniteSaved({ type, sourceId }: SavedFilters) {
       }),
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (lastPage) =>
-      lastPage.length < 20 ? undefined : lastPage[lastPage.length - 1].publishedAt,
+      lastPage.length < 20 ? undefined : lastPage[lastPage.length - 1].savedAt,
   })
 }

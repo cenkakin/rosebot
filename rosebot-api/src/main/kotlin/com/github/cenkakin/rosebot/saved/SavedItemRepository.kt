@@ -1,6 +1,7 @@
 package com.github.cenkakin.rosebot.saved
 
 import com.github.cenkakin.rosebot.source.SourceType
+import com.github.cenkakin.rosebot.source.toJooqEnum
 import jooq.Tables.FEED_ITEM
 import jooq.Tables.SAVED_ITEM
 import jooq.Tables.SOURCE
@@ -25,6 +26,7 @@ class SavedItemRepository(
                 SOURCE.TYPE,
                 SOURCE.NAME,
                 DSL.inline(true).`as`("saved"),
+                SAVED_ITEM.SAVED_AT,
             ).from(SAVED_ITEM)
             .join(FEED_ITEM)
             .on(FEED_ITEM.ID.eq(SAVED_ITEM.FEED_ITEM_ID))
@@ -71,6 +73,4 @@ class SavedItemRepository(
                     .eq(userId)
                     .and(SAVED_ITEM.FEED_ITEM_ID.eq(feedItemId)),
             ).execute() > 0
-
-    private fun SourceType.toJooqEnum(): jooq.enums.SourceType = jooq.enums.SourceType.valueOf(name)
 }

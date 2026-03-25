@@ -109,7 +109,7 @@ export function Sidebar() {
       <List disablePadding>
         <ListItemButton
           selected={isFeedActive}
-          onClick={() => { navigate('/'); setSearchParams({}) }}
+          onClick={() => navigate('/')}
           sx={{ px: 2.5, py: 1, gap: 1.25, borderBottom: '1px solid #f0f0f0', fontWeight: 600 }}
         >
           <HomeIcon fontSize="small" sx={{ color: isFeedActive ? 'primary.main' : '#9e9e9e' }} />

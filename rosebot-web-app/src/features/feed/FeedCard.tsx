@@ -84,9 +84,16 @@ export function FeedCard({ item, isActive, onSummaryClick, onSaveToggle }: Props
           <Typography variant="caption" color="text.secondary" fontWeight={500}>
             {item.sourceName}
           </Typography>
-          <Typography variant="caption" sx={{ color: '#bdbdbd', ml: 'auto' }}>
-            {relativeTime(item.publishedAt)}
-          </Typography>
+          <Box sx={{ ml: 'auto', textAlign: 'right' }}>
+            <Typography variant="caption" sx={{ color: '#bdbdbd', display: 'block' }}>
+              {relativeTime(item.publishedAt)}
+            </Typography>
+            {item.savedAt && (
+              <Typography variant="caption" sx={{ color: '#c62828', opacity: 0.7, display: 'block' }}>
+                Saved {relativeTime(item.savedAt)}
+              </Typography>
+            )}
+          </Box>
           <IconButton
             size="small"
             onClick={() => onSaveToggle(item.id, item.saved)}

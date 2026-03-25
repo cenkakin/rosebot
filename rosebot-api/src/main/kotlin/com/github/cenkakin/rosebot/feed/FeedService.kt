@@ -1,17 +1,12 @@
 package com.github.cenkakin.rosebot.feed
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.cenkakin.rosebot.feed.dto.FeedItemResponse
 import com.github.cenkakin.rosebot.source.SourceType
-import jooq.Tables.FEED_ITEM
-import jooq.Tables.SOURCE
 import org.jooq.Record
 import java.time.OffsetDateTime
 
 class FeedService(
     private val feedItemRepository: FeedItemRepository,
-    private val objectMapper: ObjectMapper,
 ) {
     fun getFeed(
         userId: Long,
@@ -34,23 +29,9 @@ class FeedService(
         feedItemRepository.findByIdForUser(userId, id)?.toResponse()
             ?: throw NoSuchElementException("Feed item $id not found")
 
-    private fun Record.toResponse(): FeedItemResponse {
-        val engagement =
-            get(FEED_ITEM.ENGAGEMENT)
-                ?.let { objectMapper.readValue<Map<String, Any>>(it.data()) }
-        return FeedItemResponse(
-            id = get(FEED_ITEM.ID)!!,
-            sourceId = get(FEED_ITEM.SOURCE_ID)!!,
-            sourceType = get(SOURCE.TYPE)!!.literal,
-            sourceName = get(SOURCE.NAME)!!,
-            title = get(FEED_ITEM.TITLE)!!,
-            content = get(FEED_ITEM.CONTENT),
-            url = get(FEED_ITEM.URL)!!,
-            thumbnailUrl = get(FEED_ITEM.THUMBNAIL_URL),
-            author = get(FEED_ITEM.AUTHOR),
-            engagement = engagement,
-            publishedAt = get(FEED_ITEM.PUBLISHED_AT)!!.toInstant().toString(),
+    private fun Record.toResponse(): FeedItemResponse =
+        toFeedItemResponse(
             saved = get("saved", Boolean::class.java) ?: false,
+            savedAt = null,
         )
-    }
 }

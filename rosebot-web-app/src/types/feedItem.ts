@@ -11,4 +11,5 @@ export interface FeedItemResponse {
   engagement: Record<string, unknown> | null
   publishedAt: string
   saved: boolean
+  savedAt?: string
 }

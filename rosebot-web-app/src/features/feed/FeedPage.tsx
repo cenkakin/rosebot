@@ -81,7 +81,11 @@ export function FeedPage() {
     onError: (_err, _vars, context) => {
       if (context) queryClient.setQueryData(context.queryKey, context.snapshot)
     },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: ['feed'] }),
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['feed'] })
+      queryClient.removeQueries({ queryKey: ['saved'] })
+      queryClient.removeQueries({ queryKey: ['saved-sources'] })
+    },
   })
 
   // Group items by time bucket

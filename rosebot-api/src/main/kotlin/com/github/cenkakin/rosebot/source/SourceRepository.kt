@@ -35,6 +35,4 @@ class SourceRepository(
             .fetchOne()
 
     fun delete(id: Long): Boolean = dsl.deleteFrom(SOURCE).where(SOURCE.ID.eq(id)).execute() > 0
-
-    private fun SourceType.toJooqEnum(): jooq.enums.SourceType = jooq.enums.SourceType.valueOf(name)
 }

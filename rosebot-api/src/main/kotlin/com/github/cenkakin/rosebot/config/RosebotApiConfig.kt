@@ -1,6 +1,5 @@
 package com.github.cenkakin.rosebot.config
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.cenkakin.rosebot.appstate.AppStateRepository
 import com.github.cenkakin.rosebot.appstate.AppStateService
 import com.github.cenkakin.rosebot.auth.AuthService
@@ -42,16 +41,10 @@ class RosebotApiConfig {
     fun sourceService(dsl: DSLContext) = SourceService(SourceRepository(dsl))
 
     @Bean
-    fun feedService(
-        dsl: DSLContext,
-        objectMapper: ObjectMapper,
-    ) = FeedService(FeedItemRepository(dsl), objectMapper)
+    fun feedService(dsl: DSLContext) = FeedService(FeedItemRepository(dsl))
 
     @Bean
-    fun savedItemService(
-        dsl: DSLContext,
-        objectMapper: ObjectMapper,
-    ) = SavedItemService(SavedItemRepository(dsl), objectMapper)
+    fun savedItemService(dsl: DSLContext) = SavedItemService(SavedItemRepository(dsl))
 
     @Bean
     fun appStateService(dsl: DSLContext) = AppStateService(AppStateRepository(dsl))
