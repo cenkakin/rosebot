@@ -1,4 +1,4 @@
-import { Box, Button, Skeleton, Typography } from '@mui/material'
+import { Box, Button, Drawer, Skeleton, Typography, useMediaQuery, useTheme } from '@mui/material'
 import type { FeedItemResponse } from '../../types/feedItem'
 import { useSummary } from './useSummary'
 import { SOURCE_COLORS } from '../../theme'
@@ -9,30 +9,13 @@ interface Props {
   onClose: () => void
 }
 
-export function SummaryPanel({ itemId, item, onClose }: Props) {
-  const { data: summary, isLoading, isError } = useSummary(itemId)
+function PanelContent({ item, onClose }: { item: FeedItemResponse | null; itemId: number | null; onClose: () => void }) {
+  const { data: summary, isLoading, isError } = useSummary(item?.id ?? null)
 
   return (
-    <Box
-      sx={{
-        width: 360,
-        flexShrink: 0,
-        bgcolor: '#fff',
-        borderLeft: '1px solid #e0e0e0',
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden',
-        transform: itemId ? 'translateX(0)' : 'translateX(100%)',
-        transition: 'transform .3s ease',
-        position: 'absolute',
-        right: 0,
-        top: 0,
-        bottom: 0,
-        boxShadow: '-4px 0 16px rgba(0,0,0,.08)',
-      }}
-    >
+    <>
       {/* Header */}
-      <Box sx={{ p: '16px 18px 14px', borderBottom: '1px solid #f0f0f0', flexShrink: 0 }}>
+      <Box sx={{ p: '16px 18px 14px', borderBottom: '1px solid #f0e8e4', flexShrink: 0 }}>
         <Box display="flex" alignItems="center" justifyContent="space-between" mb={0.75}>
           {item && (
             <Box
@@ -101,7 +84,7 @@ export function SummaryPanel({ itemId, item, onClose }: Props) {
 
       {/* Footer */}
       {item && (
-        <Box sx={{ p: '14px 18px', borderTop: '1px solid #f0f0f0', flexShrink: 0 }}>
+        <Box sx={{ p: '14px 18px', borderTop: '1px solid #f0e8e4', flexShrink: 0 }}>
           <Button
             component="a"
             href={item.url}
@@ -115,6 +98,47 @@ export function SummaryPanel({ itemId, item, onClose }: Props) {
           </Button>
         </Box>
       )}
+    </>
+  )
+}
+
+export function SummaryPanel({ itemId, item, onClose }: Props) {
+  const muiTheme = useTheme()
+  const isMobile = useMediaQuery(muiTheme.breakpoints.down('sm'))
+
+  if (isMobile) {
+    return (
+      <Drawer
+        anchor="bottom"
+        open={!!itemId}
+        onClose={onClose}
+        sx={{ '& .MuiDrawer-paper': { maxHeight: '60vh', display: 'flex', flexDirection: 'column', borderRadius: '12px 12px 0 0' } }}
+      >
+        <PanelContent itemId={itemId} item={item} onClose={onClose} />
+      </Drawer>
+    )
+  }
+
+  return (
+    <Box
+      sx={{
+        width: 360,
+        flexShrink: 0,
+        bgcolor: '#fff',
+        borderLeft: `1px solid #eeddd5`,
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+        transform: itemId ? 'translateX(0)' : 'translateX(100%)',
+        transition: 'transform .3s ease',
+        position: 'absolute',
+        right: 0,
+        top: 0,
+        bottom: 0,
+        boxShadow: '-4px 0 16px rgba(0,0,0,.08)',
+      }}
+    >
+      <PanelContent itemId={itemId} item={item} onClose={onClose} />
     </Box>
   )
 }

@@ -12,4 +12,12 @@ class SummaryRepository(
             .selectFrom(SUMMARY)
             .where(SUMMARY.FEED_ITEM_ID.eq(feedItemId))
             .fetchOne()
+
+    fun findByFeedItemIds(ids: List<Long>): List<SummaryRecord> {
+        if (ids.isEmpty()) return emptyList()
+        return dsl
+            .selectFrom(SUMMARY)
+            .where(SUMMARY.FEED_ITEM_ID.`in`(ids))
+            .fetch()
+    }
 }

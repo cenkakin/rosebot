@@ -1,12 +1,20 @@
 import HomeIcon from '@mui/icons-material/Home'
 import StarIcon from '@mui/icons-material/Star'
-import { Box, Chip, Divider, List, ListItemButton, ListItemText, Typography } from '@mui/material'
+import { Box, Chip, Divider, Drawer, List, ListItemButton, ListItemText, Typography } from '@mui/material'
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate, useLocation, useSearchParams } from 'react-router'
 import { getSources } from '../../api/sources'
 import { getSavedSources } from '../../api/saved'
 import type { SourceResponse } from '../../types/source'
-import { SOURCE_COLORS } from '../../theme'
+import { BRAND, SOURCE_COLORS } from '../../theme'
+
+const SIDEBAR_WIDTH = 220
+
+interface Props {
+  mobileOpen: boolean
+  onMobileClose: () => void
+  isDesktop: boolean
+}
 
 function SourceDot({ type }: { type: SourceResponse['type'] }) {
   return (
@@ -24,7 +32,7 @@ function SourceDot({ type }: { type: SourceResponse['type'] }) {
   )
 }
 
-export function Sidebar() {
+function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const navigate = useNavigate()
   const location = useLocation()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -37,7 +45,7 @@ export function Sidebar() {
   const { data: sources = [], isError: sourcesError } = useQuery({
     queryKey: ['sources'],
     queryFn: getSources,
-    staleTime: Infinity,
+    staleTime: 5 * 60 * 1000,
   })
 
   const { data: savedSources = [] } = useQuery({
@@ -51,10 +59,21 @@ export function Sidebar() {
 
   const setFilter = (params: { type?: string; sourceId?: string }) => {
     setSearchParams(params as Record<string, string>)
+    onNavigate?.()
+  }
+
+  const handleNavigate = (path: string) => {
+    navigate(path)
+    onNavigate?.()
   }
 
   const byType = (type: SourceResponse['type']) =>
     visibleSources.filter((s) => s.type === type && s.enabled)
+
+  const activeItemSx = {
+    bgcolor: '#fde8e0 !important',
+    color: BRAND.accent,
+  }
 
   const renderSection = (type: SourceResponse['type']) => {
     const items = byType(type)
@@ -66,14 +85,14 @@ export function Sidebar() {
       <Box key={type}>
         <Typography
           variant="caption"
-          sx={{ px: 2.5, py: 0.5, display: 'block', color: '#9e9e9e', fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase' }}
+          sx={{ px: 2.5, py: 0.5, display: 'block', color: BRAND.mutedText, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase' }}
         >
           {colors.label}
         </Typography>
         <ListItemButton
           selected={allActive}
           onClick={() => setFilter({ type })}
-          sx={{ px: 2.5, py: 0.75, gap: 1.25 }}
+          sx={{ px: 2.5, py: 0.75, gap: 1.25, color: BRAND.sidebarText, '&.Mui-selected': activeItemSx, '&:hover': { bgcolor: 'rgba(198,40,40,0.05)' } }}
         >
           <SourceDot type={type} />
           <ListItemText primary={`All ${colors.label}`} primaryTypographyProps={{ fontSize: 13.5 }} />
@@ -83,29 +102,19 @@ export function Sidebar() {
             key={source.id}
             selected={activeSourceId === String(source.id)}
             onClick={() => setFilter({ sourceId: String(source.id) })}
-            sx={{ px: 2.5, py: 0.75, gap: 1.25 }}
+            sx={{ px: 2.5, py: 0.75, gap: 1.25, color: BRAND.sidebarText, '&.Mui-selected': activeItemSx, '&:hover': { bgcolor: 'rgba(198,40,40,0.05)' } }}
           >
             <SourceDot type={source.type} />
             <ListItemText primary={source.name} primaryTypographyProps={{ fontSize: 13.5 }} />
           </ListItemButton>
         ))}
-        <Divider sx={{ my: 1 }} />
+        <Divider sx={{ my: 1, borderColor: BRAND.border }} />
       </Box>
     )
   }
 
   return (
-    <Box
-      component="nav"
-      sx={{
-        width: 220,
-        flexShrink: 0,
-        bgcolor: '#fff',
-        borderRight: '1px solid #e0e0e0',
-        overflowY: 'auto',
-        py: 2,
-      }}
-    >
+    <Box sx={{ bgcolor: BRAND.bgDeep, height: '100%', overflowY: 'auto', py: 2 }}>
       {sourcesError && !isSavedActive && (
         <Typography variant="caption" sx={{ px: 2.5, py: 1, display: 'block', color: 'error.main' }}>
           Failed to load sources
@@ -114,24 +123,46 @@ export function Sidebar() {
       <List disablePadding>
         <ListItemButton
           selected={isFeedActive}
-          onClick={() => navigate('/')}
-          sx={{ px: 2.5, py: 1, gap: 1.25, borderBottom: '1px solid #f0f0f0', fontWeight: 600 }}
+          onClick={() => handleNavigate('/')}
+          sx={{ px: 2.5, py: 1, gap: 1.25, borderBottom: `1px solid ${BRAND.border}`, color: BRAND.sidebarText, '&.Mui-selected': activeItemSx, '&:hover': { bgcolor: 'rgba(198,40,40,0.05)' } }}
         >
-          <HomeIcon fontSize="small" sx={{ color: isFeedActive ? 'primary.main' : '#9e9e9e' }} />
+          <HomeIcon fontSize="small" sx={{ color: isFeedActive ? BRAND.accent : BRAND.mutedText }} />
           <ListItemText primary="Feed" primaryTypographyProps={{ fontSize: 13.5, fontWeight: 600 }} />
         </ListItemButton>
         <ListItemButton
           selected={isSavedActive}
-          onClick={() => navigate('/saved')}
-          sx={{ px: 2.5, py: 1, gap: 1.25, mb: 1, borderBottom: '1px solid #f0f0f0', fontWeight: 600 }}
+          onClick={() => handleNavigate('/saved')}
+          sx={{ px: 2.5, py: 1, gap: 1.25, mb: 1, borderBottom: `1px solid ${BRAND.border}`, color: BRAND.sidebarText, '&.Mui-selected': activeItemSx, '&:hover': { bgcolor: 'rgba(198,40,40,0.05)' } }}
         >
-          <StarIcon fontSize="small" sx={{ color: isSavedActive ? 'primary.main' : '#9e9e9e' }} />
+          <StarIcon fontSize="small" sx={{ color: isSavedActive ? BRAND.accent : BRAND.mutedText }} />
           <ListItemText primary="Saved" primaryTypographyProps={{ fontSize: 13.5, fontWeight: 600 }} />
-          <Chip label="★" size="small" sx={{ bgcolor: '#757575', color: '#fff', height: 20, fontSize: 11, fontWeight: 700 }} />
+          <Chip label="★" size="small" sx={{ bgcolor: BRAND.mutedText, color: '#fff', height: 20, fontSize: 11, fontWeight: 700 }} />
         </ListItemButton>
 
         {(['NEWS', 'REDDIT', 'TWITTER'] as const).map(renderSection)}
       </List>
     </Box>
+  )
+}
+
+export function Sidebar({ mobileOpen, onMobileClose, isDesktop }: Props) {
+  if (isDesktop) {
+    return (
+      <Box component="nav" sx={{ width: SIDEBAR_WIDTH, flexShrink: 0, borderRight: `1px solid ${BRAND.border}` }}>
+        <SidebarContent />
+      </Box>
+    )
+  }
+
+  return (
+    <Drawer
+      variant="temporary"
+      open={mobileOpen}
+      onClose={onMobileClose}
+      ModalProps={{ keepMounted: true }}
+      sx={{ '& .MuiDrawer-paper': { width: SIDEBAR_WIDTH, boxSizing: 'border-box', bgcolor: BRAND.bgDeep, borderRight: `1px solid ${BRAND.border}` } }}
+    >
+      <SidebarContent onNavigate={onMobileClose} />
+    </Drawer>
   )
 }

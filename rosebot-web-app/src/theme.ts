@@ -1,9 +1,38 @@
 import { createTheme } from '@mui/material'
 
+export const BRAND = {
+  // Chrome surfaces
+  bgDark: '#fdf8f4',          // AppBar background
+  bgDeep: '#f5ede6',          // Sidebar background
+  bgPage: '#faf5f0',          // Main content background
+  bgSidebarActive: '#fde8e0', // Sidebar active item
+
+  // Borders
+  border: '#e8ddd5',
+  borderHover: '#c62828',
+  cardBorder: '#eeddd5',
+
+  // Accent
+  accent: '#c62828',
+  accentHover: '#a02020',
+  buttonBg: '#c62828',
+
+  // Text
+  textPrimary: '#2c1810',
+  sidebarText: '#5a3728',
+  mutedText: '#b08070',
+  mutedText2: '#9a7060',
+
+  // Form
+  inputText: '#2c1810',
+  inputBg: '#fdf8f4',
+  inputFocusBorder: '#c62828',
+} as const
+
 export const theme = createTheme({
   palette: {
     primary: { main: '#c62828' },
-    background: { default: '#f5f5f5' },
+    background: { default: '#faf5f0' },
   },
   typography: {
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',

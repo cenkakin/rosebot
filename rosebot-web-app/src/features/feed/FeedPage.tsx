@@ -6,12 +6,13 @@ import { getAppState, markVisited } from '../../api/appState'
 import { saveItem, unsaveItem } from '../../api/saved'
 import type { FeedItemResponse } from '../../types/feedItem'
 import { useInfiniteScroll } from '../../hooks/useInfiniteScroll'
-import { FilterChips } from './FilterChips'
+import { useToast } from '../../hooks/useToast'
 import { NewSinceBanner } from './NewSinceBanner'
 import { TimeDivider } from './TimeDivider'
 import { FeedCard } from './FeedCard'
-import { SummaryPanel } from '../summary/SummaryPanel'
+import { FeedLayout } from './FeedLayout'
 import { useInfiniteFeed } from './useInfiniteFeed'
+import { useSummaryPrefetch } from '../summary/useSummaryPrefetch'
 import { ErrorMessage } from '../../components/ErrorMessage'
 
 type TimeGroup = 'new' | 'today' | 'yesterday' | string   // string = weekday name
@@ -45,6 +46,7 @@ export function FeedPage() {
 
   const [lastVisitedAt, setLastVisitedAt] = useState<string | null>(null)
   const [activePanelId, setActivePanelId] = useState<number | null>(null)
+  const { showToast, ToastSnackbar } = useToast()
 
   const queryClient = useQueryClient()
 
@@ -58,6 +60,7 @@ export function FeedPage() {
 
   const allItems: FeedItemResponse[] = data?.pages.flat() ?? []
 
+  const summaryIds = useSummaryPrefetch(allItems)
   const sentinelRef = useInfiniteScroll(fetchNextPage, !!hasNextPage)
 
   // Save / unsave mutation with optimistic update
@@ -81,6 +84,9 @@ export function FeedPage() {
     },
     onError: (_err, _vars, context) => {
       if (context) queryClient.setQueryData(context.queryKey, context.snapshot)
+    },
+    onSuccess: (_data, { saved }) => {
+      showToast(saved ? 'Removed from saved' : 'Saved')
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['feed'] })
@@ -107,76 +113,56 @@ export function FeedPage() {
 
   const activePanelItem = allItems.find((i) => i.id === activePanelId) ?? null
 
-  const handleSummaryClick = (id: number) => {
-    setActivePanelId((prev) => (prev === id ? null : id))
-  }
-
-  const handleSaveToggle = (id: number, saved: boolean) => {
-    toggleSave.mutate({ id, saved })
-  }
-
   return (
-    <Box sx={{ display: 'flex', flex: 1, overflow: 'hidden', position: 'relative' }}>
-      {/* Feed column */}
-      <Box
-        sx={{
-          flex: 1,
-          overflowY: 'auto',
-          p: '20px 24px',
-          mr: activePanelId ? '360px' : 0,
-          transition: 'margin-right .3s ease',
-        }}
-      >
-        <FilterChips />
+    <FeedLayout
+      activePanelId={activePanelId}
+      activePanelItem={activePanelItem}
+      onPanelClose={() => setActivePanelId(null)}
+    >
+      {lastVisitedAt && newCount > 0 && (
+        <NewSinceBanner count={newCount} lastVisitedAt={lastVisitedAt} />
+      )}
 
-        {lastVisitedAt && newCount > 0 && (
-          <NewSinceBanner count={newCount} lastVisitedAt={lastVisitedAt} />
-        )}
+      {isError && <ErrorMessage message="Failed to load feed." />}
 
-        {isError && <ErrorMessage message="Failed to load feed." />}
+      {isLoading && (
+        <Box display="flex" justifyContent="center" pt={6}>
+          <CircularProgress />
+        </Box>
+      )}
 
-        {isLoading && (
-          <Box display="flex" justifyContent="center" pt={6}>
-            <CircularProgress />
-          </Box>
-        )}
+      {grouped.map(({ key, items }) => (
+        <Box key={key}>
+          <TimeDivider label={groupLabel(key)} />
+          {items.map((item) => (
+            <FeedCard
+              key={item.id}
+              item={item}
+              isActive={activePanelId === item.id}
+              hasSummary={summaryIds.has(item.id)}
+              onSummaryClick={(id) => setActivePanelId((prev) => (prev === id ? null : id))}
+              onSaveToggle={(id, saved) => toggleSave.mutate({ id, saved })}
+            />
+          ))}
+        </Box>
+      ))}
 
-        {grouped.map(({ key, items }) => (
-          <Box key={key}>
-            <TimeDivider label={groupLabel(key)} />
-            {items.map((item) => (
-              <FeedCard
-                key={item.id}
-                item={item}
-                isActive={activePanelId === item.id}
-                onSummaryClick={handleSummaryClick}
-                onSaveToggle={handleSaveToggle}
-              />
-            ))}
-          </Box>
-        ))}
+      {isFetchingNextPage && (
+        <Box display="flex" justifyContent="center" py={3}>
+          <CircularProgress size={24} />
+        </Box>
+      )}
 
-        {isFetchingNextPage && (
-          <Box display="flex" justifyContent="center" py={3}>
-            <CircularProgress size={24} />
-          </Box>
-        )}
+      {allItems.length > 0 && (
+        <Typography variant="caption" color="text.disabled" display="block" textAlign="center" py={3}>
+          {hasNextPage
+            ? `Showing ${allItems.length} items · scroll for more`
+            : `All caught up — ${allItems.length} items`}
+        </Typography>
+      )}
 
-        {!hasNextPage && allItems.length > 0 && (
-          <Typography variant="caption" color="text.secondary" display="block" textAlign="center" py={3}>
-            You're all caught up.
-          </Typography>
-        )}
-
-        <div ref={sentinelRef} />
-      </Box>
-
-      {/* Side panel */}
-      <SummaryPanel
-        itemId={activePanelId}
-        item={activePanelItem}
-        onClose={() => setActivePanelId(null)}
-      />
-    </Box>
+      <div ref={sentinelRef} />
+      {ToastSnackbar}
+    </FeedLayout>
   )
 }

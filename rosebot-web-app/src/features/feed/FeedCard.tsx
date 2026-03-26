@@ -1,22 +1,14 @@
 import { Box, Card, CardContent, Chip, IconButton, Typography } from '@mui/material'
 import type { FeedItemResponse } from '../../types/feedItem'
 import { SOURCE_COLORS } from '../../theme'
+import { relativeTime } from '../../utils/time'
 
 interface Props {
   item: FeedItemResponse
   isActive: boolean
+  hasSummary: boolean
   onSummaryClick: (id: number) => void
   onSaveToggle: (id: number, saved: boolean) => void
-}
-
-function relativeTime(iso: string): string {
-  const diffMs = Date.now() - new Date(iso).getTime()
-  const mins = Math.floor(diffMs / 60_000)
-  if (mins < 60) return `${mins}m ago`
-  const hours = Math.floor(mins / 60)
-  if (hours < 24) return `${hours}h ago`
-  if (hours < 48) return 'Yesterday'
-  return new Date(iso).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
 }
 
 function EngagementMeta({ item }: { item: FeedItemResponse }) {
@@ -46,9 +38,8 @@ function EngagementMeta({ item }: { item: FeedItemResponse }) {
   return null
 }
 
-export function FeedCard({ item, isActive, onSummaryClick, onSaveToggle }: Props) {
+export function FeedCard({ item, isActive, hasSummary, onSummaryClick, onSaveToggle }: Props) {
   const colors = SOURCE_COLORS[item.sourceType]
-  const hasSummary = item.sourceType !== 'TWITTER'
 
   return (
     <Card
@@ -56,10 +47,10 @@ export function FeedCard({ item, isActive, onSummaryClick, onSaveToggle }: Props
       sx={{
         mb: 1.5,
         borderRadius: 2.5,
-        borderColor: isActive ? 'primary.main' : '#e8e8e8',
-        boxShadow: isActive ? '0 3px 12px rgba(198,40,40,.15)' : 'none',
+        borderColor: isActive ? 'primary.main' : '#eeddd5',
+        boxShadow: isActive ? '0 3px 12px rgba(198,40,40,.12)' : 'none',
         transition: 'box-shadow .2s, border-color .2s',
-        '&:hover': { boxShadow: '0 3px 12px rgba(0,0,0,.08)', borderColor: '#d0d0d0' },
+        '&:hover': { boxShadow: '0 3px 12px rgba(44,24,16,.08)', borderColor: '#e0c8c0' },
       }}
     >
       <CardContent sx={{ p: '16px 18px', '&:last-child': { pb: '16px' } }}>
@@ -85,7 +76,7 @@ export function FeedCard({ item, isActive, onSummaryClick, onSaveToggle }: Props
             {item.sourceName}
           </Typography>
           <Box sx={{ ml: 'auto', textAlign: 'right' }}>
-            <Typography variant="caption" sx={{ color: '#bdbdbd', display: 'block' }}>
+            <Typography variant="caption" sx={{ color: '#c0a898', display: 'block' }}>
               {relativeTime(item.publishedAt)}
             </Typography>
             {item.savedAt && (
@@ -97,7 +88,7 @@ export function FeedCard({ item, isActive, onSummaryClick, onSaveToggle }: Props
           <IconButton
             size="small"
             onClick={() => onSaveToggle(item.id, item.saved)}
-            sx={{ color: item.saved ? 'primary.main' : '#bdbdbd', p: 0.25 }}
+            sx={{ color: item.saved ? 'primary.main' : '#c0a898', p: 0.25 }}
           >
             {item.saved ? '★' : '☆'}
           </IconButton>
@@ -115,7 +106,7 @@ export function FeedCard({ item, isActive, onSummaryClick, onSaveToggle }: Props
               fontWeight={600}
               sx={{
                 display: 'block',
-                color: '#212121',
+                color: '#1a1008',
                 textDecoration: 'none',
                 lineHeight: 1.35,
                 mb: 0.75,
@@ -145,7 +136,7 @@ export function FeedCard({ item, isActive, onSummaryClick, onSaveToggle }: Props
           <EngagementMeta item={item} />
           {hasSummary && (
             <Chip
-              label={isActive ? '📋 Summary ✕' : '📋 Summary ▸'}
+              label={isActive ? '📋 AI Summary ✕' : '📋 AI Summary ▸'}
               size="small"
               onClick={() => onSummaryClick(item.id)}
               variant={isActive ? 'filled' : 'outlined'}

@@ -4,12 +4,14 @@ import { TOKEN_STORAGE_KEY } from '../../api/client'
 
 interface AuthContextValue {
   token: string | null
+  isInitializing: boolean
   login: (token: string) => void
   logout: () => void
 }
 
 export const AuthContext = createContext<AuthContextValue>({
   token: null,
+  isInitializing: false,
   login: () => {},
   logout: () => {},
 })
@@ -45,5 +47,5 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setToken(null)
   }
 
-  return <AuthContext value={{ token, login, logout }}>{children}</AuthContext>
+  return <AuthContext value={{ token, isInitializing: false, login, logout }}>{children}</AuthContext>
 }
