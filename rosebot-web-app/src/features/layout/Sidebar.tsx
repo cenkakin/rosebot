@@ -34,7 +34,7 @@ export function Sidebar() {
   const isFeedActive = location.pathname === '/' && !activeType && !activeSourceId
   const isSavedActive = location.pathname === '/saved'
 
-  const { data: sources = [] } = useQuery({
+  const { data: sources = [], isError: sourcesError } = useQuery({
     queryKey: ['sources'],
     queryFn: getSources,
     staleTime: Infinity,
@@ -106,6 +106,11 @@ export function Sidebar() {
         py: 2,
       }}
     >
+      {sourcesError && !isSavedActive && (
+        <Typography variant="caption" sx={{ px: 2.5, py: 1, display: 'block', color: 'error.main' }}>
+          Failed to load sources
+        </Typography>
+      )}
       <List disablePadding>
         <ListItemButton
           selected={isFeedActive}

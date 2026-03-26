@@ -8,6 +8,7 @@ import { useInfiniteScroll } from '../../hooks/useInfiniteScroll'
 import { FeedCard } from '../feed/FeedCard'
 import { SummaryPanel } from '../summary/SummaryPanel'
 import { useInfiniteSaved } from './useInfiniteSaved'
+import { ErrorMessage } from '../../components/ErrorMessage'
 
 export function SavedPage() {
   const [activePanelId, setActivePanelId] = useState<number | null>(null)
@@ -17,7 +18,7 @@ export function SavedPage() {
   const type = searchParams.get('type')
   const sourceId = searchParams.get('sourceId')
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteSaved({ type, sourceId })
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError } = useInfiniteSaved({ type, sourceId })
 
   const allItems: FeedItemResponse[] = data?.pages.flat() ?? []
   const sentinelRef = useInfiniteScroll(fetchNextPage, !!hasNextPage)
@@ -44,6 +45,8 @@ export function SavedPage() {
         <Typography variant="h6" fontWeight={700} mb={2}>
           Saved
         </Typography>
+
+        {isError && <ErrorMessage message="Failed to load saved items." />}
 
         {isLoading && (
           <Box display="flex" justifyContent="center" pt={6}>

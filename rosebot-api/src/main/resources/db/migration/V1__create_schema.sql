@@ -2,7 +2,7 @@ CREATE TYPE source_type AS ENUM ('NEWS', 'REDDIT', 'TWITTER');
 
 CREATE TABLE "user" (
     id            BIGSERIAL PRIMARY KEY,
-    email         TEXT NOT NULL UNIQUE,
+    email         TEXT NOT NULL CONSTRAINT uq_user_email UNIQUE,
     password_hash TEXT NOT NULL,
     created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
 );

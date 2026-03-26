@@ -4,6 +4,7 @@ import com.github.cenkakin.rosebot.source.SourceService
 import com.github.cenkakin.rosebot.source.dto.SourceRequest
 import com.github.cenkakin.rosebot.source.dto.SourceResponse
 import com.github.cenkakin.rosebot.source.dto.UpdateSourceRequest
+import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -26,13 +27,13 @@ class SourceController(
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     fun create(
-        @RequestBody request: SourceRequest,
+        @Valid @RequestBody request: SourceRequest,
     ): SourceResponse = service.create(request)
 
     @PutMapping("/{id}")
     fun update(
         @PathVariable id: Long,
-        @RequestBody request: UpdateSourceRequest,
+        @Valid @RequestBody request: UpdateSourceRequest,
     ): SourceResponse = service.update(id, request)
 
     @DeleteMapping("/{id}")

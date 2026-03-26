@@ -4,6 +4,7 @@ import com.github.cenkakin.rosebot.auth.AuthService
 import com.github.cenkakin.rosebot.auth.dto.AuthResponse
 import com.github.cenkakin.rosebot.auth.dto.LoginRequest
 import com.github.cenkakin.rosebot.auth.dto.RegisterRequest
+import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -19,11 +20,11 @@ class AuthController(
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     fun register(
-        @RequestBody request: RegisterRequest,
+        @Valid @RequestBody request: RegisterRequest,
     ): AuthResponse = authService.register(request)
 
     @PostMapping("/login")
     fun login(
-        @RequestBody request: LoginRequest,
+        @Valid @RequestBody request: LoginRequest,
     ): AuthResponse = authService.login(request)
 }

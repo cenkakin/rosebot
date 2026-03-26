@@ -12,6 +12,7 @@ import { TimeDivider } from './TimeDivider'
 import { FeedCard } from './FeedCard'
 import { SummaryPanel } from '../summary/SummaryPanel'
 import { useInfiniteFeed } from './useInfiniteFeed'
+import { ErrorMessage } from '../../components/ErrorMessage'
 
 type TimeGroup = 'new' | 'today' | 'yesterday' | string   // string = weekday name
 
@@ -53,7 +54,7 @@ export function FeedPage() {
     markVisited()
   }, [])
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteFeed({ type, sourceId })
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError } = useInfiniteFeed({ type, sourceId })
 
   const allItems: FeedItemResponse[] = data?.pages.flat() ?? []
 
@@ -131,6 +132,8 @@ export function FeedPage() {
         {lastVisitedAt && newCount > 0 && (
           <NewSinceBanner count={newCount} lastVisitedAt={lastVisitedAt} />
         )}
+
+        {isError && <ErrorMessage message="Failed to load feed." />}
 
         {isLoading && (
           <Box display="flex" justifyContent="center" pt={6}>
