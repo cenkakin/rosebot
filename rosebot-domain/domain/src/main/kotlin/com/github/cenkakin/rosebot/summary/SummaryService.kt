@@ -15,10 +15,11 @@ class SummaryService(
         summaryRepository
             .findByFeedItemIds(itemIds)
             .associate { record ->
-                record.feedItemId!! to SummaryResponse(
-                    content = record.content!!,
-                    model = record.model!!,
-                    generatedAt = record.generatedAt!!.toInstant().toString(),
-                )
+                record.feedItemId!! to
+                    SummaryResponse(
+                        content = record.content!!,
+                        model = record.model!!,
+                        generatedAt = record.generatedAt!!.toInstant().toString(),
+                    )
             }
 }

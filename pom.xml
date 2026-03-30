@@ -19,6 +19,7 @@
 
     <modules>
         <module>rosebot-web-app</module>
+        <module>rosebot-domain</module>
         <module>rosebot-api</module>
     </modules>
 
@@ -59,6 +60,21 @@
             <dependency>
                 <groupId>com.github.cenkakin</groupId>
                 <artifactId>rosebot-web-app</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.cenkakin</groupId>
+                <artifactId>rosebot-infrastructure</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.cenkakin</groupId>
+                <artifactId>rosebot-domain-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.cenkakin</groupId>
+                <artifactId>rosebot-auth</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>

@@ -12,15 +12,18 @@
 
     <artifactId>rosebot-api</artifactId>
     <name>rosebot-api</name>
+
     <dependencies>
+        <!-- Domain -->
+        <dependency>
+            <groupId>com.github.cenkakin</groupId>
+            <artifactId>rosebot-auth</artifactId>
+        </dependency>
+
         <!-- Spring Boot -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-jooq</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -29,6 +32,10 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
         <!-- Kotlin -->
@@ -41,7 +48,7 @@
             <artifactId>jackson-module-kotlin</artifactId>
         </dependency>
 
-        <!-- Database -->
+        <!-- Database (Flyway runs migrations; SQL files on classpath via rosebot-infrastructure) -->
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
@@ -53,28 +60,6 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-
-        <!-- Spring Security -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
-        </dependency>
-
-        <!-- JWT -->
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-impl</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-jackson</artifactId>
             <scope>runtime</scope>
         </dependency>
 
@@ -159,42 +144,5 @@
             </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>generate-jooq</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.jooq</groupId>
-                        <artifactId>jooq-codegen-maven</artifactId>
-                        <executions>
-                            <execution>
-                                <goals><goal>generate</goal></goals>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <jdbc>
-                                <driver>org.postgresql.Driver</driver>
-                                <url>jdbc:postgresql://localhost:5432/rosebot</url>
-                                <user>rosebot</user>
-                                <password>rosebot</password>
-                            </jdbc>
-                            <generator>
-                                <database>
-                                    <name>org.jooq.meta.postgres.PostgresDatabase</name>
-                                    <inputSchema>public</inputSchema>
-                                </database>
-                                <target>
-                                    <packageName>jooq</packageName>
-                                    <directory>src/main/kotlin</directory>
-                                </target>
-                            </generator>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 
 </project>
