@@ -1,6 +1,7 @@
 import { Box, Button, Drawer, Skeleton, Typography, useMediaQuery, useTheme } from '@mui/material'
 import type { FeedItemResponse } from '../../types/feedItem'
-import { useSummary } from './useSummary'
+import { useContent } from './useContent'
+import { HtmlContent } from '../../components/HtmlContent'
 import { SOURCE_COLORS } from '../../theme'
 
 interface Props {
@@ -9,8 +10,8 @@ interface Props {
   onClose: () => void
 }
 
-function PanelContent({ item, onClose }: { item: FeedItemResponse | null; itemId: number | null; onClose: () => void }) {
-  const { data: summary, isLoading, isError } = useSummary(item?.id ?? null)
+function PanelContent({ item, itemId, onClose }: { item: FeedItemResponse | null; itemId: number | null; onClose: () => void }) {
+  const { data: content, isLoading, isError } = useContent(itemId)
 
   return (
     <>
@@ -60,7 +61,7 @@ function PanelContent({ item, onClose }: { item: FeedItemResponse | null; itemId
           variant="caption"
           sx={{ fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', color: '#9e9e9e', mb: 1, display: 'block' }}
         >
-          Summary
+          Full Content
         </Typography>
         {isLoading && (
           <Box display="flex" flexDirection="column" gap={1}>
@@ -72,14 +73,10 @@ function PanelContent({ item, onClose }: { item: FeedItemResponse | null; itemId
         )}
         {isError && (
           <Typography variant="body2" color="text.secondary">
-            Summary unavailable.
+            Content unavailable.
           </Typography>
         )}
-        {summary && (
-          <Typography variant="body2" sx={{ lineHeight: 1.65, color: '#424242', whiteSpace: 'pre-line' }}>
-            {summary.content}
-          </Typography>
-        )}
+        {content && <HtmlContent html={content.content} />}
       </Box>
 
       {/* Footer */}
@@ -102,7 +99,7 @@ function PanelContent({ item, onClose }: { item: FeedItemResponse | null; itemId
   )
 }
 
-export function SummaryPanel({ itemId, item, onClose }: Props) {
+export function ContentPanel({ itemId, item, onClose }: Props) {
   const muiTheme = useTheme()
   const isMobile = useMediaQuery(muiTheme.breakpoints.down('sm'))
 
@@ -125,7 +122,7 @@ export function SummaryPanel({ itemId, item, onClose }: Props) {
         width: 360,
         flexShrink: 0,
         bgcolor: '#fff',
-        borderLeft: `1px solid #eeddd5`,
+        borderLeft: '1px solid #eeddd5',
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden',

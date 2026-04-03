@@ -5,7 +5,7 @@ export interface FeedItemResponse {
   sourceType: 'NEWS' | 'REDDIT' | 'TWITTER'
   title: string
   url: string
-  content: string | null
+  summary: string | null
   thumbnailUrl: string | null
   author: string | null
   engagement: Record<string, unknown> | null

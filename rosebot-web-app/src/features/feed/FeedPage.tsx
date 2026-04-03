@@ -12,7 +12,7 @@ import { TimeDivider } from './TimeDivider'
 import { FeedCard } from './FeedCard'
 import { FeedLayout } from './FeedLayout'
 import { useInfiniteFeed } from './useInfiniteFeed'
-import { useSummaryPrefetch } from '../summary/useSummaryPrefetch'
+import { useContentPrefetch } from '../content/useContentPrefetch'
 import { ErrorMessage } from '../../components/ErrorMessage'
 
 type TimeGroup = 'new' | 'today' | 'yesterday' | string   // string = weekday name
@@ -60,7 +60,7 @@ export function FeedPage() {
 
   const allItems: FeedItemResponse[] = data?.pages.flat() ?? []
 
-  const summaryIds = useSummaryPrefetch(allItems)
+  const contentIds = useContentPrefetch(allItems)
   const sentinelRef = useInfiniteScroll(fetchNextPage, !!hasNextPage)
 
   // Save / unsave mutation with optimistic update
@@ -139,8 +139,8 @@ export function FeedPage() {
               key={item.id}
               item={item}
               isActive={activePanelId === item.id}
-              hasSummary={summaryIds.has(item.id)}
-              onSummaryClick={(id) => setActivePanelId((prev) => (prev === id ? null : id))}
+              hasContent={contentIds.has(item.id)}
+              onContentClick={(id) => setActivePanelId((prev) => (prev === id ? null : id))}
               onSaveToggle={(id, saved) => toggleSave.mutate({ id, saved })}
             />
           ))}

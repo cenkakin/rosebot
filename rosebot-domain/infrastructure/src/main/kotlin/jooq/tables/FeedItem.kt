@@ -7,14 +7,14 @@ package jooq.tables
 import java.time.OffsetDateTime
 
 import jooq.Public
+import jooq.keys.FEED_ITEM_CONTENT__FEED_ITEM_CONTENT_FEED_ITEM_ID_FKEY
 import jooq.keys.FEED_ITEM_PKEY
 import jooq.keys.FEED_ITEM_SOURCE_ID_EXTERNAL_ID_KEY
 import jooq.keys.FEED_ITEM__FEED_ITEM_SOURCE_ID_FKEY
 import jooq.keys.SAVED_ITEM__SAVED_ITEM_FEED_ITEM_ID_FKEY
-import jooq.keys.SUMMARY__SUMMARY_FEED_ITEM_ID_FKEY
+import jooq.tables.FeedItemContent.FeedItemContentPath
 import jooq.tables.SavedItem.SavedItemPath
 import jooq.tables.Source.SourcePath
-import jooq.tables.Summary.SummaryPath
 import jooq.tables.User.UserPath
 import jooq.tables.records.FeedItemRecord
 
@@ -104,9 +104,9 @@ open class FeedItem(
     val TITLE: TableField<FeedItemRecord, String?> = createField(DSL.name("title"), SQLDataType.CLOB.nullable(false), this, "")
 
     /**
-     * The column <code>public.feed_item.content</code>.
+     * The column <code>public.feed_item.summary</code>.
      */
-    val CONTENT: TableField<FeedItemRecord, String?> = createField(DSL.name("content"), SQLDataType.CLOB, this, "")
+    val SUMMARY: TableField<FeedItemRecord, String?> = createField(DSL.name("summary"), SQLDataType.CLOB, this, "")
 
     /**
      * The column <code>public.feed_item.url</code>.
@@ -195,6 +195,22 @@ open class FeedItem(
     val source: SourcePath
         get(): SourcePath = source()
 
+    private lateinit var _feedItemContent: FeedItemContentPath
+
+    /**
+     * Get the implicit to-many join path to the
+     * <code>public.feed_item_content</code> table
+     */
+    fun feedItemContent(): FeedItemContentPath {
+        if (!this::_feedItemContent.isInitialized)
+            _feedItemContent = FeedItemContentPath(this, null, FEED_ITEM_CONTENT__FEED_ITEM_CONTENT_FEED_ITEM_ID_FKEY.inverseKey)
+
+        return _feedItemContent;
+    }
+
+    val feedItemContent: FeedItemContentPath
+        get(): FeedItemContentPath = feedItemContent()
+
     private lateinit var _savedItem: SavedItemPath
 
     /**
@@ -210,22 +226,6 @@ open class FeedItem(
 
     val savedItem: SavedItemPath
         get(): SavedItemPath = savedItem()
-
-    private lateinit var _summary: SummaryPath
-
-    /**
-     * Get the implicit to-many join path to the <code>public.summary</code>
-     * table
-     */
-    fun summary(): SummaryPath {
-        if (!this::_summary.isInitialized)
-            _summary = SummaryPath(this, null, SUMMARY__SUMMARY_FEED_ITEM_ID_FKEY.inverseKey)
-
-        return _summary;
-    }
-
-    val summary: SummaryPath
-        get(): SummaryPath = summary()
 
     /**
      * Get the implicit many-to-many join path to the <code>public.user</code>

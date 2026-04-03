@@ -6,9 +6,9 @@ package jooq
 
 import jooq.tables.AppState
 import jooq.tables.FeedItem
+import jooq.tables.FeedItemContent
 import jooq.tables.SavedItem
 import jooq.tables.Source
-import jooq.tables.Summary
 import jooq.tables.User
 
 import kotlin.collections.List
@@ -42,6 +42,11 @@ open class Public : SchemaImpl("public", DefaultCatalog.DEFAULT_CATALOG) {
     val FEED_ITEM: FeedItem get() = FeedItem.FEED_ITEM
 
     /**
+     * The table <code>public.feed_item_content</code>.
+     */
+    val FEED_ITEM_CONTENT: FeedItemContent get() = FeedItemContent.FEED_ITEM_CONTENT
+
+    /**
      * The table <code>public.saved_item</code>.
      */
     val SAVED_ITEM: SavedItem get() = SavedItem.SAVED_ITEM
@@ -50,11 +55,6 @@ open class Public : SchemaImpl("public", DefaultCatalog.DEFAULT_CATALOG) {
      * The table <code>public.source</code>.
      */
     val SOURCE: Source get() = Source.SOURCE
-
-    /**
-     * The table <code>public.summary</code>.
-     */
-    val SUMMARY: Summary get() = Summary.SUMMARY
 
     /**
      * The table <code>public.user</code>.
@@ -66,9 +66,9 @@ open class Public : SchemaImpl("public", DefaultCatalog.DEFAULT_CATALOG) {
     override fun getTables(): List<Table<*>> = listOf(
         AppState.APP_STATE,
         FeedItem.FEED_ITEM,
+        FeedItemContent.FEED_ITEM_CONTENT,
         SavedItem.SAVED_ITEM,
         Source.SOURCE,
-        Summary.SUMMARY,
         User.USER
     )
 }

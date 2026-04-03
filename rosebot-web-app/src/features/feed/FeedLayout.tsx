@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { Box } from '@mui/material'
 import type { FeedItemResponse } from '../../types/feedItem'
-import { SummaryPanel } from '../summary/SummaryPanel'
+import { ContentPanel } from '../content/ContentPanel'
 
 interface Props {
   activePanelId: number | null
@@ -24,7 +24,7 @@ export function FeedLayout({ activePanelId, activePanelItem, onPanelClose, child
       >
         {children}
       </Box>
-      <SummaryPanel itemId={activePanelId} item={activePanelItem} onClose={onPanelClose} />
+      <ContentPanel itemId={activePanelId} item={activePanelItem} onClose={onPanelClose} />
     </Box>
   )
 }

@@ -2,12 +2,13 @@ import { Box, Card, CardContent, Chip, IconButton, Typography } from '@mui/mater
 import type { FeedItemResponse } from '../../types/feedItem'
 import { SOURCE_COLORS } from '../../theme'
 import { relativeTime } from '../../utils/time'
+import { stripHtml } from '../../utils/sanitize'
 
 interface Props {
   item: FeedItemResponse
   isActive: boolean
-  hasSummary: boolean
-  onSummaryClick: (id: number) => void
+  hasContent: boolean
+  onContentClick: (id: number) => void
   onSaveToggle: (id: number, saved: boolean) => void
 }
 
@@ -38,7 +39,7 @@ function EngagementMeta({ item }: { item: FeedItemResponse }) {
   return null
 }
 
-export function FeedCard({ item, isActive, hasSummary, onSummaryClick, onSaveToggle }: Props) {
+export function FeedCard({ item, isActive, hasContent, onContentClick, onSaveToggle }: Props) {
   const colors = SOURCE_COLORS[item.sourceType]
 
   return (
@@ -115,9 +116,19 @@ export function FeedCard({ item, isActive, hasSummary, onSummaryClick, onSaveTog
             >
               {item.title}
             </Typography>
-            {item.content && (
-              <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.5 }}>
-                {item.content}
+            {item.summary && (
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{
+                  lineHeight: 1.5,
+                  display: '-webkit-box',
+                  WebkitLineClamp: 3,
+                  WebkitBoxOrient: 'vertical',
+                  overflow: 'hidden',
+                }}
+              >
+                {stripHtml(item.summary)}
               </Typography>
             )}
           </Box>
@@ -134,11 +145,11 @@ export function FeedCard({ item, isActive, hasSummary, onSummaryClick, onSaveTog
         {/* Footer */}
         <Box display="flex" alignItems="center" justifyContent="space-between" mt={1}>
           <EngagementMeta item={item} />
-          {hasSummary && (
+          {hasContent && (
             <Chip
-              label={isActive ? '📋 Summary ✕' : '📋 Summary ▸'}
+              label={isActive ? '📄 Content ✕' : '📄 Content ▸'}
               size="small"
-              onClick={() => onSummaryClick(item.id)}
+              onClick={() => onContentClick(item.id)}
               variant={isActive ? 'filled' : 'outlined'}
               color={isActive ? 'primary' : 'default'}
               sx={{

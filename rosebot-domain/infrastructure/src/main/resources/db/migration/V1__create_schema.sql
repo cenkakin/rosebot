@@ -21,7 +21,7 @@ CREATE TABLE feed_item (
     source_id     BIGINT      NOT NULL REFERENCES source(id) ON DELETE CASCADE,
     external_id   TEXT        NOT NULL,
     title         TEXT        NOT NULL,
-    content       TEXT,
+    summary       TEXT,
     url           TEXT        NOT NULL,
     thumbnail_url TEXT,
     author        TEXT,
@@ -32,19 +32,19 @@ CREATE TABLE feed_item (
     UNIQUE (source_id, external_id)
 );
 
+CREATE TABLE feed_item_content (
+    id           BIGSERIAL PRIMARY KEY,
+    feed_item_id BIGINT NOT NULL UNIQUE REFERENCES feed_item(id) ON DELETE CASCADE,
+    content      TEXT   NOT NULL,
+    ingested_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 CREATE TABLE saved_item (
     id           BIGSERIAL PRIMARY KEY,
     user_id      BIGINT      NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
     feed_item_id BIGINT      NOT NULL REFERENCES feed_item(id) ON DELETE CASCADE,
     saved_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
     UNIQUE (user_id, feed_item_id)
-);
-
-CREATE TABLE summary (
-    id           BIGSERIAL PRIMARY KEY,
-    feed_item_id BIGINT NOT NULL UNIQUE REFERENCES feed_item(id) ON DELETE CASCADE,
-    content      TEXT   NOT NULL,
-    generated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 CREATE TABLE app_state (

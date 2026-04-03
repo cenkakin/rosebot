@@ -19,7 +19,7 @@ class RssConnector : SourceConnector {
             val externalId = entry.uri ?: entry.link ?: return@mapNotNull null
             val publishedAt = (entry.publishedDate ?: entry.updatedDate)?.toInstant() ?: Instant.now()
             val updatedAt = entry.updatedDate?.toInstant()
-            val feedSummary =
+            val summary =
                 entry.description
                     ?.value
                     ?.let { Jsoup.parse(it).text() }
@@ -37,7 +37,7 @@ class RssConnector : SourceConnector {
                 engagement = null,
                 publishedAt = publishedAt,
                 updatedAt = updatedAt,
-                feedSummary = feedSummary,
+                summary = summary,
             )
         }
     }

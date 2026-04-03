@@ -35,7 +35,7 @@ open class FeedItemRecord() : UpdatableRecordImpl<FeedItemRecord>(FeedItem.FEED_
         set(value): Unit = set(3, value)
         get(): String? = get(3) as String?
 
-    open var content: String?
+    open var summary: String?
         set(value): Unit = set(4, value)
         get(): String? = get(4) as String?
 
@@ -76,12 +76,12 @@ open class FeedItemRecord() : UpdatableRecordImpl<FeedItemRecord>(FeedItem.FEED_
     /**
      * Create a detached, initialised FeedItemRecord
      */
-    constructor(id: Long? = null, sourceId: Long? = null, externalId: String? = null, title: String? = null, content: String? = null, url: String? = null, thumbnailUrl: String? = null, author: String? = null, engagement: JSONB? = null, publishedAt: OffsetDateTime? = null, updatedAt: OffsetDateTime? = null, ingestedAt: OffsetDateTime? = null): this() {
+    constructor(id: Long? = null, sourceId: Long? = null, externalId: String? = null, title: String? = null, summary: String? = null, url: String? = null, thumbnailUrl: String? = null, author: String? = null, engagement: JSONB? = null, publishedAt: OffsetDateTime? = null, updatedAt: OffsetDateTime? = null, ingestedAt: OffsetDateTime? = null): this() {
         this.id = id
         this.sourceId = sourceId
         this.externalId = externalId
         this.title = title
-        this.content = content
+        this.summary = summary
         this.url = url
         this.thumbnailUrl = thumbnailUrl
         this.author = author

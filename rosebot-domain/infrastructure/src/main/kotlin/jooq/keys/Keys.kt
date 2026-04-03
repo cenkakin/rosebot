@@ -6,15 +6,15 @@ package jooq.keys
 
 import jooq.tables.AppState
 import jooq.tables.FeedItem
+import jooq.tables.FeedItemContent
 import jooq.tables.SavedItem
 import jooq.tables.Source
-import jooq.tables.Summary
 import jooq.tables.User
 import jooq.tables.records.AppStateRecord
+import jooq.tables.records.FeedItemContentRecord
 import jooq.tables.records.FeedItemRecord
 import jooq.tables.records.SavedItemRecord
 import jooq.tables.records.SourceRecord
-import jooq.tables.records.SummaryRecord
 import jooq.tables.records.UserRecord
 
 import org.jooq.ForeignKey
@@ -32,12 +32,12 @@ val APP_STATE_PKEY: UniqueKey<AppStateRecord> = Internal.createUniqueKey(AppStat
 val APP_STATE_USER_ID_KEY: UniqueKey<AppStateRecord> = Internal.createUniqueKey(AppState.APP_STATE, DSL.name("app_state_user_id_key"), arrayOf(AppState.APP_STATE.USER_ID), true)
 val FEED_ITEM_PKEY: UniqueKey<FeedItemRecord> = Internal.createUniqueKey(FeedItem.FEED_ITEM, DSL.name("feed_item_pkey"), arrayOf(FeedItem.FEED_ITEM.ID), true)
 val FEED_ITEM_SOURCE_ID_EXTERNAL_ID_KEY: UniqueKey<FeedItemRecord> = Internal.createUniqueKey(FeedItem.FEED_ITEM, DSL.name("feed_item_source_id_external_id_key"), arrayOf(FeedItem.FEED_ITEM.SOURCE_ID, FeedItem.FEED_ITEM.EXTERNAL_ID), true)
+val FEED_ITEM_CONTENT_FEED_ITEM_ID_KEY: UniqueKey<FeedItemContentRecord> = Internal.createUniqueKey(FeedItemContent.FEED_ITEM_CONTENT, DSL.name("feed_item_content_feed_item_id_key"), arrayOf(FeedItemContent.FEED_ITEM_CONTENT.FEED_ITEM_ID), true)
+val FEED_ITEM_CONTENT_PKEY: UniqueKey<FeedItemContentRecord> = Internal.createUniqueKey(FeedItemContent.FEED_ITEM_CONTENT, DSL.name("feed_item_content_pkey"), arrayOf(FeedItemContent.FEED_ITEM_CONTENT.ID), true)
 val SAVED_ITEM_PKEY: UniqueKey<SavedItemRecord> = Internal.createUniqueKey(SavedItem.SAVED_ITEM, DSL.name("saved_item_pkey"), arrayOf(SavedItem.SAVED_ITEM.ID), true)
 val SAVED_ITEM_USER_ID_FEED_ITEM_ID_KEY: UniqueKey<SavedItemRecord> = Internal.createUniqueKey(SavedItem.SAVED_ITEM, DSL.name("saved_item_user_id_feed_item_id_key"), arrayOf(SavedItem.SAVED_ITEM.USER_ID, SavedItem.SAVED_ITEM.FEED_ITEM_ID), true)
 val SOURCE_PKEY: UniqueKey<SourceRecord> = Internal.createUniqueKey(Source.SOURCE, DSL.name("source_pkey"), arrayOf(Source.SOURCE.ID), true)
 val SOURCE_URL_KEY: UniqueKey<SourceRecord> = Internal.createUniqueKey(Source.SOURCE, DSL.name("source_url_key"), arrayOf(Source.SOURCE.URL), true)
-val SUMMARY_FEED_ITEM_ID_KEY: UniqueKey<SummaryRecord> = Internal.createUniqueKey(Summary.SUMMARY, DSL.name("summary_feed_item_id_key"), arrayOf(Summary.SUMMARY.FEED_ITEM_ID), true)
-val SUMMARY_PKEY: UniqueKey<SummaryRecord> = Internal.createUniqueKey(Summary.SUMMARY, DSL.name("summary_pkey"), arrayOf(Summary.SUMMARY.ID), true)
 val UQ_USER_EMAIL: UniqueKey<UserRecord> = Internal.createUniqueKey(User.USER, DSL.name("uq_user_email"), arrayOf(User.USER.EMAIL), true)
 val USER_PKEY: UniqueKey<UserRecord> = Internal.createUniqueKey(User.USER, DSL.name("user_pkey"), arrayOf(User.USER.ID), true)
 
@@ -47,6 +47,6 @@ val USER_PKEY: UniqueKey<UserRecord> = Internal.createUniqueKey(User.USER, DSL.n
 
 val APP_STATE__APP_STATE_USER_ID_FKEY: ForeignKey<AppStateRecord, UserRecord> = Internal.createForeignKey(AppState.APP_STATE, DSL.name("app_state_user_id_fkey"), arrayOf(AppState.APP_STATE.USER_ID), jooq.keys.USER_PKEY, arrayOf(User.USER.ID), true)
 val FEED_ITEM__FEED_ITEM_SOURCE_ID_FKEY: ForeignKey<FeedItemRecord, SourceRecord> = Internal.createForeignKey(FeedItem.FEED_ITEM, DSL.name("feed_item_source_id_fkey"), arrayOf(FeedItem.FEED_ITEM.SOURCE_ID), jooq.keys.SOURCE_PKEY, arrayOf(Source.SOURCE.ID), true)
+val FEED_ITEM_CONTENT__FEED_ITEM_CONTENT_FEED_ITEM_ID_FKEY: ForeignKey<FeedItemContentRecord, FeedItemRecord> = Internal.createForeignKey(FeedItemContent.FEED_ITEM_CONTENT, DSL.name("feed_item_content_feed_item_id_fkey"), arrayOf(FeedItemContent.FEED_ITEM_CONTENT.FEED_ITEM_ID), jooq.keys.FEED_ITEM_PKEY, arrayOf(FeedItem.FEED_ITEM.ID), true)
 val SAVED_ITEM__SAVED_ITEM_FEED_ITEM_ID_FKEY: ForeignKey<SavedItemRecord, FeedItemRecord> = Internal.createForeignKey(SavedItem.SAVED_ITEM, DSL.name("saved_item_feed_item_id_fkey"), arrayOf(SavedItem.SAVED_ITEM.FEED_ITEM_ID), jooq.keys.FEED_ITEM_PKEY, arrayOf(FeedItem.FEED_ITEM.ID), true)
 val SAVED_ITEM__SAVED_ITEM_USER_ID_FKEY: ForeignKey<SavedItemRecord, UserRecord> = Internal.createForeignKey(SavedItem.SAVED_ITEM, DSL.name("saved_item_user_id_fkey"), arrayOf(SavedItem.SAVED_ITEM.USER_ID), jooq.keys.USER_PKEY, arrayOf(User.USER.ID), true)
-val SUMMARY__SUMMARY_FEED_ITEM_ID_FKEY: ForeignKey<SummaryRecord, FeedItemRecord> = Internal.createForeignKey(Summary.SUMMARY, DSL.name("summary_feed_item_id_fkey"), arrayOf(Summary.SUMMARY.FEED_ITEM_ID), jooq.keys.FEED_ITEM_PKEY, arrayOf(FeedItem.FEED_ITEM.ID), true)

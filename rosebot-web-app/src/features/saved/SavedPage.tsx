@@ -10,7 +10,7 @@ import { FeedCard } from '../feed/FeedCard'
 import rosebotLogo from '../../assets/rosebot-logo.svg'
 import { FeedLayout } from '../feed/FeedLayout'
 import { useInfiniteSaved } from './useInfiniteSaved'
-import { useSummaryPrefetch } from '../summary/useSummaryPrefetch'
+import { useContentPrefetch } from '../content/useContentPrefetch'
 import { ErrorMessage } from '../../components/ErrorMessage'
 
 export function SavedPage() {
@@ -25,7 +25,7 @@ export function SavedPage() {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError } = useInfiniteSaved({ type, sourceId })
 
   const allItems: FeedItemResponse[] = data?.pages.flat() ?? []
-  const summaryIds = useSummaryPrefetch(allItems)
+  const contentIds = useContentPrefetch(allItems)
   const sentinelRef = useInfiniteScroll(fetchNextPage, !!hasNextPage)
 
   const toggleSave = useMutation({
@@ -62,8 +62,8 @@ export function SavedPage() {
           key={item.id}
           item={item}
           isActive={activePanelId === item.id}
-          hasSummary={summaryIds.has(item.id)}
-          onSummaryClick={(id) => setActivePanelId((prev) => (prev === id ? null : id))}
+          hasContent={contentIds.has(item.id)}
+          onContentClick={(id) => setActivePanelId((prev) => (prev === id ? null : id))}
           onSaveToggle={(id, saved) => toggleSave.mutate({ id, saved })}
         />
       ))}

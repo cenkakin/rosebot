@@ -27,7 +27,7 @@ INSERT INTO source (type, name, url) VALUES
 -- Times are relative to migration run so the "New / Earlier Today / Yesterday"
 -- grouping in the UI works out of the box.
 
-INSERT INTO feed_item (source_id, external_id, title, content, url, thumbnail_url, author, engagement, published_at) VALUES
+INSERT INTO feed_item (source_id, external_id, title, summary, url, thumbnail_url, author, engagement, published_at) VALUES
 
     -- ── New (within last 4 hours) ────────────────────────────────────────────
 
@@ -174,6 +174,84 @@ INSERT INTO feed_item (source_id, external_id, title, content, url, thumbnail_ur
     );
 
 
+-- ── Feed Item Content ─────────────────────────────────────────────────────────
+-- Full article content for non-Twitter items (Twitter items have no scraped content)
+
+INSERT INTO feed_item_content (feed_item_id, content) VALUES
+    (
+        (SELECT id FROM feed_item WHERE external_id = 'verge-gpt5-001'),
+        '<p>GPT-5 introduces a dedicated "chain-of-thought" API mode that exposes intermediate reasoning steps to developers. The model scores 94% on the MATH benchmark and 87% on competitive coding tasks — both records.</p>
+<p>Access rolls out in two phases: Plus subscribers get it next week, API access follows in 30 days. Pricing is unchanged from GPT-4. OpenAI also announced a new fine-tuning pipeline optimised for reasoning tasks.</p>
+<h3>What changes for developers</h3>
+<p>The new <code>reasoning_effort</code> parameter lets callers trade cost for depth. Setting it to <code>high</code> enables full chain-of-thought; <code>low</code> matches GPT-4 behaviour at the same price point.</p>'
+    ),
+    (
+        (SELECT id FROM feed_item WHERE external_id = 'reddit-tech-stack-2026'),
+        '<p>Top comment threads converge on a few themes: Spring Boot + React remains the default enterprise choice, largely due to hiring and tooling maturity. Rust is seeing strong growth in systems and infra work but is still niche for product teams.</p>
+<p>Surprising finding: a large cohort still maintains Vue 2 in production. Go continues to dominate for new backend services at mid-sized companies. Several comments call out Kotlin Multiplatform gaining traction for shared business logic.</p>
+<h3>Top voted comment</h3>
+<blockquote>We tried to migrate off Spring Boot twice. Both times we came back. The ecosystem depth is just unmatched for enterprise requirements.</blockquote>'
+    ),
+    (
+        (SELECT id FROM feed_item WHERE external_id = 'bbc-eu-ai-act-001'),
+        '<p>The EU AI Act passed its final vote, requiring transparency reports for all frontier AI models and mandatory independent red-teaming before public deployment. The rules apply to any company serving EU users, regardless of where they are headquartered.</p>
+<p>Companies have 18 months to comply. Non-compliance carries fines up to 6% of global annual revenue. The US and UK have signalled they are monitoring the legislation closely but have no immediate plans to adopt equivalent rules.</p>
+<h3>Key obligations under the Act</h3>
+<ul>
+  <li>Annual transparency reports for all general-purpose AI models above 10^25 FLOPs</li>
+  <li>Mandatory red-team testing by accredited third parties before public release</li>
+  <li>Incident reporting within 72 hours of discovering a systemic risk</li>
+  <li>Open access to model weights for academic research upon request</li>
+</ul>'
+    ),
+    (
+        (SELECT id FROM feed_item WHERE external_id = 'reddit-python-rust-001'),
+        '<p>A fintech company documented 18 months of gradual Python to Rust migration. Latency improvements were real: p99 dropped from 380ms to 42ms on their core pricing engine. Memory usage fell by 70%.</p>
+<p>The unexpected bottleneck: hiring. Rust engineers cost ~40% more and take longer to ramp up. They recommend a hybrid approach — migrate only the hot path, keep Python for glue code and business logic.</p>
+<h3>Performance results</h3>
+<table>
+  <thead><tr><th>Metric</th><th>Python</th><th>Rust</th></tr></thead>
+  <tbody>
+    <tr><td>p99 latency</td><td>380ms</td><td>42ms</td></tr>
+    <tr><td>Memory (peak)</td><td>4.2 GB</td><td>1.3 GB</td></tr>
+    <tr><td>Throughput</td><td>1,200 rps</td><td>9,400 rps</td></tr>
+  </tbody>
+</table>
+<p>The post ends with a candid admission: they would not do a full rewrite again.</p>'
+    ),
+    (
+        (SELECT id FROM feed_item WHERE external_id = 'reddit-typescript-6-001'),
+        '<p>TypeScript 6.0 introduces a <code>Result&lt;T, E&gt;</code> type and a <code>using</code> keyword for Go-style error handling, letting developers avoid try/catch entirely for expected error paths.</p>
+<p>The community is split: functional-programming advocates love it, while others argue it fragments TypeScript''s identity as a typed superset of JavaScript. The TypeScript team has committed to keeping the feature opt-in via a compiler flag.</p>
+<h3>Example</h3>
+<pre><code>using result = await fetchUser(id)
+if (result.err) {
+  console.error(result.err)
+  return
+}
+console.log(result.val.name)</code></pre>
+<p>Migration tooling (<code>ts-migrate-errors</code>) is already available on npm.</p>'
+    ),
+    (
+        (SELECT id FROM feed_item WHERE external_id = 'wired-quantum-001'),
+        '<p>Google researchers demonstrated error-corrected logical qubits at a scale previously thought to be a decade away. The result was independently verified by two university labs.</p>
+<p>The chip, codenamed Willow-2, achieves coherence times of 300 microseconds — ten times longer than its predecessor. Error rates per gate operation have fallen below the threshold needed for practical quantum advantage on chemistry simulations.</p>
+<h3>What this enables</h3>
+<ul>
+  <li>Drug discovery simulations currently intractable for classical computers</li>
+  <li>Cryptographic key breaking (still years away at useful scale)</li>
+  <li>Materials science — designing room-temperature superconductors</li>
+</ul>'
+    ),
+    (
+        (SELECT id FROM feed_item WHERE external_id = 'verge-apple-vision-2-001'),
+        '<p>Apple Vision Pro 2 cuts weight by 40% through a new titanium-aluminium composite frame and moves the battery fully into the headset, achieving all-day use on a single charge.</p>
+<p>At $2,499 — $1,000 less than the original — it finally reaches the price tier where enterprise adoption makes sense. The killer app turns out to be collaborative 3D design: multiple users can occupy the same spatial workspace and manipulate shared models in real time.</p>
+<h3>Verdict</h3>
+<blockquote>This is the product the original Vision Pro promised. The hardware is finally out of the way. Whether the software ecosystem catches up is the open question.</blockquote>'
+    );
+
+
 -- ── Saved Items (a few items saved for the test user) ────────────────────────
 
 INSERT INTO saved_item (user_id, feed_item_id, saved_at) VALUES
@@ -191,36 +269,6 @@ INSERT INTO saved_item (user_id, feed_item_id, saved_at) VALUES
         (SELECT id FROM "user" WHERE email = 'test@rosebot.dev'),
         (SELECT id FROM feed_item WHERE external_id = 'reddit-typescript-6-001'),
         NOW() - INTERVAL '48 hours'
-    );
-
-
--- ── Summaries ────────────────────────────────────────────────────────────────
-
-INSERT INTO summary (feed_item_id, content) VALUES
-    (
-        (SELECT id FROM feed_item WHERE external_id = 'verge-gpt5-001'),
-        'GPT-5 introduces a dedicated "chain-of-thought" API mode that exposes intermediate reasoning steps to developers. The model scores 94% on the MATH benchmark and 87% on competitive coding tasks — both records.
-         Access rolls out in two phases: Plus subscribers get it next week, API access follows in 30 days. Pricing is unchanged from GPT-4. OpenAI also announced a new fine-tuning pipeline optimised for reasoning tasks.'
-    ),
-    (
-        (SELECT id FROM feed_item WHERE external_id = 'reddit-tech-stack-2026'),
-        'Top comment threads converge on a few themes: Spring Boot + React remains the default enterprise choice, largely due to hiring and tooling maturity. Rust is seeing strong growth in systems and infra work but is still niche for product teams.
-         Surprising finding: a large cohort still maintains Vue 2 in production. Go continues to dominate for new backend services at mid-sized companies. Several comments call out Kotlin Multiplatform gaining traction for shared business logic.'
-    ),
-    (
-        (SELECT id FROM feed_item WHERE external_id = 'bbc-eu-ai-act-001'),
-        'The EU AI Act passed its final vote, requiring transparency reports for all frontier AI models and mandatory independent red-teaming before public deployment. The rules apply to any company serving EU users, regardless of where they are headquartered.
-         Companies have 18 months to comply. Non-compliance carries fines up to 6% of global annual revenue. The US and UK have signalled they are monitoring the legislation closely but have no immediate plans to adopt equivalent rules.'
-    ),
-    (
-        (SELECT id FROM feed_item WHERE external_id = 'reddit-python-rust-001'),
-        'A fintech company documented 18 months of gradual Python to Rust migration. Latency improvements were real: p99 dropped from 380ms to 42ms on their core pricing engine. Memory usage fell by 70%.
-         The unexpected bottleneck: hiring. Rust engineers cost ~40% more and take longer to ramp up. They recommend a hybrid approach — migrate only the hot path, keep Python for glue code and business logic. The post ends with a candid admission: they would not do a full rewrite again.'
-    ),
-    (
-        (SELECT id FROM feed_item WHERE external_id = 'reddit-typescript-6-001'),
-        'TypeScript 6.0 introduces a Result<T, E> type and a using keyword for Go-style error handling, letting developers avoid try/catch entirely for expected error paths.
-         The community is split: functional-programming advocates love it, while others argue it fragments TypeScript''s identity as a typed superset of JavaScript. The TypeScript team has committed to keeping the feature opt-in via a compiler flag. Migration tooling (ts-migrate-errors) is already available.'
     );
 
 

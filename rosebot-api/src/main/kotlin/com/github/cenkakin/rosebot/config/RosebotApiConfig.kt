@@ -11,8 +11,8 @@ import com.github.cenkakin.rosebot.saved.SavedItemRepository
 import com.github.cenkakin.rosebot.saved.SavedItemService
 import com.github.cenkakin.rosebot.source.SourceRepository
 import com.github.cenkakin.rosebot.source.SourceService
-import com.github.cenkakin.rosebot.summary.SummaryRepository
-import com.github.cenkakin.rosebot.summary.SummaryService
+import com.github.cenkakin.rosebot.content.ContentRepository
+import com.github.cenkakin.rosebot.content.ContentService
 import com.github.cenkakin.rosebot.user.UserRepository
 import com.github.cenkakin.rosebot.user.UserService
 import org.jooq.DSLContext
@@ -50,5 +50,5 @@ class RosebotApiConfig {
     fun appStateService(dsl: DSLContext) = AppStateService(AppStateRepository(dsl))
 
     @Bean
-    fun summaryService(dsl: DSLContext) = SummaryService(SummaryRepository(dsl))
+    fun contentService(dsl: DSLContext) = ContentService(ContentRepository(dsl))
 }

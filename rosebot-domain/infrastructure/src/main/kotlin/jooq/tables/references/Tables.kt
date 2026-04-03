@@ -6,9 +6,9 @@ package jooq.tables.references
 
 import jooq.tables.AppState
 import jooq.tables.FeedItem
+import jooq.tables.FeedItemContent
 import jooq.tables.SavedItem
 import jooq.tables.Source
-import jooq.tables.Summary
 import jooq.tables.User
 
 
@@ -24,6 +24,11 @@ val APP_STATE: AppState = AppState.APP_STATE
 val FEED_ITEM: FeedItem = FeedItem.FEED_ITEM
 
 /**
+ * The table <code>public.feed_item_content</code>.
+ */
+val FEED_ITEM_CONTENT: FeedItemContent = FeedItemContent.FEED_ITEM_CONTENT
+
+/**
  * The table <code>public.saved_item</code>.
  */
 val SAVED_ITEM: SavedItem = SavedItem.SAVED_ITEM
@@ -32,11 +37,6 @@ val SAVED_ITEM: SavedItem = SavedItem.SAVED_ITEM
  * The table <code>public.source</code>.
  */
 val SOURCE: Source = Source.SOURCE
-
-/**
- * The table <code>public.summary</code>.
- */
-val SUMMARY: Summary = Summary.SUMMARY
 
 /**
  * The table <code>public.user</code>.
