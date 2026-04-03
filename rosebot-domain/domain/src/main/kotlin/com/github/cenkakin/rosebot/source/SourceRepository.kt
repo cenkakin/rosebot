@@ -1,8 +1,9 @@
 package com.github.cenkakin.rosebot.source
 
 import com.github.cenkakin.rosebot.source.dto.SourceRequest
-import jooq.Tables.SOURCE
+import jooq.enums.SourceType
 import jooq.tables.records.SourceRecord
+import jooq.tables.references.SOURCE
 import org.jooq.DSLContext
 
 class SourceRepository(
@@ -10,7 +11,18 @@ class SourceRepository(
 ) {
     fun findAll(): List<SourceRecord> = dsl.selectFrom(SOURCE).orderBy(SOURCE.CREATED_AT.asc()).fetch()
 
+    fun findAllEnabled(): List<SourceRecord> = dsl.selectFrom(SOURCE).where(SOURCE.ENABLED.isTrue).fetch()
+
     fun findById(id: Long): SourceRecord? = dsl.selectFrom(SOURCE).where(SOURCE.ID.eq(id)).fetchOne()
+
+    fun findEnabledBySourceType(sourceType: SourceType): List<SourceRecord> =
+        dsl
+            .selectFrom(SOURCE)
+            .where(
+                SOURCE.TYPE
+                    .eq(sourceType)
+                    .and(SOURCE.ENABLED.isTrue),
+            ).fetch()
 
     fun create(request: SourceRequest): SourceRecord =
         dsl

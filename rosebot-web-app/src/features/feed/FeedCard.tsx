@@ -136,7 +136,7 @@ export function FeedCard({ item, isActive, hasSummary, onSummaryClick, onSaveTog
           <EngagementMeta item={item} />
           {hasSummary && (
             <Chip
-              label={isActive ? '📋 AI Summary ✕' : '📋 AI Summary ▸'}
+              label={isActive ? '📋 Summary ✕' : '📋 Summary ▸'}
               size="small"
               onClick={() => onSummaryClick(item.id)}
               variant={isActive ? 'filled' : 'outlined'}

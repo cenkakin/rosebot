@@ -16,6 +16,7 @@ INSERT INTO source (type, name, url) VALUES
     ('NEWS',    'The Verge',      'https://www.theverge.com/rss/index.xml'),
     ('NEWS',    'BBC World',      'https://feeds.bbci.co.uk/news/world/rss.xml'),
     ('NEWS',    'Wired',          'https://www.wired.com/feed/rss'),
+    ('NEWS',    'Jacobin',          'https://jacobin.com/feed'),
     ('REDDIT',  'r/technology',   'https://www.reddit.com/r/technology.json'),
     ('REDDIT',  'r/programming',  'https://www.reddit.com/r/programming.json'),
     ('TWITTER', '@naval',         'https://twitter.com/naval'),
@@ -195,41 +196,31 @@ INSERT INTO saved_item (user_id, feed_item_id, saved_at) VALUES
 
 -- ── Summaries ────────────────────────────────────────────────────────────────
 
-INSERT INTO summary (feed_item_id, content, model) VALUES
+INSERT INTO summary (feed_item_id, content) VALUES
     (
         (SELECT id FROM feed_item WHERE external_id = 'verge-gpt5-001'),
         'GPT-5 introduces a dedicated "chain-of-thought" API mode that exposes intermediate reasoning steps to developers. The model scores 94% on the MATH benchmark and 87% on competitive coding tasks — both records.
-
-Access rolls out in two phases: Plus subscribers get it next week, API access follows in 30 days. Pricing is unchanged from GPT-4. OpenAI also announced a new fine-tuning pipeline optimised for reasoning tasks.',
-        'gpt-4o'
+         Access rolls out in two phases: Plus subscribers get it next week, API access follows in 30 days. Pricing is unchanged from GPT-4. OpenAI also announced a new fine-tuning pipeline optimised for reasoning tasks.'
     ),
     (
         (SELECT id FROM feed_item WHERE external_id = 'reddit-tech-stack-2026'),
         'Top comment threads converge on a few themes: Spring Boot + React remains the default enterprise choice, largely due to hiring and tooling maturity. Rust is seeing strong growth in systems and infra work but is still niche for product teams.
-
-Surprising finding: a large cohort still maintains Vue 2 in production. Go continues to dominate for new backend services at mid-sized companies. Several comments call out Kotlin Multiplatform gaining traction for shared business logic.',
-        'gpt-4o'
+         Surprising finding: a large cohort still maintains Vue 2 in production. Go continues to dominate for new backend services at mid-sized companies. Several comments call out Kotlin Multiplatform gaining traction for shared business logic.'
     ),
     (
         (SELECT id FROM feed_item WHERE external_id = 'bbc-eu-ai-act-001'),
         'The EU AI Act passed its final vote, requiring transparency reports for all frontier AI models and mandatory independent red-teaming before public deployment. The rules apply to any company serving EU users, regardless of where they are headquartered.
-
-Companies have 18 months to comply. Non-compliance carries fines up to 6% of global annual revenue. The US and UK have signalled they are monitoring the legislation closely but have no immediate plans to adopt equivalent rules.',
-        'gpt-4o'
+         Companies have 18 months to comply. Non-compliance carries fines up to 6% of global annual revenue. The US and UK have signalled they are monitoring the legislation closely but have no immediate plans to adopt equivalent rules.'
     ),
     (
         (SELECT id FROM feed_item WHERE external_id = 'reddit-python-rust-001'),
         'A fintech company documented 18 months of gradual Python to Rust migration. Latency improvements were real: p99 dropped from 380ms to 42ms on their core pricing engine. Memory usage fell by 70%.
-
-The unexpected bottleneck: hiring. Rust engineers cost ~40% more and take longer to ramp up. They recommend a hybrid approach — migrate only the hot path, keep Python for glue code and business logic. The post ends with a candid admission: they would not do a full rewrite again.',
-        'gpt-4o'
+         The unexpected bottleneck: hiring. Rust engineers cost ~40% more and take longer to ramp up. They recommend a hybrid approach — migrate only the hot path, keep Python for glue code and business logic. The post ends with a candid admission: they would not do a full rewrite again.'
     ),
     (
         (SELECT id FROM feed_item WHERE external_id = 'reddit-typescript-6-001'),
         'TypeScript 6.0 introduces a Result<T, E> type and a using keyword for Go-style error handling, letting developers avoid try/catch entirely for expected error paths.
-
-The community is split: functional-programming advocates love it, while others argue it fragments TypeScript''s identity as a typed superset of JavaScript. The TypeScript team has committed to keeping the feature opt-in via a compiler flag. Migration tooling (ts-migrate-errors) is already available.',
-        'gpt-4o'
+         The community is split: functional-programming advocates love it, while others argue it fragments TypeScript''s identity as a typed superset of JavaScript. The TypeScript team has committed to keeping the feature opt-in via a compiler flag. Migration tooling (ts-migrate-errors) is already available.'
     );
 
 

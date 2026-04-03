@@ -27,6 +27,7 @@ CREATE TABLE feed_item (
     author        TEXT,
     engagement    JSONB,
     published_at  TIMESTAMPTZ NOT NULL,
+    updated_at    TIMESTAMPTZ,
     ingested_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
     UNIQUE (source_id, external_id)
 );
@@ -43,7 +44,6 @@ CREATE TABLE summary (
     id           BIGSERIAL PRIMARY KEY,
     feed_item_id BIGINT NOT NULL UNIQUE REFERENCES feed_item(id) ON DELETE CASCADE,
     content      TEXT   NOT NULL,
-    model        TEXT   NOT NULL,
     generated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 

@@ -3,11 +3,28 @@ package com.github.cenkakin.rosebot.feed
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.cenkakin.rosebot.feed.dto.FeedItemResponse
-import jooq.Tables.FEED_ITEM
-import jooq.Tables.SOURCE
+import jooq.tables.records.FeedItemRecord
+import jooq.tables.references.FEED_ITEM
+import jooq.tables.references.SOURCE
+import org.jooq.JSONB
 import org.jooq.Record
+import java.time.ZoneOffset
 
 private val objectMapper = jacksonObjectMapper()
+
+internal fun FeedItemDraft.toFeedItemRecord(sourceId: Long): FeedItemRecord =
+    FeedItemRecord(
+        sourceId = sourceId,
+        externalId = externalId,
+        title = title,
+        content = content,
+        url = url,
+        thumbnailUrl = thumbnailUrl,
+        author = author,
+        engagement = engagement?.let { JSONB.jsonb(objectMapper.writeValueAsString(it)) },
+        publishedAt = publishedAt.atOffset(ZoneOffset.UTC),
+        updatedAt = updatedAt?.atOffset(ZoneOffset.UTC),
+    )
 
 internal fun Record.toFeedItemResponse(
     saved: Boolean,

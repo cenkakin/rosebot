@@ -1,7 +1,7 @@
 package com.github.cenkakin.rosebot.summary
 
-import jooq.Tables.SUMMARY
 import jooq.tables.records.SummaryRecord
+import jooq.tables.references.SUMMARY
 import org.jooq.DSLContext
 
 class SummaryRepository(
@@ -19,5 +19,18 @@ class SummaryRepository(
             .selectFrom(SUMMARY)
             .where(SUMMARY.FEED_ITEM_ID.`in`(ids))
             .fetch()
+    }
+
+    fun insert(
+        feedItemId: Long,
+        content: String,
+    ) {
+        dsl
+            .insertInto(SUMMARY)
+            .set(SUMMARY.FEED_ITEM_ID, feedItemId)
+            .set(SUMMARY.CONTENT, content)
+            .onConflict(SUMMARY.FEED_ITEM_ID)
+            .doNothing()
+            .execute()
     }
 }

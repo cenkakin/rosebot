@@ -13,10 +13,33 @@
     <artifactId>rosebot-infrastructure</artifactId>
     <name>rosebot-infrastructure</name>
 
+    <properties>
+        <db.username>rosebot</db.username>
+        <db.password>rosebot</db.password>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jooq</artifactId>
+        </dependency>
+        <!-- Database (Flyway runs migrations; SQL files on classpath via rosebot-infrastructure) -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-postgresql</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>jooq-jackson-extensions</artifactId>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
@@ -62,27 +85,109 @@
 
     <profiles>
         <profile>
-            <id>generate-jooq</id>
+            <id>generate-jooq-sources</id>
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.jooq</groupId>
-                        <artifactId>jooq-codegen-maven</artifactId>
+                        <groupId>org.codehaus.gmaven</groupId>
+                        <artifactId>groovy-maven-plugin</artifactId>
+                        <version>2.1.1</version>
                         <executions>
                             <execution>
-                                <goals><goal>generate</goal></goals>
+                                <id>testcontainer-start</id>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>execute</goal>
+                                </goals>
+                                <configuration>
+                                    <source>
+                                        db = new org.testcontainers.containers.PostgreSQLContainer("postgres:latest")
+                                                .withUsername("${db.username}")
+                                                .withDatabaseName("rosebot")
+                                                .withPassword("${db.password}");
+
+                                        db.start();
+                                        project.properties.setProperty('db.url', db.getJdbcUrl());
+                                        project.properties.setProperty('testcontainer.containerid', db.getContainerId());
+                                        project.properties.setProperty('testcontainer.imageName', db.getDockerImageName());
+                                    </source>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>testcontainer-stop</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>execute</goal>
+                                </goals>
+                                <configuration>
+                                    <source>
+                                        containerId = "${testcontainer.containerid}"
+                                        imageName = "${testcontainer.imageName}"
+                                        client = org.testcontainers.DockerClientFactory.lazyClient()
+                                        client.stopContainerCmd(containerId)
+                                        client.removeContainerCmd(containerId)
+                                    </source>
+                                </configuration>
                             </execution>
                         </executions>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.testcontainers</groupId>
+                                <artifactId>testcontainers-postgresql</artifactId>
+                                <version>${testcontainers-bom.version}</version>
+                            </dependency>
+                        </dependencies>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.flywaydb</groupId>
+                        <artifactId>flyway-maven-plugin</artifactId>
+                        <version>11.7.2</version>
+                        <executions>
+                            <execution>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>migrate</goal>
+                                </goals>
+                                <configuration>
+                                    <url>${db.url}</url>
+                                    <user>${db.username}</user>
+                                    <password>${db.password}</password>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.jooq</groupId>
+                        <artifactId>jooq-codegen-maven</artifactId>
+                        <version>${jooq.version}</version>
+                        <executions>
+                            <execution>
+                                <id>jooq-codegen</id>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>generate</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+
                         <configuration>
+                            <logging>INFO</logging>
                             <jdbc>
-                                <driver>org.postgresql.Driver</driver>
-                                <url>jdbc:postgresql://localhost:5432/rosebot</url>
-                                <user>rosebot</user>
-                                <password>rosebot</password>
+                                <url>${db.url}</url>
+                                <user>${db.username}</user>
+                                <password>${db.password}</password>
                             </jdbc>
                             <generator>
+                                <name>org.jooq.codegen.KotlinGenerator</name>
                                 <database>
                                     <name>org.jooq.meta.postgres.PostgresDatabase</name>
+                                    <excludes>
+                                        flyway.*
+                                    </excludes>
+                                    <includeRoutines>false</includeRoutines>
+                                    <includeIndexes>false</includeIndexes>
                                     <inputSchema>public</inputSchema>
                                 </database>
                                 <target>

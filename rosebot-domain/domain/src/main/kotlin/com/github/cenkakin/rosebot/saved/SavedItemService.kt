@@ -4,8 +4,8 @@ import com.github.cenkakin.rosebot.feed.dto.FeedItemResponse
 import com.github.cenkakin.rosebot.feed.toFeedItemResponse
 import com.github.cenkakin.rosebot.source.SourceType
 import com.github.cenkakin.rosebot.source.dto.SourceResponse
-import jooq.Tables.SAVED_ITEM
-import jooq.Tables.SOURCE
+import jooq.tables.references.SAVED_ITEM
+import jooq.tables.references.SOURCE
 import org.jooq.Record
 import java.time.OffsetDateTime
 

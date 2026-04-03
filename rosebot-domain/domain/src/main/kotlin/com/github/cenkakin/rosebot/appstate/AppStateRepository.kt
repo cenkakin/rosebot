@@ -1,6 +1,6 @@
 package com.github.cenkakin.rosebot.appstate
 
-import jooq.Tables.APP_STATE
+import jooq.tables.references.APP_STATE
 import org.jooq.DSLContext
 import java.time.OffsetDateTime
 

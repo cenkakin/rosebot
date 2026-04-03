@@ -1,7 +1,7 @@
 package com.github.cenkakin.rosebot.user
 
-import jooq.Tables.USER
 import jooq.tables.records.UserRecord
+import jooq.tables.references.USER
 import org.jooq.DSLContext
 
 class UserRepository(

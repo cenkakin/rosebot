@@ -1,12 +1,15 @@
 package com.github.cenkakin.rosebot.feed
 
 import com.github.cenkakin.rosebot.source.SourceType
-import jooq.Tables.FEED_ITEM
-import jooq.Tables.SAVED_ITEM
-import jooq.Tables.SOURCE
+import jooq.tables.records.FeedItemRecord
+import jooq.tables.references.FEED_ITEM
+import jooq.tables.references.SAVED_ITEM
+import jooq.tables.references.SOURCE
 import org.jooq.DSLContext
+import org.jooq.JSONB
 import org.jooq.Record
 import java.time.OffsetDateTime
+import java.time.ZoneOffset
 
 class FeedItemRepository(
     private val dsl: DSLContext,
@@ -68,6 +71,15 @@ class FeedItemRepository(
                     .eq(FEED_ITEM.ID)
                     .and(SAVED_ITEM.USER_ID.eq(userId)),
             ).where(FEED_ITEM.ID.eq(id))
+            .fetchOne()
+
+    fun insert(record: FeedItemRecord): FeedItemRecord? =
+        dsl
+            .insertInto(FEED_ITEM)
+            .set(record)
+            .onConflict(FEED_ITEM.SOURCE_ID, FEED_ITEM.EXTERNAL_ID)
+            .doNothing()
+            .returning()
             .fetchOne()
 
     private fun SourceType.toJooqEnum(): jooq.enums.SourceType = jooq.enums.SourceType.valueOf(name)

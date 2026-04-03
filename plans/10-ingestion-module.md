@@ -8,85 +8,69 @@ shared PostgreSQL database.
 
 ---
 
-## Current state
-
-- `source` table: `{ id, type (NEWS|REDDIT|TWITTER), name, url, enabled }`
-- `feed_item` table: `{ source_id, external_id, title, content, url, thumbnail_url, author, engagement (JSONB), published_at }`
-- JOOQ generated sources live inside `rosebot-api/src/main/kotlin/jooq/` — not shared yet
-- No deduplication worker exists; the unique constraint `(source_id, external_id)` is the only guard
-
----
-
-## Module layout (target)
+## Current module layout (after Phase 0)
 
 ```
 rosebot/
-├── pom.xml                  ← add rosebot-domain, rosebot-ingestion modules
-├── rosebot-domain/          ← NEW: all domain objects, repositories, services, JOOQ sources
-├── rosebot-api/             ← HTTP layer only: controllers, security, Spring Boot main
-├── rosebot-ingestion/       ← NEW: scheduled ingestion service, connectors
+├── pom.xml
+├── rosebot-domain/
+│   ├── infrastructure/    (rosebot-infrastructure) — JOOQ sources, Flyway SQL
+│   ├── domain/            (rosebot-domain-core)    — user, source, feed, saved, summary, appstate
+│   └── auth/              (rosebot-auth)            — JwtService, AuthService, AuthenticatedUser
+├── rosebot-api/           — controllers, SecurityConfig, JwtAuthFilter, RosebotApiConfig
+├── rosebot-ingestion/     ← NEW (this plan)
 └── rosebot-web-app/
 ```
 
 ---
 
-## Phase 0 — Extract `rosebot-domain`
+## `rosebot-ingestion` dependencies
 
-**Why this first:** the domain layer (repositories, services, JOOQ generated sources, domain
-objects) belongs to neither the API nor the ingestion module — it is shared business logic.
-Both consuming modules depend on it and add only their own entry-point layer on top.
-
-**What moves into `rosebot-domain`:**
-- `jooq/` generated sources (JOOQ codegen profile moves here too)
-- All domain packages as-is: `user/`, `auth/`, `source/`, `feed/`, `saved/`, `summary/`,
-  `appstate/` — each with its `Repository`, `Service`, `dto/`, and domain objects
-- `exception/GlobalExceptionHandler` (shared error contract)
-- Flyway migration scripts
-
-**What stays in `rosebot-api`:**
-- `controller/` (all `@RestController` classes)
-- `config/RosebotApiConfig` (bean wiring for the API context)
-- `config/SecurityConfig` + JWT filter chain
-- `RosebotApplication.kt`
-
-**`rosebot-domain/pom.xml`:** Kotlin library — `spring-boot-starter-jooq`, `spring-boot-starter-validation`, Jackson, PostgreSQL driver. No `spring-boot-maven-plugin` (not a runnable app). No Spring Security.
-
-**`rosebot-api/pom.xml`:** drops direct JOOQ / domain deps, adds `<dependency>rosebot-domain</dependency>` and keeps Security + JWT + web-app frontend dependency.
-
----
-
-## Phase 1 — `rosebot-ingestion` module skeleton
-
-**Dependencies:**
-- `spring-boot-starter` (no web, no security)
-- `rosebot-domain` (all repositories, services, JOOQ, domain objects)
+- `rosebot-infrastructure` — JOOQ + DB access
+- `rosebot-domain-core` — SourceRepository, FeedItemRepository, etc.
+- `spring-boot-starter` (no web, no security — ingestion has no HTTP endpoints)
 - `jackson-module-kotlin`
 - Testcontainers (test scope)
 
-**Application structure:**
+Does **not** depend on `rosebot-auth` (no JWT, no user context needed).
+
+---
+
+## Architecture
+
 ```
 rosebot-ingestion/
 └── src/main/kotlin/com/github/cenkakin/rosebot/ingestion/
     ├── IngestionApplication.kt
     ├── config/
-    │   └── IngestionConfig.kt       ← explicit bean registration (same rule as api)
+    │   └── IngestionConfig.kt          ← explicit bean registration (same rule as api)
     ├── connector/
-    │   ├── SourceConnector.kt       ← interface
+    │   ├── SourceConnector.kt          ← interface
+    │   ├── FeedItemDraft.kt            ← shared output model
     │   ├── news/
-    │   ├── reddit/
-    │   └── twitter/
+    │   │   └── RssConnector.kt         ← Rome RSS/Atom parser
+    │   └── reddit/
+    │       └── RedditConnector.kt      ← Reddit public JSON API
     ├── ingestion/
-    │   ├── IngestionService.kt      ← orchestrates: load sources → call connector → persist
-    │   └── FeedItemWriter.kt        ← upsert to feed_item with ON CONFLICT DO NOTHING
+    │   ├── IngestionService.kt         ← orchestrates: load sources → connector → write
+    │   └── FeedItemWriter.kt           ← upsert via ON CONFLICT DO NOTHING
     └── scheduler/
-        └── IngestionScheduler.kt    ← @Scheduled polling, one job per source type
+        └── IngestionScheduler.kt       ← @Scheduled polling
 ```
-
-**Config:** `application.yml` + `application-dev.properties` / secrets (same pattern as api).
 
 ---
 
-## Phase 2 — `SourceConnector` interface + News/RSS connector
+## Phase 1 — Module skeleton
+
+- `rosebot-ingestion/pom.xml`: parent = root rosebot, no `spring-boot-starter-web`, no security
+- Register `rosebot-ingestion` in root `pom.xml` modules
+- `IngestionApplication.kt` with `@SpringBootApplication`
+- `application.yml` + `application-dev.properties` / secrets (same pattern as api)
+- `IngestionConfig.kt`: explicit bean wiring, no `@Service`/`@Component` annotations
+
+---
+
+## Phase 2 — `SourceConnector` interface + `FeedItemDraft`
 
 ```kotlin
 interface SourceConnector {
@@ -106,7 +90,12 @@ data class FeedItemDraft(
 )
 ```
 
-**News connector** (RSS via Rome library `com.rometools:rome`):
+---
+
+## Phase 3 — News/RSS connector
+
+Library: `com.rometools:rome`
+
 - Parse RSS/Atom feed at `source.url`
 - Map each `SyndEntry` → `FeedItemDraft`
 - `externalId`: entry URI or link (stable per article)
@@ -114,43 +103,21 @@ data class FeedItemDraft(
 
 ---
 
-## Phase 3 — Reddit connector
+## Phase 4 — Reddit connector
 
 Reddit public JSON API — no auth required for public subreddits:
-- `GET https://www.reddit.com/r/{subreddit}.json?limit=25&after={cursor}`
-- `source.url` stores the subreddit name or full listing URL
+
+- `GET https://www.reddit.com/r/{subreddit}.json?limit=25`
+- `source.url` stores the subreddit listing URL
 - `externalId`: post `id` (e.g. `t3_abc123`)
 - `engagement`: `{ "score": N, "num_comments": N, "upvote_ratio": 0.95 }`
-- Cursor-based pagination via `after` token stored in `app_state`-like mechanism (or just fetch latest N each run and rely on deduplication)
-
-**Rate limit:** Reddit asks for a descriptive `User-Agent` and allows ~60 req/min unauthenticated.
-
----
-
-## Phase 4 — Twitter/X connector
-
-Twitter API v2 (Bearer token):
-- `GET /2/tweets/search/recent?query=...` or user timeline endpoint
-- `source.url` stores the query string or user handle
-- `externalId`: tweet `id`
-- `engagement`: `{ "like_count": N, "retweet_count": N, "reply_count": N }`
-- Requires `TWITTER_BEARER_TOKEN` secret
-
-Note: Twitter API access tiers have changed significantly. Plan around free tier limits (500k tweets/month on Basic tier). If unavailable, this connector is a stub until credentials are sourced.
+- Rely on deduplication (`ON CONFLICT DO NOTHING`) rather than cursor tracking
+- Set a descriptive `User-Agent` header (Reddit requirement)
 
 ---
 
-## Phase 5 — Scheduling, deduplication, error handling
+## Phase 5 — `FeedItemWriter` + deduplication
 
-**Scheduler:**
-```kotlin
-@Scheduled(fixedDelayString = "\${ingestion.poll-interval-ms:300000}") // default 5 min
-fun pollAll() { ... }
-```
-- Per-source-type delay configuration
-- Log ingested count and skipped (duplicate) count per run
-
-**Deduplication (FeedItemWriter):**
 ```kotlin
 dsl.insertInto(FEED_ITEM)
    .set(...)
@@ -158,38 +125,135 @@ dsl.insertInto(FEED_ITEM)
    .doNothing()
    .execute()
 ```
-No exception thrown on duplicate — just silently skipped.
 
-**Error isolation:**
-- Failure of one source does not abort other sources in the same run
-- Connector exceptions are caught per-source, logged with source name/id, then continue
-
-**Observability:**
-- Spring Actuator `/actuator/health` + `/actuator/metrics`
-- Log structured summary: `[ingestion] source=HackerNews items=12 dupes=3 duration=840ms`
+No exception on duplicate — silently skipped. Log counts per run:
+```
+[ingestion] source=HackerNews new=12 dupes=3 duration=840ms
+```
 
 ---
 
-## Open questions (decide before implementing)
+## Phase 6 — Scheduling + error isolation
 
-1. **Run as separate process or same JVM?**: Separate process (separate Spring Boot app) gives
-   independent deploy/scaling. Same JVM saves ops overhead. Current plan assumes separate.
+```kotlin
+@Scheduled(fixedDelayString = "\${ingestion.poll-interval-ms:300000}")
+fun pollAll() { ... }
+```
 
-2. **Crawl depth for NEWS**: RSS gives title + excerpt. Do we want full article text?
-   If yes, add an optional HTML fetcher step (Jsoup) as a separate enrichment pass.
-
-3. **Twitter tier availability**: Do we have API credentials? If not, skip Phase 4 for now.
-
-4. **Ingestion trigger**: Pure schedule is simplest. Should there also be a manual
-   `/api/admin/ingest` endpoint in the API module to trigger on demand?
+- Configurable per-source-type poll interval
+- Connector failure for one source is caught and logged — does not abort other sources
+- Spring Actuator `/actuator/health` for liveness
 
 ---
 
-## Dependencies to add (summary)
+## Feed structure analysis — Jacobin (Atom 1.0)
 
-| Dependency | Module | Purpose |
+Jacobin publishes Atom 1.0, not RSS 2.0. Rome handles both transparently.
+
+### Fields per entry
+
+| Atom element | Example | Maps to |
 |---|---|---|
-| `com.rometools:rome` | ingestion | RSS/Atom parsing |
-| `org.jsoup:jsoup` | ingestion (optional) | Full-text article fetch |
-| `spring-boot-starter-web` (optional) | ingestion | Only if adding admin trigger endpoint |
-| `spring-retry` | ingestion | Retry transient connector failures |
+| `<id>` | `https://jacobin.com/2026/03/muskism-...` | `external_id` |
+| `<title type="html">` | `Muskism Is the Specter...` | `title` (strip HTML entities) |
+| `<link href>` | same URL as id | `url` |
+| `<author><name>` | `Alex Hochuli` | `author` |
+| `<published>` | `2026-03-30T13:29:18Z` | `published_at` |
+| `<updated>` | `2026-03-30T13:37:42Z` | `updated_at` ← **new column on feed_item** |
+| `<summary type="html">` | `<p>In probably the most famous...</p>` | stripped → **`summary` table** with `model = "feed"` |
+| `<content type="html">` | full article HTML | `content` on `feed_item` (raw HTML, kept for future reader view) |
+| thumbnail | — not present — | `thumbnail_url` = null |
+| engagement | — not present — | `engagement` = null |
+
+### Design
+
+`feed_item.content` stores the full article HTML from `<content>` (not rendered in card UI).
+
+`<summary>` is stripped of HTML tags (Jsoup) at ingestion time and written to the `summary` table.
+Feed-sourced summaries flow through the same `SummaryService`/`SummaryRepository` path as AI-generated
+ones — no new columns on `feed_item`, no API or DTO changes required. The `model` column is removed from
+`summary` (not needed). Deduplication: `summary.feed_item_id` is `UNIQUE`, so a second ingestion run does
+`ON CONFLICT DO NOTHING`.
+
+### Required changes
+
+**Schema — update `V1__create_schema.sql` directly (fresh-start approach):**
+- Add `updated_at TIMESTAMPTZ` to `feed_item`
+- Remove `model TEXT NOT NULL` from `summary`
+
+**`FeedItemDraft` (ingestion) — add `updatedAt` + `feedSummary`:**
+```kotlin
+data class FeedItemDraft(
+    val externalId: String,
+    val title: String,
+    val content: String?,      // raw HTML from <content>, for future reader view
+    val url: String,
+    val thumbnailUrl: String?,
+    val author: String?,
+    val engagement: Map<String, Any>?,
+    val publishedAt: Instant,
+    val updatedAt: Instant?,   // from <updated>
+    val feedSummary: String?,  // plain text stripped from <summary>, written to summary table
+)
+```
+
+**`IngestionService` — after inserting a new `feed_item`, if `feedSummary` is non-null:**
+```kotlin
+val id = feedItemWriter.insert(source.id!!, draft)
+if (id != null) {
+    draft.feedSummary?.let { summaryRepository.insert(id, it) }
+}
+```
+
+**`SummaryRepository` — new `insert` method:**
+```kotlin
+fun insert(feedItemId: Long, content: String) {
+    dsl.insertInto(SUMMARY)
+       .set(SUMMARY.FEED_ITEM_ID, feedItemId)
+       .set(SUMMARY.CONTENT, content)
+       .onConflict(SUMMARY.FEED_ITEM_ID)
+       .doNothing()
+       .execute()
+}
+```
+
+**RSS connector — stripping logic:**
+Rome's `SyndEntry.description.value` (= `<summary>`) is HTML. Strip tags with Jsoup:
+```kotlin
+val feedSummary = entry.description?.value
+    ?.let { Jsoup.parse(it).text() }
+    ?.takeIf { it.isNotBlank() }
+val content = entry.contents.firstOrNull()?.value  // raw HTML, store as-is
+```
+
+**`FeedCard` UI — rename chip label from "AI Summary" to "Summary":**
+```tsx
+// Before
+label={isActive ? '📋 AI Summary ✕' : '📋 AI Summary ▸'}
+
+// After
+label={isActive ? '📋 Summary ✕' : '📋 Summary ▸'}
+```
+
+---
+
+## Decisions
+
+- **Twitter connector**: skipped for now — API credential/tier requirements unclear
+- **Full article text**: RSS gives title + excerpt only; Jsoup enrichment deferred
+- **Admin trigger endpoint**: not planned — pure schedule is sufficient for now
+- **Separate process**: `rosebot-ingestion` is a separate Spring Boot app (independent deploy)
+- **Flyway**: ingestion does NOT run migrations — `rosebot-api` owns schema lifecycle
+
+---
+
+## Root `pom.xml` additions
+
+```xml
+<modules>
+    ...
+    <module>rosebot-ingestion</module>   ← after rosebot-domain, before or after rosebot-api
+</modules>
+```
+
+No new `<dependencyManagement>` entries needed (ingestion depends on domain modules already managed).

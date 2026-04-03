@@ -8,7 +8,7 @@ class SummaryService(
     fun get(feedItemId: Long): SummaryResponse =
         summaryRepository
             .findByFeedItem(feedItemId)
-            ?.let { SummaryResponse(it.content!!, it.model!!, it.generatedAt!!.toInstant().toString()) }
+            ?.let { SummaryResponse(it.content!!, it.generatedAt!!.toInstant().toString()) }
             ?: throw NoSuchElementException("No summary for feed item $feedItemId")
 
     fun getBatch(itemIds: List<Long>): Map<Long, SummaryResponse> =
@@ -18,8 +18,12 @@ class SummaryService(
                 record.feedItemId!! to
                     SummaryResponse(
                         content = record.content!!,
-                        model = record.model!!,
                         generatedAt = record.generatedAt!!.toInstant().toString(),
                     )
             }
+
+    fun insert(
+        feedItemId: Long,
+        content: String,
+    ) = summaryRepository.insert(feedItemId, content)
 }

@@ -10,6 +10,11 @@ class SourceService(
 ) {
     fun findAll(): List<SourceResponse> = sourceRepository.findAll().map { it.toResponse() }
 
+    fun findAllEnabled(): List<SourceRecord> = sourceRepository.findAllEnabled()
+
+    fun findEnabledBySourceType(sourceType: SourceType): List<SourceRecord> =
+        sourceRepository.findEnabledBySourceType(sourceType.toJooqEnum())
+
     fun create(request: SourceRequest): SourceResponse = sourceRepository.create(request).toResponse()
 
     fun update(
