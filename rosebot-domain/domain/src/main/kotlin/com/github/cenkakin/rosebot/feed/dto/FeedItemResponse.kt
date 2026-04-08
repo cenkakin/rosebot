@@ -5,6 +5,7 @@ data class FeedItemResponse(
     val sourceId: Long,
     val sourceType: String,
     val sourceName: String,
+    val sourceUrl: String,
     val title: String,
     val summary: String?,
     val url: String,

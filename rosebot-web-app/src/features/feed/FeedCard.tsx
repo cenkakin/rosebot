@@ -1,8 +1,28 @@
 import { Box, Card, CardContent, Chip, IconButton, Typography } from '@mui/material'
+import React from 'react'
 import type { FeedItemResponse } from '../../types/feedItem'
 import { SOURCE_COLORS } from '../../theme'
 import { relativeTime } from '../../utils/time'
 import { stripHtml } from '../../utils/sanitize'
+
+function SourceFavicon({ url }: { url: string }) {
+  const [failed, setFailed] = React.useState(false)
+  if (failed) return null
+  try {
+    const hostname = new URL(url).hostname
+    return (
+      <Box
+        component="img"
+        src={`https://www.google.com/s2/favicons?domain=${hostname}&sz=16`}
+        alt=""
+        onError={() => setFailed(true)}
+        sx={{ width: 16, height: 16, flexShrink: 0, borderRadius: '2px' }}
+      />
+    )
+  } catch {
+    return null
+  }
+}
 
 interface Props {
   item: FeedItemResponse
@@ -73,7 +93,17 @@ export function FeedCard({ item, isActive, hasContent, onContentClick, onSaveTog
           >
             {colors.label}
           </Box>
-          <Typography variant="caption" color="text.secondary" fontWeight={500}>
+          <SourceFavicon url={item.sourceUrl} />
+          <Typography
+            component="a"
+            href={item.sourceUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            variant="caption"
+            color="text.secondary"
+            fontWeight={500}
+            sx={{ textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}
+          >
             {item.sourceName}
           </Typography>
           <Box sx={{ ml: 'auto', textAlign: 'right' }}>

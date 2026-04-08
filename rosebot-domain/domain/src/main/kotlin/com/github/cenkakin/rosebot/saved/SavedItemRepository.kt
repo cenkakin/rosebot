@@ -25,6 +25,7 @@ class SavedItemRepository(
                 FEED_ITEM.asterisk(),
                 SOURCE.TYPE,
                 SOURCE.NAME,
+                SOURCE.HOMEPAGE,
                 DSL.inline(true).`as`("saved"),
                 SAVED_ITEM.SAVED_AT,
             ).from(SAVED_ITEM)

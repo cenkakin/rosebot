@@ -35,13 +35,17 @@ open class SourceRecord() : UpdatableRecordImpl<SourceRecord>(Source.SOURCE) {
         set(value): Unit = set(3, value)
         get(): String? = get(3) as String?
 
-    open var enabled: Boolean?
+    open var homepage: String?
         set(value): Unit = set(4, value)
-        get(): Boolean? = get(4) as Boolean?
+        get(): String? = get(4) as String?
+
+    open var enabled: Boolean?
+        set(value): Unit = set(5, value)
+        get(): Boolean? = get(5) as Boolean?
 
     open var createdAt: OffsetDateTime?
-        set(value): Unit = set(5, value)
-        get(): OffsetDateTime? = get(5) as OffsetDateTime?
+        set(value): Unit = set(6, value)
+        get(): OffsetDateTime? = get(6) as OffsetDateTime?
 
     // -------------------------------------------------------------------------
     // Primary key information
@@ -52,11 +56,12 @@ open class SourceRecord() : UpdatableRecordImpl<SourceRecord>(Source.SOURCE) {
     /**
      * Create a detached, initialised SourceRecord
      */
-    constructor(id: Long? = null, type: SourceType? = null, name: String? = null, url: String? = null, enabled: Boolean? = null, createdAt: OffsetDateTime? = null): this() {
+    constructor(id: Long? = null, type: SourceType? = null, name: String? = null, url: String? = null, homepage: String? = null, enabled: Boolean? = null, createdAt: OffsetDateTime? = null): this() {
         this.id = id
         this.type = type
         this.name = name
         this.url = url
+        this.homepage = homepage
         this.enabled = enabled
         this.createdAt = createdAt
         resetChangedOnNotNull()

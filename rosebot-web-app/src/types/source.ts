@@ -3,6 +3,7 @@ export interface SourceResponse {
   type: 'NEWS' | 'REDDIT' | 'TWITTER'
   name: string
   url: string
+  homepage: string
   enabled: boolean
   createdAt: string
 }

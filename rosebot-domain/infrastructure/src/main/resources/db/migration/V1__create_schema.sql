@@ -12,6 +12,7 @@ CREATE TABLE source (
     type       source_type NOT NULL,
     name       TEXT        NOT NULL,
     url        TEXT        NOT NULL UNIQUE,
+    homepage   TEXT        NOT NULL,
     enabled    BOOLEAN     NOT NULL DEFAULT TRUE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );

@@ -2,6 +2,7 @@ export interface FeedItemResponse {
   id: number
   sourceId: number
   sourceName: string
+  sourceUrl: string
   sourceType: 'NEWS' | 'REDDIT' | 'TWITTER'
   title: string
   url: string

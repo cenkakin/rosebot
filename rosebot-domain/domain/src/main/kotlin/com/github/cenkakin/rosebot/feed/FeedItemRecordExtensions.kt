@@ -38,6 +38,7 @@ internal fun Record.toFeedItemResponse(
         sourceId = get(FEED_ITEM.SOURCE_ID)!!,
         sourceType = get(SOURCE.TYPE)!!.literal,
         sourceName = get(SOURCE.NAME)!!,
+        sourceUrl = get(SOURCE.HOMEPAGE)!!,
         title = get(FEED_ITEM.TITLE)!!,
         summary = get(FEED_ITEM.SUMMARY),
         url = get(FEED_ITEM.URL)!!,

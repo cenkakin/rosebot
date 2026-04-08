@@ -30,6 +30,7 @@ class SourceRepository(
             .set(SOURCE.TYPE, request.type.toJooqEnum())
             .set(SOURCE.NAME, request.name)
             .set(SOURCE.URL, request.url)
+            .set(SOURCE.HOMEPAGE, request.homepage)
             .returning()
             .fetchOne()!!
 

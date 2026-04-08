@@ -31,6 +31,7 @@ class SavedItemService(
                 type = record.get(SOURCE.TYPE)!!.literal,
                 name = record.get(SOURCE.NAME)!!,
                 url = record.get(SOURCE.URL)!!,
+                homepage = record.get(SOURCE.HOMEPAGE)!!,
                 enabled = record.get(SOURCE.ENABLED)!!,
                 createdAt = record.get(SOURCE.CREATED_AT)!!.toInstant().toString(),
             )

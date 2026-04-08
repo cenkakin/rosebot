@@ -5,6 +5,7 @@ data class SourceResponse(
     val type: String,
     val name: String,
     val url: String,
+    val homepage: String,
     val enabled: Boolean,
     val createdAt: String,
 )

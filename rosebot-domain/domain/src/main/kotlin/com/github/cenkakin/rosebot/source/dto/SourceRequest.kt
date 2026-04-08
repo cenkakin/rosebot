@@ -12,4 +12,7 @@ data class SourceRequest(
     @field:NotBlank
     @field:Size(max = 2048)
     val url: String,
+    @field:NotBlank
+    @field:Size(max = 2048)
+    val homepage: String,
 )

@@ -34,6 +34,7 @@ class SourceService(
             type = type!!.literal,
             name = name!!,
             url = url!!,
+            homepage = homepage!!,
             enabled = enabled!!,
             createdAt = createdAt!!.toInstant().toString(),
         )

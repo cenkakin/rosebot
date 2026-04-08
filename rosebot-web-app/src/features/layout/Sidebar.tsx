@@ -1,6 +1,7 @@
 import HomeIcon from '@mui/icons-material/Home'
 import StarIcon from '@mui/icons-material/Star'
 import { Box, Chip, Divider, Drawer, List, ListItemButton, ListItemText, Typography } from '@mui/material'
+import React from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate, useLocation, useSearchParams } from 'react-router'
 import { getSources } from '../../api/sources'
@@ -30,6 +31,29 @@ function SourceDot({ type }: { type: SourceResponse['type'] }) {
       }}
     />
   )
+}
+
+function SourceIcon({ type, url }: { type: SourceResponse['type']; url: string }) {
+  const [failed, setFailed] = React.useState(false)
+
+  if (!failed) {
+    try {
+      const hostname = new URL(url).hostname
+      return (
+        <Box
+          component="img"
+          src={`https://www.google.com/s2/favicons?domain=${hostname}&sz=16`}
+          alt=""
+          onError={() => setFailed(true)}
+          sx={{ width: 16, height: 16, flexShrink: 0, borderRadius: '2px' }}
+        />
+      )
+    } catch {
+      // invalid URL — fall through to dot
+    }
+  }
+
+  return <SourceDot type={type} />
 }
 
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
@@ -104,8 +128,22 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             onClick={() => setFilter({ sourceId: String(source.id) })}
             sx={{ px: 2.5, py: 0.75, gap: 1.25, color: BRAND.sidebarText, '&.Mui-selected': activeItemSx, '&:hover': { bgcolor: 'rgba(198,40,40,0.05)' } }}
           >
-            <SourceDot type={source.type} />
-            <ListItemText primary={source.name} primaryTypographyProps={{ fontSize: 13.5 }} />
+            <SourceIcon type={source.type} url={source.homepage} />
+            <ListItemText
+              primary={
+                <Box
+                  component="a"
+                  href={source.homepage}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  sx={{ color: 'inherit', textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}
+                >
+                  {source.name}
+                </Box>
+              }
+              primaryTypographyProps={{ fontSize: 13.5 }}
+            />
           </ListItemButton>
         ))}
         <Divider sx={{ my: 1, borderColor: BRAND.border }} />

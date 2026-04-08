@@ -26,6 +26,7 @@ class FeedItemRepository(
                 FEED_ITEM.asterisk(),
                 SOURCE.TYPE,
                 SOURCE.NAME,
+                SOURCE.HOMEPAGE,
                 SAVED_ITEM.ID.isNotNull.`as`("saved"),
             ).from(FEED_ITEM)
             .join(SOURCE)
@@ -61,6 +62,7 @@ class FeedItemRepository(
                 FEED_ITEM.asterisk(),
                 SOURCE.TYPE,
                 SOURCE.NAME,
+                SOURCE.HOMEPAGE,
                 SAVED_ITEM.ID.isNotNull.`as`("saved"),
             ).from(FEED_ITEM)
             .join(SOURCE)
