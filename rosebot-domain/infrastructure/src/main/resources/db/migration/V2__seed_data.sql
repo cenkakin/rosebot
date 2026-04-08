@@ -14,4 +14,6 @@ INSERT INTO "user" (email, password_hash) VALUES
 
 INSERT INTO source (type, name, url, homepage) VALUES
     ('NEWS', 'BBC World', 'https://feeds.bbci.co.uk/news/world/rss.xml', 'https://www.bbc.co.uk'),
-    ('NEWS', 'Jacobin',   'https://jacobin.com/feed',                    'https://jacobin.com');
+    ('NEWS', 'Jacobin',   'https://jacobin.com/feed',                    'https://jacobin.com'),
+    ('NEWS', 'Drop Site News',   'https://api.substack.com/feed/podcast/2510348/s/153051.rss',                    'https://www.dropsitenews.com'),
+    ('NEWS', 'Evrensel',   'https://www.evrensel.net/rss/haber.xml',                    'https://www.evrensel.net');

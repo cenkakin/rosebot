@@ -129,21 +129,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             sx={{ px: 2.5, py: 0.75, gap: 1.25, color: BRAND.sidebarText, '&.Mui-selected': activeItemSx, '&:hover': { bgcolor: 'rgba(198,40,40,0.05)' } }}
           >
             <SourceIcon type={source.type} url={source.homepage} />
-            <ListItemText
-              primary={
-                <Box
-                  component="a"
-                  href={source.homepage}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                  sx={{ color: 'inherit', textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}
-                >
-                  {source.name}
-                </Box>
-              }
-              primaryTypographyProps={{ fontSize: 13.5 }}
-            />
+            <ListItemText primary={source.name} primaryTypographyProps={{ fontSize: 13.5 }} />
           </ListItemButton>
         ))}
         <Divider sx={{ my: 1, borderColor: BRAND.border }} />
