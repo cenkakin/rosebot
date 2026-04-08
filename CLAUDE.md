@@ -109,6 +109,10 @@ mockMvc = MockMvcBuilders.webAppContextSetup(context).build()
 
 Follow `SourceControllerIT` as the reference pattern for new controller tests.
 
+## Plans
+
+All implementation plans must be written as `.md` files in the `plans/` folder at the project root.
+
 ## Adding a New Domain
 
 1. Create package `<domain>/` with `<Domain>Repository`, `<Domain>Service`, `dto/`
