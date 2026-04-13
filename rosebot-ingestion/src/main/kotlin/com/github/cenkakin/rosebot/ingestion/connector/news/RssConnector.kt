@@ -2,10 +2,10 @@ package com.github.cenkakin.rosebot.ingestion.connector.news
 
 import com.github.cenkakin.rosebot.feed.FeedItemDraft
 import com.github.cenkakin.rosebot.ingestion.connector.SourceConnector
+import com.github.cenkakin.rosebot.source.Source
 import com.github.cenkakin.rosebot.source.SourceType
 import com.rometools.rome.io.SyndFeedInput
 import com.rometools.rome.io.XmlReader
-import jooq.tables.records.SourceRecord
 import org.jsoup.Jsoup
 import java.net.URL
 import java.time.Instant
@@ -13,7 +13,7 @@ import java.time.Instant
 class RssConnector : SourceConnector {
     override val type = SourceType.NEWS
 
-    override fun fetch(source: SourceRecord): List<FeedItemDraft> {
+    override fun fetch(source: Source): List<FeedItemDraft> {
         val feed = SyndFeedInput().build(XmlReader(URL(source.url)))
         return feed.entries.mapNotNull { entry ->
             val externalId = entry.uri ?: entry.link ?: return@mapNotNull null

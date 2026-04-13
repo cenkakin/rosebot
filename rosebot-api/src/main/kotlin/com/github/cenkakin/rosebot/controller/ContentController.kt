@@ -10,8 +10,9 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/content")
-class ContentController(private val service: ContentService) {
-
+class ContentController(
+    private val service: ContentService,
+) {
     @GetMapping("/{feedItemId}")
     fun get(
         @PathVariable feedItemId: Long,

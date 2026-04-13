@@ -3,8 +3,9 @@ package com.github.cenkakin.rosebot.content
 import jooq.tables.references.FEED_ITEM_CONTENT
 import org.jooq.DSLContext
 
-class ContentRepository(private val dsl: DSLContext) {
-
+class ContentRepository(
+    private val dsl: DSLContext,
+) {
     fun findByFeedItem(feedItemId: Long): String? =
         dsl
             .select(FEED_ITEM_CONTENT.CONTENT)

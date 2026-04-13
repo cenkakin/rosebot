@@ -3,20 +3,30 @@
  */
 package jooq.tables.references
 
-
 import jooq.tables.AppState
+import jooq.tables.Cluster
+import jooq.tables.Embedding
 import jooq.tables.FeedItem
 import jooq.tables.FeedItemContent
 import jooq.tables.SavedItem
 import jooq.tables.Source
+import jooq.tables.SystemState
 import jooq.tables.User
-
-
 
 /**
  * The table <code>public.app_state</code>.
  */
 val APP_STATE: AppState = AppState.APP_STATE
+
+/**
+ * The table <code>public.cluster</code>.
+ */
+val CLUSTER: Cluster = Cluster.CLUSTER
+
+/**
+ * The table <code>public.embedding</code>.
+ */
+val EMBEDDING: Embedding = Embedding.EMBEDDING
 
 /**
  * The table <code>public.feed_item</code>.
@@ -37,6 +47,11 @@ val SAVED_ITEM: SavedItem = SavedItem.SAVED_ITEM
  * The table <code>public.source</code>.
  */
 val SOURCE: Source = Source.SOURCE
+
+/**
+ * The table <code>public.system_state</code>.
+ */
+val SYSTEM_STATE: SystemState = SystemState.SYSTEM_STATE
 
 /**
  * The table <code>public.user</code>.

@@ -14,7 +14,6 @@
     <name>rosebot-ingestion</name>
 
     <dependencies>
-        <!-- Domain (transitively includes rosebot-infrastructure → JOOQ, datasource) -->
         <dependency>
             <groupId>com.github.cenkakin</groupId>
             <artifactId>rosebot-domain-core</artifactId>
@@ -66,17 +65,35 @@
             <artifactId>rome</artifactId>
         </dependency>
 
-        <!-- HTML tag stripping for <summary> -->
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
         </dependency>
 
-        <!-- Database driver -->
+
+        <dependency>
+            <groupId>org.tribuo</groupId>
+            <artifactId>tribuo-clustering-hdbscan</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.pemistahl</groupId>
+            <artifactId>lingua</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>dev.failsafe</groupId>
+            <artifactId>failsafe</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-starter-model-ollama</artifactId>
         </dependency>
 
         <!-- Test -->
@@ -103,8 +120,6 @@
     </dependencies>
 
     <build>
-        <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
-        <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -113,6 +128,7 @@
             <plugin>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-maven-plugin</artifactId>
+                <extensions>true</extensions>
                 <configuration>
                     <args>
                         <arg>-Xjsr305=strict</arg>
@@ -128,24 +144,6 @@
                         <version>${kotlin.version}</version>
                     </dependency>
                 </dependencies>
-                <executions>
-                    <execution>
-                        <id>compile</id>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>test-compile</id>
-                        <goals>
-                            <goal>test-compile</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>com.github.gantsign.maven</groupId>
-                <artifactId>ktlint-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

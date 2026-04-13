@@ -1,10 +1,9 @@
 package com.github.cenkakin.rosebot.ingestion.ingestion
 
 import com.github.cenkakin.rosebot.ingestion.connector.SourceConnector
+import com.github.cenkakin.rosebot.source.Source
 import com.github.cenkakin.rosebot.source.SourceService
 import com.github.cenkakin.rosebot.source.SourceType
-import jooq.tables.Source
-import jooq.tables.records.SourceRecord
 import org.slf4j.LoggerFactory
 
 class IngestionService(
@@ -26,18 +25,18 @@ class IngestionService(
             .ingest()
     }
 
-    private fun List<SourceRecord>.ingest() {
+    private fun List<Source>.ingest() {
         forEach { source ->
             runCatching { ingest(source) }
                 .onFailure { log.error("[ingestion] source={} failed: {}", source.name, it.message, it) }
         }
     }
 
-    private fun ingest(source: SourceRecord) {
+    private fun ingest(source: Source) {
         val connector =
-            connectors.find { it.type.name == source.type!!.literal }
+            connectors.find { it.type == source.type }
                 ?: run {
-                    log.warn("[ingestion] no connector for source type={}", source.type!!.literal)
+                    log.warn("[ingestion] no connector for source type={}", source.type)
                     return
                 }
 
@@ -47,7 +46,7 @@ class IngestionService(
         var dupeCount = 0
 
         drafts.forEach { draft ->
-            if (feedItemIngestionService.ingest(source.id!!, draft)) newCount++ else dupeCount++
+            if (feedItemIngestionService.ingest(source.id, draft)) newCount++ else dupeCount++
         }
 
         log.info(

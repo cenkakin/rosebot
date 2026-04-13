@@ -31,13 +31,64 @@ fun sourceService(dsl: DSLContext) = SourceService(SourceRepository(dsl))
 
 ### Layer Discipline (CRITICAL)
 - **Repositories** own all `DSLContext` / SQL. They return JOOQ records or domain objects.
-- **Services** never inject `DSLContext`. They only call repository methods.
+- **Services** never inject `DSLContext`. They only call repository methods. No exceptions.
 - **Controllers** never contain business logic. They delegate to a service.
+
+If a service needs DB access, add a method to the repository and call it from the service.
+Never pass `DSLContext` to a service even if it feels convenient.
+
+### Maven Version Management (CRITICAL)
+**All dependency versions live in the root `pom.xml` `<dependencyManagement>` block only.**
+Submodule `pom.xml` files declare dependencies **without a `<version>` tag**.
+
+```xml
+<!-- root pom.xml — versions go here -->
+<dependencyManagement>
+  <dependencies>
+    <dependency>
+      <groupId>com.github.haifengl</groupId>
+      <artifactId>smile-kotlin</artifactId>
+      <version>5.2.3</version>
+    </dependency>
+  </dependencies>
+</dependencyManagement>
+
+<!-- submodule pom.xml — no version -->
+<dependency>
+  <groupId>com.github.haifengl</groupId>
+  <artifactId>smile-kotlin</artifactId>
+</dependency>
+```
+
+### Controllers Live in rosebot-api (CRITICAL)
+All `@RestController` classes live exclusively in the **`rosebot-api`** module under
+`src/main/kotlin/com/github/cenkakin/rosebot/controller/`.
+
+Domain packages (`source/`, `feed/`, `cluster/`, etc.) contain **only** `Repository`,
+`Service`, and `dto/` — never a controller.
+
+The frontend communicates **only** with endpoints in the `rosebot-api` module.
+
+```
+rosebot-api/
+  controller/
+    SourceController.kt      ← @RestController lives here
+    FeedController.kt
+    ClusterController.kt     ← NOT inside cluster/ domain package
+    ...
+  config/
+    RosebotApiConfig.kt      ← wires all beans
+
+cluster/                     ← domain package: Repository + Service + dto/ only
+  ClusterRepository.kt
+  ClusterService.kt
+  dto/
+```
 
 ### Domain Boundaries
 - `user/` owns the `"user"` table entirely.
 - `auth/` owns JWT logic and depends on `UserService` — never touches the DB directly.
-- Each domain package is self-contained: `Repository`, `Service`, `dto/`, domain objects.
+- Each domain package is self-contained: `Repository`, `Service`, `dto/`, domain objects. No controllers.
 
 ### Kotlin + Spring Security Nullability
 `-Xjsr305=strict` makes Spring's `@Nullable` annotations surfaced as `String?` in Kotlin. Two known cases:
@@ -118,6 +169,6 @@ All implementation plans must be written as `.md` files in the `plans/` folder a
 1. Create package `<domain>/` with `<Domain>Repository`, `<Domain>Service`, `dto/`
 2. Repository takes `DSLContext` — no Spring annotations
 3. Service takes Repository — no Spring annotations
-4. Add `@Bean fun <domain>Service(dsl: DSLContext) = <Domain>Service(<Domain>Repository(dsl))` to `RosebotApiConfig`
-5. Add `@RestController` in `controller/` — picked up via component scan
+4. Add `@Bean fun <domain>Service(dsl: DSLContext) = <Domain>Service(<Domain>Repository(dsl))` to `RosebotApiConfig` (in `rosebot-api`)
+5. Add `@RestController` to `rosebot-api/.../controller/<Domain>Controller.kt` — **NOT** inside the domain package
 6. Write an integration test following the `SourceControllerIT` pattern

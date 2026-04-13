@@ -2,13 +2,13 @@ package com.github.cenkakin.rosebot.saved
 
 import com.github.cenkakin.rosebot.source.SourceType
 import com.github.cenkakin.rosebot.source.toJooqEnum
+import jooq.tables.references.FEED_ITEM
+import jooq.tables.references.SAVED_ITEM
+import jooq.tables.references.SOURCE
 import org.jooq.DSLContext
 import org.jooq.Record
 import org.jooq.impl.DSL
 import java.time.OffsetDateTime
-import jooq.tables.references.FEED_ITEM
-import jooq.tables.references.SAVED_ITEM
-import jooq.tables.references.SOURCE
 
 class SavedItemRepository(
     private val dsl: DSLContext,

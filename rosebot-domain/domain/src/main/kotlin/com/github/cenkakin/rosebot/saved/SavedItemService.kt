@@ -21,7 +21,7 @@ class SavedItemService(
     ): List<FeedItemResponse> {
         val beforeDt = before?.let { OffsetDateTime.parse(it) }
         val sourceType = type?.let { SourceType.valueOf(it) }
-        return savedItemRepository.findByUser(userId, beforeDt, limit, sourceId, sourceType).map { it.toResponse() }
+        return savedItemRepository.findByUser(userId, beforeDt, limit, sourceId, sourceType).map { it.toFeedItemResponse() }
     }
 
     fun getSavedSources(userId: Long): List<SourceResponse> =
@@ -51,7 +51,7 @@ class SavedItemService(
         }
     }
 
-    private fun Record.toResponse(): FeedItemResponse =
+    private fun Record.toFeedItemResponse(): FeedItemResponse =
         toFeedItemResponse(
             saved = true,
             savedAt = get(SAVED_ITEM.SAVED_AT)!!.toInstant().toString(),

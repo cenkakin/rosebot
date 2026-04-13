@@ -26,7 +26,7 @@
 
     <properties>
         <java.version>21</java.version>
-        <kotlin.version>2.1.21</kotlin.version>
+        <kotlin.version>2.3.20</kotlin.version>
         <testcontainers.version>1.20.4</testcontainers.version>
         <jjwt.version>0.12.6</jjwt.version>
         <frontend-maven-plugin.version>1.15.1</frontend-maven-plugin.version>
@@ -35,6 +35,11 @@
         <rome.version>2.1.0</rome.version>
         <jsoup.version>1.18.3</jsoup.version>
         <testcontainers-bom.version>2.0.2</testcontainers-bom.version>
+        <spring-ai.version>1.1.4</spring-ai.version>
+        <tribuo.version>4.3.2</tribuo.version>
+        <lingua.version>1.2.2</lingua.version>
+        <failsafe.version>3.3.2</failsafe.version>
+        <ktlint.version>1.8.0</ktlint.version>
     </properties>
 
     <dependencyManagement>
@@ -45,6 +50,29 @@
                 <version>${testcontainers.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-bom</artifactId>
+                <version>${spring-ai.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.tribuo</groupId>
+                <artifactId>tribuo-clustering-hdbscan</artifactId>
+                <version>${tribuo.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>dev.failsafe</groupId>
+                <artifactId>failsafe</artifactId>
+                <version>${failsafe.version}</version>
+            </dependency>
+            <!-- Lingua — language detection for RSS snippet passthrough -->
+            <dependency>
+                <groupId>com.github.pemistahl</groupId>
+                <artifactId>lingua</artifactId>
+                <version>${lingua.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jooq</groupId>
@@ -105,6 +133,55 @@
     </dependencyManagement>
 
     <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>ktlint</id>
+                        <phase>validate</phase>
+                        <configuration>
+                            <target name="ktlint">
+                                <java taskname="ktlint" dir="${basedir}" fork="true" failonerror="true" classpathref="maven.plugin.classpath" classname="com.pinterest.ktlint.Main">
+                                    <arg value="src/**/*.kt" />
+                                    <arg value="!src/**/jooq/**" />
+                                </java>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>ktlint-format</id>
+                        <configuration>
+                            <target name="ktlint">
+                                <java taskname="ktlint" dir="${basedir}" fork="true" failonerror="true" classpathref="maven.plugin.classpath" classname="com.pinterest.ktlint.Main">
+                                    <arg value="-F" />
+                                    <arg value="src/**/*.kt" />
+                                    <arg value="!src/**/jooq/**" />
+                                    <jvmarg value="--add-opens" />
+                                    <jvmarg value="java.base/java.lang=ALL-UNNAMED" />
+                                </java>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.pinterest.ktlint</groupId>
+                        <artifactId>ktlint-cli</artifactId>
+                        <version>${ktlint.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+        </plugins>
+
+
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -115,26 +192,8 @@
                         <nodeVersion>${node.version}</nodeVersion>
                     </configuration>
                 </plugin>
-                <plugin>
-                    <groupId>com.github.gantsign.maven</groupId>
-                    <artifactId>ktlint-maven-plugin</artifactId>
-                    <version>${ktlint-maven-plugin.version}</version>
-                    <executions>
-                        <execution>
-                            <id>format</id>
-                            <goals>
-                                <goal>format</goal>
-                            </goals>
-                        </execution>
-                        <execution>
-                            <id>check</id>
-                            <goals>
-                                <goal>check</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
             </plugins>
         </pluginManagement>
     </build>
+
 </project>

@@ -11,6 +11,6 @@ data class FeedItemDraft(
     val engagement: Map<String, Any>?,
     val publishedAt: Instant,
     val updatedAt: Instant?,
-    val summary: String?,    // plain-text snippet → feed_item.summary column
-    val content: String?,    // full article HTML → feed_item_content table
+    val summary: String?,
+    val content: String?,
 )
