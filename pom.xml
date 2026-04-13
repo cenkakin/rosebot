@@ -37,7 +37,6 @@
         <testcontainers-bom.version>2.0.2</testcontainers-bom.version>
         <spring-ai.version>1.1.4</spring-ai.version>
         <tribuo.version>4.3.2</tribuo.version>
-        <lingua.version>1.2.2</lingua.version>
         <failsafe.version>3.3.2</failsafe.version>
         <ktlint.version>1.8.0</ktlint.version>
     </properties>
@@ -67,12 +66,6 @@
                 <groupId>dev.failsafe</groupId>
                 <artifactId>failsafe</artifactId>
                 <version>${failsafe.version}</version>
-            </dependency>
-            <!-- Lingua — language detection for RSS snippet passthrough -->
-            <dependency>
-                <groupId>com.github.pemistahl</groupId>
-                <artifactId>lingua</artifactId>
-                <version>${lingua.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jooq</groupId>

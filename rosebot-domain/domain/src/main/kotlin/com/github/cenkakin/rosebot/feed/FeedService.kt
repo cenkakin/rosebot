@@ -2,9 +2,9 @@ package com.github.cenkakin.rosebot.feed
 
 import com.github.cenkakin.rosebot.feed.dto.FeedItemResponse
 import com.github.cenkakin.rosebot.source.SourceType
+import java.time.OffsetDateTime
 import org.jooq.Record
 import org.springframework.context.ApplicationEventPublisher
-import java.time.OffsetDateTime
 
 class FeedService(
     private val feedItemRepository: FeedItemRepository,
@@ -39,7 +39,14 @@ class FeedService(
         return feedItemRepository.insert(feedItemRecord)?.id
     }
 
+    fun findUndetected(limit: Int): List<FeedItemForSummarisation> = feedItemRepository.findUndetected(limit)
+
     fun findUnsummarised(limit: Int): List<FeedItemForSummarisation> = feedItemRepository.findUnsummarised(limit)
+
+    fun saveLanguage(
+        feedItemId: Long,
+        language: String,
+    ) = feedItemRepository.saveLanguage(feedItemId, language)
 
     fun saveAiSummary(
         feedItemId: Long,

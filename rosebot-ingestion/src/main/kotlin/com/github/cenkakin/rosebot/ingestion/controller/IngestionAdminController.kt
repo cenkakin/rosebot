@@ -2,6 +2,7 @@ package com.github.cenkakin.rosebot.ingestion.controller
 
 import com.github.cenkakin.rosebot.ingestion.ai.clustering.ClusteringJob
 import com.github.cenkakin.rosebot.ingestion.ai.embedding.EmbeddingJob
+import com.github.cenkakin.rosebot.ingestion.ai.summarisation.LanguageDetectionJob
 import com.github.cenkakin.rosebot.ingestion.ai.summarisation.SummarisationJob
 import com.github.cenkakin.rosebot.ingestion.ingestion.IngestionService
 import com.github.cenkakin.rosebot.source.SourceType
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/admin/ingestion")
 class IngestionAdminController(
     private val ingestionService: IngestionService,
+    private val languageDetectionJob: LanguageDetectionJob,
     private val summarisationJob: SummarisationJob,
     private val embeddingJob: EmbeddingJob,
     private val clusteringJob: ClusteringJob,
@@ -38,6 +40,14 @@ class IngestionAdminController(
             }
         }
         return ResponseEntity.ok("Polling is triggered")
+    }
+
+    @PostMapping("/detect-language")
+    fun triggerLanguageDetection(): ResponseEntity<String> {
+        CoroutineScope(Dispatchers.IO).launch {
+            languageDetectionJob.recover()
+        }
+        return ResponseEntity.ok("Language detection is triggered")
     }
 
     @PostMapping("/summarise")

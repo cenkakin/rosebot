@@ -47,6 +47,7 @@ CREATE TABLE feed_item (
     published_at  TIMESTAMPTZ NOT NULL,
     updated_at    TIMESTAMPTZ,
     ingested_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+    language      VARCHAR(10),
     cluster_id    BIGINT      REFERENCES cluster(id) ON DELETE SET NULL,
     UNIQUE (source_id, external_id)
 );
@@ -54,6 +55,8 @@ CREATE TABLE feed_item (
 CREATE INDEX idx_feed_item_published_at     ON feed_item (published_at DESC);
 CREATE INDEX idx_feed_item_source_published ON feed_item (source_id, published_at DESC);
 CREATE INDEX idx_feed_item_cluster          ON feed_item (cluster_id);
+CREATE INDEX idx_feed_item_language         ON feed_item (language);
+CREATE INDEX idx_feed_item_undetected       ON feed_item (ingested_at ASC) WHERE language IS NULL;
 
 CREATE TABLE feed_item_content (
     id           BIGSERIAL PRIMARY KEY,

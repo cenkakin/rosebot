@@ -5,4 +5,5 @@ data class FeedItemForSummarisation(
     val title: String,
     val snippet: String?,
     val content: String?,
+    val language: String?, // null for findUndetected results; populated for findUnsummarised
 )

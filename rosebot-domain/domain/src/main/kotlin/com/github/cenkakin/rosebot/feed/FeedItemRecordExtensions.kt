@@ -3,12 +3,12 @@ package com.github.cenkakin.rosebot.feed
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.cenkakin.rosebot.feed.dto.FeedItemResponse
+import java.time.ZoneOffset
 import jooq.tables.records.FeedItemRecord
 import jooq.tables.references.FEED_ITEM
 import jooq.tables.references.SOURCE
 import org.jooq.JSONB
 import org.jooq.Record
-import java.time.ZoneOffset
 
 private val objectMapper = jacksonObjectMapper()
 
@@ -46,6 +46,7 @@ internal fun Record.toFeedItemResponse(
         author = get(FEED_ITEM.AUTHOR),
         engagement = engagement,
         publishedAt = get(FEED_ITEM.PUBLISHED_AT)!!.toInstant().toString(),
+        language = get(FEED_ITEM.LANGUAGE),
         saved = saved,
         savedAt = savedAt,
     )

@@ -3,6 +3,7 @@
  */
 package jooq.tables.references
 
+
 import jooq.tables.AppState
 import jooq.tables.Cluster
 import jooq.tables.Embedding
@@ -12,6 +13,8 @@ import jooq.tables.SavedItem
 import jooq.tables.Source
 import jooq.tables.SystemState
 import jooq.tables.User
+
+
 
 /**
  * The table <code>public.app_state</code>.

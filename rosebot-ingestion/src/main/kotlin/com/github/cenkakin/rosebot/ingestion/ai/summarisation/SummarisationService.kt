@@ -1,30 +1,30 @@
 package com.github.cenkakin.rosebot.ingestion.ai.summarisation
 
-import com.github.cenkakin.rosebot.ingestion.ai.clustering.ClusteringJob
-import org.springframework.ai.chat.client.ChatClient
+import java.util.Locale
 import java.util.concurrent.Semaphore
 import org.slf4j.LoggerFactory
+import org.springframework.ai.chat.client.ChatClient
 
 class SummarisationService(
     private val chatClient: ChatClient,
-    private val languageDetector: LanguageDetector,
+    private val semaphore: Semaphore,
 ) {
     companion object {
         private val SYSTEM_PROMPT =
             """
-            You are a news summariser. 
+            You are a news summariser.
             Always respond in English regardless of the article's original language. Be factual and concise.
             """.trimIndent()
-        private val SEMAPHORE = Semaphore(2)
         private val log = LoggerFactory.getLogger(SummarisationService::class.java)
     }
 
-    fun resolve(
+    internal fun resolveWithKnownLanguage(
+        language: String,
         title: String,
         snippet: String?,
         content: String?,
     ): String =
-        if (!snippet.isNullOrBlank() && languageDetector.isEnglish(snippet)) {
+        if (language == Locale.ENGLISH.language && !snippet.isNullOrBlank()) {
             snippet
         } else {
             summarise(title, content ?: snippet)
@@ -35,27 +35,28 @@ class SummarisationService(
         text: String?,
     ): String {
         val content = text?.take(4000) ?: title
-        SEMAPHORE.acquire()
+        semaphore.acquire()
         return try {
-            val aiSummary = chatClient
-                .prompt()
-                .system(SYSTEM_PROMPT)
-                .user {
-                    it
-                        .text(
-                            """
-                            Summarise the following news article in exactly 2-3 sentences, capturing the key facts and context. Do not add opinions or analysis.
-                            Title: {title}
-                            Content: {content}
-                        """,
-                        ).param("title", title)
-                        .param("content", content)
-                }.call()
-                .content()!!
+            val aiSummary =
+                chatClient
+                    .prompt()
+                    .system(SYSTEM_PROMPT)
+                    .user {
+                        it
+                            .text(
+                                """
+                                Summarise the following news article in exactly 2-3 sentences, capturing the key facts and context. Do not add opinions or analysis.
+                                Title: {title}
+                                Content: {content}
+                            """,
+                            ).param("title", title)
+                            .param("content", content)
+                    }.call()
+                    .content()!!
             log.info("[summarisation] title={}, content={}, aiSummary={}", title, content, aiSummary)
             aiSummary
         } finally {
-            SEMAPHORE.release()
+            semaphore.release()
         }
     }
 }

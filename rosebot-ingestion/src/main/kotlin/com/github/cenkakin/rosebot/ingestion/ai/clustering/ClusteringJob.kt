@@ -7,8 +7,10 @@ import dev.failsafe.Failsafe
 import dev.failsafe.Fallback
 import dev.failsafe.RetryPolicy
 import dev.failsafe.function.CheckedSupplier
+import java.time.Duration
 import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
+import org.springframework.stereotype.Component
 import org.tribuo.MutableDataset
 import org.tribuo.clustering.ClusteringFactory
 import org.tribuo.clustering.hdbscan.HdbscanTrainer
@@ -17,8 +19,6 @@ import org.tribuo.impl.ArrayExample
 import org.tribuo.math.distance.DistanceType
 import org.tribuo.math.neighbour.NeighboursQueryFactoryType
 import org.tribuo.provenance.SimpleDataSourceProvenance
-import java.time.Duration
-import org.springframework.stereotype.Component
 
 @Component
 class ClusteringJob(

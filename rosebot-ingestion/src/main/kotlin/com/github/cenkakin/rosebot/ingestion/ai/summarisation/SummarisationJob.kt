@@ -1,12 +1,12 @@
 package com.github.cenkakin.rosebot.ingestion.ai.summarisation
 
 import com.github.cenkakin.rosebot.feed.FeedService
-import com.github.cenkakin.rosebot.feed.SummaryCreatedEvent
-import org.slf4j.LoggerFactory
-import org.springframework.context.ApplicationEventPublisher
-import org.springframework.scheduling.annotation.Scheduled
 import java.util.concurrent.TimeUnit
+import org.slf4j.LoggerFactory
+import org.springframework.scheduling.annotation.Scheduled
+import org.springframework.stereotype.Component
 
+@Component
 class SummarisationJob(
     private val summarisationService: SummarisationService,
     private val feedService: FeedService,
@@ -21,8 +21,14 @@ class SummarisationJob(
         log.info("[summarisation-job] processing {} items", pending.size)
         pending.forEach { item ->
             runCatching {
-                val aiSummary = summarisationService.resolve(item.title, item.snippet, item.content)
-                feedService.saveAiSummary(item.id, aiSummary)
+                val summary =
+                    summarisationService.resolveWithKnownLanguage(
+                        item.language ?: LanguageDetector.UNDETERMINED,
+                        item.title,
+                        item.snippet,
+                        item.content,
+                    )
+                feedService.saveAiSummary(item.id, summary)
             }.onFailure {
                 log.error("[summarisation-job] feedItemId={} failed: {}", item.id, it.message)
             }

@@ -1,17 +1,15 @@
 package com.github.cenkakin.rosebot.ingestion.ai.clustering
 
-import org.slf4j.LoggerFactory
+import java.util.concurrent.Semaphore
 import org.springframework.ai.chat.client.ChatClient
 import org.springframework.ai.chat.client.entity
-import java.util.concurrent.Semaphore
 
 class ClusterLabellingService(
     private val chatClient: ChatClient,
+    private val semaphore: Semaphore,
 ) {
     companion object {
         private const val SYSTEM_PROMPT = "You are a news editor. Respond ONLY with valid JSON."
-        private val log = LoggerFactory.getLogger(ClusterLabellingService::class.java)
-        private val semaphore = Semaphore(2)
     }
 
     fun label(summaries: List<String>): ClusterLabel {

@@ -19,6 +19,7 @@ import com.github.cenkakin.rosebot.user.UserRepository
 import com.github.cenkakin.rosebot.user.UserService
 import org.jooq.DSLContext
 import org.springframework.boot.context.properties.EnableConfigurationProperties
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -43,7 +44,10 @@ class RosebotApiConfig {
     fun sourceService(dsl: DSLContext) = SourceService(SourceRepository(dsl))
 
     @Bean
-    fun feedService(dsl: DSLContext) = FeedService(FeedItemRepository(dsl))
+    fun feedService(
+        dsl: DSLContext,
+        eventPublisher: ApplicationEventPublisher,
+    ) = FeedService(FeedItemRepository(dsl), eventPublisher)
 
     @Bean
     fun savedItemService(dsl: DSLContext) = SavedItemService(SavedItemRepository(dsl))

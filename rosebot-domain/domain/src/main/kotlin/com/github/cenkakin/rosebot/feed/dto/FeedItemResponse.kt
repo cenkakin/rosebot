@@ -13,6 +13,7 @@ data class FeedItemResponse(
     val author: String?,
     val engagement: Map<String, Any>?,
     val publishedAt: String,
+    val language: String?,
     val saved: Boolean,
     val savedAt: String?,
 )

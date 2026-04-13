@@ -1,6 +1,7 @@
 package com.github.cenkakin.rosebot.feed
 
 import com.github.cenkakin.rosebot.source.SourceType
+import java.time.OffsetDateTime
 import jooq.tables.records.FeedItemRecord
 import jooq.tables.references.FEED_ITEM
 import jooq.tables.references.FEED_ITEM_CONTENT
@@ -8,7 +9,6 @@ import jooq.tables.references.SOURCE
 import org.jooq.DSLContext
 import org.jooq.Record
 import org.jooq.impl.DSL
-import java.time.OffsetDateTime
 
 class FeedItemRepository(
     private val dsl: DSLContext,
@@ -50,13 +50,13 @@ class FeedItemRepository(
             .returning()
             .fetchOne()
 
-    fun findUnsummarised(limit: Int): List<FeedItemForSummarisation> =
+    fun findUndetected(limit: Int): List<FeedItemForSummarisation> =
         dsl
             .select(FEED_ITEM.ID, FEED_ITEM.TITLE, FEED_ITEM.SUMMARY, FEED_ITEM_CONTENT.CONTENT)
             .from(FEED_ITEM)
             .leftJoin(FEED_ITEM_CONTENT)
             .on(FEED_ITEM_CONTENT.FEED_ITEM_ID.eq(FEED_ITEM.ID))
-            .where(FEED_ITEM.AI_SUMMARY.isNull)
+            .where(FEED_ITEM.LANGUAGE.isNull)
             .orderBy(FEED_ITEM.INGESTED_AT.asc())
             .limit(limit)
             .fetch()
@@ -66,8 +66,40 @@ class FeedItemRepository(
                     title = r.get(FEED_ITEM.TITLE)!!,
                     snippet = r.get(FEED_ITEM.SUMMARY),
                     content = r.get(FEED_ITEM_CONTENT.CONTENT),
+                    language = null,
                 )
             }
+
+    fun findUnsummarised(limit: Int): List<FeedItemForSummarisation> =
+        dsl
+            .select(FEED_ITEM.ID, FEED_ITEM.TITLE, FEED_ITEM.SUMMARY, FEED_ITEM.LANGUAGE, FEED_ITEM_CONTENT.CONTENT)
+            .from(FEED_ITEM)
+            .leftJoin(FEED_ITEM_CONTENT)
+            .on(FEED_ITEM_CONTENT.FEED_ITEM_ID.eq(FEED_ITEM.ID))
+            .where(FEED_ITEM.AI_SUMMARY.isNull.and(FEED_ITEM.LANGUAGE.isNotNull))
+            .orderBy(FEED_ITEM.INGESTED_AT.asc())
+            .limit(limit)
+            .fetch()
+            .map { r ->
+                FeedItemForSummarisation(
+                    id = r.get(FEED_ITEM.ID)!!,
+                    title = r.get(FEED_ITEM.TITLE)!!,
+                    snippet = r.get(FEED_ITEM.SUMMARY),
+                    content = r.get(FEED_ITEM_CONTENT.CONTENT),
+                    language = r.get(FEED_ITEM.LANGUAGE),
+                )
+            }
+
+    fun saveLanguage(
+        feedItemId: Long,
+        language: String,
+    ) {
+        dsl
+            .update(FEED_ITEM)
+            .set(FEED_ITEM.LANGUAGE, language)
+            .where(FEED_ITEM.ID.eq(feedItemId))
+            .execute()
+    }
 
     fun saveAiSummary(
         feedItemId: Long,
