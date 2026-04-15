@@ -1,5 +1,6 @@
 package com.github.cenkakin.rosebot.ingestion.controller
 
+import com.github.cenkakin.rosebot.ingestion.ai.categorisation.CategorizationJob
 import com.github.cenkakin.rosebot.ingestion.ai.clustering.ClusteringJob
 import com.github.cenkakin.rosebot.ingestion.ai.embedding.EmbeddingJob
 import com.github.cenkakin.rosebot.ingestion.ai.summarisation.LanguageDetectionJob
@@ -23,6 +24,7 @@ class IngestionAdminController(
     private val summarisationJob: SummarisationJob,
     private val embeddingJob: EmbeddingJob,
     private val clusteringJob: ClusteringJob,
+    private val categorizationJob: CategorizationJob,
 ) {
     @PostMapping("/poll")
     fun pollAll(
@@ -72,5 +74,13 @@ class IngestionAdminController(
             clusteringJob.run()
         }
         return ResponseEntity.ok("Clustering is triggered")
+    }
+
+    @PostMapping("/categorise")
+    fun triggerCategorisation(): ResponseEntity<String> {
+        CoroutineScope(Dispatchers.IO).launch {
+            categorizationJob.recover()
+        }
+        return ResponseEntity.ok("Categorisation is triggered")
     }
 }

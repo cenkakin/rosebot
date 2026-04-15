@@ -14,6 +14,7 @@ data class FeedItemResponse(
     val engagement: Map<String, Any>?,
     val publishedAt: String,
     val language: String?,
+    val category: String?,
     val saved: Boolean,
     val savedAt: String?,
 )

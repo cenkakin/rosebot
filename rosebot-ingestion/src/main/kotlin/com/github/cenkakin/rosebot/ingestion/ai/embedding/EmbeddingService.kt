@@ -1,5 +1,6 @@
 package com.github.cenkakin.rosebot.ingestion.ai.embedding
 
+import com.github.cenkakin.rosebot.feed.AISummarisedItem
 import org.springframework.ai.embedding.EmbeddingModel
 import java.time.OffsetDateTime
 
@@ -19,7 +20,7 @@ class EmbeddingService(
     private fun embed(text: String): List<Float> = embeddingModel.embed(text).toList()
 
     /** Items that have an ai_summary but no embedding yet. */
-    fun findUnembedded(limit: Int): List<UnembeddedItem> = embeddingRepository.findUnembedded(limit)
+    fun findUnembedded(limit: Int): List<AISummarisedItem> = embeddingRepository.findUnembedded(limit)
 
     /**
      * Loads all (feedItemId, aiSummary, publishedAt, vector) rows for feed items

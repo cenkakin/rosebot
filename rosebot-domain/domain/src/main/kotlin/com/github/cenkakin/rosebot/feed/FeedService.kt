@@ -56,6 +56,13 @@ class FeedService(
         eventPublisher.publishEvent(SummaryCreatedEvent(feedItemId, aiSummary))
     }
 
+    fun findUncategorised(limit: Int): List<AISummarisedItem> = feedItemRepository.findUncategorised(limit)
+
+    fun saveCategory(
+        feedItemId: Long,
+        category: ArticleCategory,
+    ) = feedItemRepository.saveCategory(feedItemId, category)
+
     private fun Record.toResponse(): FeedItemResponse =
         toFeedItemResponse(
             saved = get("saved", Boolean::class.java) ?: false,

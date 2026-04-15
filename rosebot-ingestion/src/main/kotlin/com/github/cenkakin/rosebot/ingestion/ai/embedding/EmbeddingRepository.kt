@@ -1,5 +1,6 @@
 package com.github.cenkakin.rosebot.ingestion.ai.embedding
 
+import com.github.cenkakin.rosebot.feed.AISummarisedItem
 import jooq.tables.references.EMBEDDING
 import jooq.tables.references.FEED_ITEM
 import org.jooq.DSLContext
@@ -23,7 +24,7 @@ class EmbeddingRepository(
             .execute()
     }
 
-    fun findUnembedded(limit: Int): List<UnembeddedItem> =
+    fun findUnembedded(limit: Int): List<AISummarisedItem> =
         dsl
             .select(FEED_ITEM.ID, FEED_ITEM.AI_SUMMARY)
             .from(FEED_ITEM)
@@ -35,7 +36,7 @@ class EmbeddingRepository(
             ).orderBy(FEED_ITEM.INGESTED_AT.asc())
             .limit(limit)
             .fetch()
-            .map { r -> UnembeddedItem(r.get(FEED_ITEM.ID)!!, r.get(FEED_ITEM.AI_SUMMARY)!!) }
+            .map { r -> AISummarisedItem(r.get(FEED_ITEM.ID)!!, r.get(FEED_ITEM.AI_SUMMARY)!!) }
 
     fun loadWindow(since: OffsetDateTime): List<EmbeddingRow> =
         dsl

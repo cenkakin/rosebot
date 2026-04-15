@@ -6,6 +6,7 @@ package jooq.tables.records
 
 import java.time.OffsetDateTime
 
+import jooq.enums.ArticleCategory
 import jooq.tables.FeedItem
 
 import org.jooq.JSONB
@@ -79,6 +80,10 @@ open class FeedItemRecord() : UpdatableRecordImpl<FeedItemRecord>(FeedItem.FEED_
         set(value): Unit = set(14, value)
         get(): Long? = get(14) as Long?
 
+    open var category: ArticleCategory?
+        set(value): Unit = set(15, value)
+        get(): ArticleCategory? = get(15) as ArticleCategory?
+
     // -------------------------------------------------------------------------
     // Primary key information
     // -------------------------------------------------------------------------
@@ -88,7 +93,7 @@ open class FeedItemRecord() : UpdatableRecordImpl<FeedItemRecord>(FeedItem.FEED_
     /**
      * Create a detached, initialised FeedItemRecord
      */
-    constructor(id: Long? = null, sourceId: Long? = null, externalId: String? = null, title: String? = null, summary: String? = null, aiSummary: String? = null, url: String? = null, thumbnailUrl: String? = null, author: String? = null, engagement: JSONB? = null, publishedAt: OffsetDateTime? = null, updatedAt: OffsetDateTime? = null, ingestedAt: OffsetDateTime? = null, language: String? = null, clusterId: Long? = null): this() {
+    constructor(id: Long? = null, sourceId: Long? = null, externalId: String? = null, title: String? = null, summary: String? = null, aiSummary: String? = null, url: String? = null, thumbnailUrl: String? = null, author: String? = null, engagement: JSONB? = null, publishedAt: OffsetDateTime? = null, updatedAt: OffsetDateTime? = null, ingestedAt: OffsetDateTime? = null, language: String? = null, clusterId: Long? = null, category: ArticleCategory? = null): this() {
         this.id = id
         this.sourceId = sourceId
         this.externalId = externalId
@@ -104,6 +109,7 @@ open class FeedItemRecord() : UpdatableRecordImpl<FeedItemRecord>(FeedItem.FEED_
         this.ingestedAt = ingestedAt
         this.language = language
         this.clusterId = clusterId
+        this.category = category
         resetChangedOnNotNull()
     }
 }

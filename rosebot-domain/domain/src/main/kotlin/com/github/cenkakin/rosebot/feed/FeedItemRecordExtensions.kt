@@ -47,6 +47,7 @@ internal fun Record.toFeedItemResponse(
         engagement = engagement,
         publishedAt = get(FEED_ITEM.PUBLISHED_AT)!!.toInstant().toString(),
         language = get(FEED_ITEM.LANGUAGE),
+        category = get(FEED_ITEM.CATEGORY)?.literal,
         saved = saved,
         savedAt = savedAt,
     )

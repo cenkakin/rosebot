@@ -19,9 +19,9 @@ class EmbeddingJob(
         log.info("[embedding-job] processing {} items", pending.size)
         pending.forEach { item ->
             runCatching {
-                embeddingService.embedAndSave(item.feedItemId, item.aiSummary)
+                embeddingService.embedAndSave(item.id, item.aiSummary)
             }.onFailure {
-                log.error("[embedding-job] feedItemId={} failed: {}", item.feedItemId, it.message)
+                log.error("[embedding-job] feedItemId={} failed: {}", item.id, it.message)
             }
         }
     }

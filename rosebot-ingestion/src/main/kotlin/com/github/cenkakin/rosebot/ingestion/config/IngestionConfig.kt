@@ -6,6 +6,7 @@ import com.github.cenkakin.rosebot.content.ContentRepository
 import com.github.cenkakin.rosebot.content.ContentService
 import com.github.cenkakin.rosebot.feed.FeedItemRepository
 import com.github.cenkakin.rosebot.feed.FeedService
+import com.github.cenkakin.rosebot.ingestion.ai.categorisation.CategorizationService
 import com.github.cenkakin.rosebot.ingestion.ai.clustering.ClusterLabellingService
 import com.github.cenkakin.rosebot.ingestion.ai.embedding.EmbeddingRepository
 import com.github.cenkakin.rosebot.ingestion.ai.embedding.EmbeddingService
@@ -85,6 +86,12 @@ class IngestionConfig(
         chatClientBuilder: ChatClient.Builder,
         llmSemaphore: Semaphore,
     ) = ClusterLabellingService(chatClientBuilder.build(), llmSemaphore)
+
+    @Bean
+    fun categorizationService(
+        chatClientBuilder: ChatClient.Builder,
+        llmSemaphore: Semaphore,
+    ) = CategorizationService(chatClientBuilder.build(), llmSemaphore)
 
     @Bean
     fun clusterService(dsl: DSLContext) = ClusterService(ClusterRepository(dsl))

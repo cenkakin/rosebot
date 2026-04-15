@@ -6,6 +6,7 @@ package jooq.tables
 
 import java.time.OffsetDateTime
 import jooq.Public
+import jooq.enums.ArticleCategory
 import jooq.keys.EMBEDDING__EMBEDDING_FEED_ITEM_ID_FKEY
 import jooq.keys.FEED_ITEM_CONTENT__FEED_ITEM_CONTENT_FEED_ITEM_ID_FKEY
 import jooq.keys.FEED_ITEM_PKEY
@@ -156,6 +157,11 @@ open class FeedItem(
      * The column <code>public.feed_item.cluster_id</code>.
      */
     val CLUSTER_ID: TableField<FeedItemRecord, Long?> = createField(DSL.name("cluster_id"), SQLDataType.BIGINT, this, "")
+
+    /**
+     * The column <code>public.feed_item.category</code>.
+     */
+    val CATEGORY: TableField<FeedItemRecord, ArticleCategory?> = createField(DSL.name("category"), SQLDataType.VARCHAR.asEnumDataType(ArticleCategory::class.java), this, "")
 
     private constructor(alias: Name, aliased: Table<FeedItemRecord>?): this(alias, null, null, null, aliased, null, null)
     private constructor(alias: Name, aliased: Table<FeedItemRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, null, aliased, parameters, null)

@@ -112,5 +112,31 @@ class FeedItemRepository(
             .execute()
     }
 
+    fun findUncategorised(limit: Int): List<AISummarisedItem> =
+        dsl
+            .select(FEED_ITEM.ID, FEED_ITEM.AI_SUMMARY)
+            .from(FEED_ITEM)
+            .where(FEED_ITEM.AI_SUMMARY.isNotNull.and(FEED_ITEM.CATEGORY.isNull))
+            .orderBy(FEED_ITEM.INGESTED_AT.asc())
+            .limit(limit)
+            .fetch()
+            .map { r ->
+                AISummarisedItem(
+                    id = r.get(FEED_ITEM.ID)!!,
+                    aiSummary = r.get(FEED_ITEM.AI_SUMMARY)!!,
+                )
+            }
+
+    fun saveCategory(
+        feedItemId: Long,
+        category: ArticleCategory,
+    ) {
+        dsl
+            .update(FEED_ITEM)
+            .set(FEED_ITEM.CATEGORY, category.toJooqEnum())
+            .where(FEED_ITEM.ID.eq(feedItemId))
+            .execute()
+    }
+
     private fun SourceType.toJooqEnum(): jooq.enums.SourceType = jooq.enums.SourceType.valueOf(name)
 }

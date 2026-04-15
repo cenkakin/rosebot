@@ -2,6 +2,17 @@ CREATE TYPE source_type AS ENUM ('NEWS', 'REDDIT', 'TWITTER');
 
 CREATE TYPE cluster_status AS ENUM ('PENDING', 'ACTIVE', 'INACTIVE');
 
+CREATE TYPE article_category AS ENUM (
+    'POLITICS',
+    'BUSINESS',
+    'TECHNOLOGY',
+    'SCIENCE_AND_HEALTH',
+    'WORLD',
+    'SOCIETY',
+    'ENTERTAINMENT',
+    'SPORTS'
+);
+
 CREATE TABLE "user" (
     id            BIGSERIAL PRIMARY KEY,
     email         TEXT NOT NULL CONSTRAINT uq_user_email UNIQUE,
@@ -49,6 +60,7 @@ CREATE TABLE feed_item (
     ingested_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
     language      VARCHAR(10),
     cluster_id    BIGINT      REFERENCES cluster(id) ON DELETE SET NULL,
+    category      article_category,
     UNIQUE (source_id, external_id)
 );
 
@@ -57,6 +69,9 @@ CREATE INDEX idx_feed_item_source_published ON feed_item (source_id, published_a
 CREATE INDEX idx_feed_item_cluster          ON feed_item (cluster_id);
 CREATE INDEX idx_feed_item_language         ON feed_item (language);
 CREATE INDEX idx_feed_item_undetected       ON feed_item (ingested_at ASC) WHERE language IS NULL;
+CREATE INDEX idx_feed_item_category         ON feed_item (category);
+CREATE INDEX idx_feed_item_uncategorised    ON feed_item (ingested_at ASC)
+    WHERE ai_summary IS NOT NULL AND category IS NULL;
 
 CREATE TABLE feed_item_content (
     id           BIGSERIAL PRIMARY KEY,
