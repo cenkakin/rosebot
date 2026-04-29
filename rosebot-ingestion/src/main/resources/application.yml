@@ -6,15 +6,17 @@ spring:
   jooq:
     sql-dialect: POSTGRES
   ai:
-    ollama:
-      base-url: ${prop.ai.ollama.base-url}
+    openai:
+      api-key: ${prop.ai.openai.api-key}
       chat:
-        model: qwen3-5:9b
+        base-url: ${prop.ai.openai.chat.base-url}
         options:
+          model: ${prop.ai.openai.chat.model}
           temperature: 0.2
-          num_ctx: 8192
       embedding:
-        model: nomic-embed-text
+        base-url: ${prop.ai.openai.embedding.base-url}
+        options:
+          model: ${prop.ai.openai.embedding.model}
 
 server:
   port: 8090

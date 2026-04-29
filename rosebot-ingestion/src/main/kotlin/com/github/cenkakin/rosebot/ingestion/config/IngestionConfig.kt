@@ -22,7 +22,7 @@ import com.github.cenkakin.rosebot.source.SourceService
 import java.util.concurrent.Semaphore
 import org.jooq.DSLContext
 import org.springframework.ai.chat.client.ChatClient
-import org.springframework.ai.ollama.OllamaEmbeddingModel
+import org.springframework.ai.embedding.EmbeddingModel
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -34,7 +34,7 @@ class IngestionConfig(
     private val eventPublisher: ApplicationEventPublisher,
 ) {
     @Bean
-    fun llmSemaphore(): Semaphore = Semaphore(2)
+    fun llmSemaphore(): Semaphore = Semaphore(5)
 
     @Bean
     fun rssConnector(): SourceConnector = RssConnector()
@@ -78,7 +78,7 @@ class IngestionConfig(
     @Bean
     fun embeddingService(
         dsl: DSLContext,
-        embeddingModel: OllamaEmbeddingModel,
+        embeddingModel: EmbeddingModel,
     ) = EmbeddingService(EmbeddingRepository(dsl), embeddingModel)
 
     @Bean

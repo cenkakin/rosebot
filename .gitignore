@@ -46,7 +46,12 @@ HELP.md
 ### Secrets ###
 *-secrets.properties
 
+### Logs ###
+logs/
+
 ### Claude ###
 .claude
 plans
 mockups
+
+.superpowers
