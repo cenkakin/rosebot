@@ -1,13 +1,17 @@
 import HomeIcon from '@mui/icons-material/Home'
 import StarIcon from '@mui/icons-material/Star'
+import ViewColumnIcon from '@mui/icons-material/ViewColumn'
 import { Box, Chip, Divider, Drawer, List, ListItemButton, ListItemText, Typography } from '@mui/material'
 import React from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { useNavigate, useLocation, useSearchParams } from 'react-router'
+import { useNavigate, useLocation } from 'react-router'
 import { getSources } from '../../api/sources'
 import { getSavedSources } from '../../api/saved'
 import type { SourceResponse } from '../../types/source'
 import { BRAND, SOURCE_COLORS } from '../../theme'
+import { useFilterParams } from '../../hooks/useFilterParams'
+import { useLanguages } from '../../hooks/useLanguages'
+import { CATEGORY_VALUES, CATEGORY_LABELS, CATEGORY_COLORS, type CategoryValue } from '../../constants/categories'
 
 const SIDEBAR_WIDTH = 220
 
@@ -59,12 +63,12 @@ function SourceIcon({ type, url }: { type: SourceResponse['type']; url: string }
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const navigate = useNavigate()
   const location = useLocation()
-  const [searchParams, setSearchParams] = useSearchParams()
+  const { type: activeType, sourceId: activeSourceId, language: activeLanguage, category: activeCategory, setMultiple, setLanguage, setCategory } = useFilterParams()
+  const languages = useLanguages()
 
-  const activeType = searchParams.get('type')
-  const activeSourceId = searchParams.get('sourceId')
   const isFeedActive = location.pathname === '/' && !activeType && !activeSourceId
   const isSavedActive = location.pathname === '/saved'
+  const isClustersActive = location.pathname === '/clusters'
 
   const { data: sources = [], isError: sourcesError } = useQuery({
     queryKey: ['sources'],
@@ -80,11 +84,6 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   })
 
   const visibleSources = isSavedActive ? savedSources : sources
-
-  const setFilter = (params: { type?: string; sourceId?: string }) => {
-    setSearchParams(params as Record<string, string>)
-    onNavigate?.()
-  }
 
   const handleNavigate = (path: string) => {
     navigate(path)
@@ -115,7 +114,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         </Typography>
         <ListItemButton
           selected={allActive}
-          onClick={() => setFilter({ type })}
+          onClick={() => { setMultiple({ type, sourceId: null }); onNavigate?.() }}
           sx={{ px: 2.5, py: 0.75, gap: 1.25, color: BRAND.sidebarText, '&.Mui-selected': activeItemSx, '&:hover': { bgcolor: 'rgba(198,40,40,0.05)' } }}
         >
           <SourceDot type={type} />
@@ -125,7 +124,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           <ListItemButton
             key={source.id}
             selected={activeSourceId === String(source.id)}
-            onClick={() => setFilter({ sourceId: String(source.id) })}
+            onClick={() => { setMultiple({ sourceId: String(source.id), type: null }); onNavigate?.() }}
             sx={{ px: 2.5, py: 0.75, gap: 1.25, color: BRAND.sidebarText, '&.Mui-selected': activeItemSx, '&:hover': { bgcolor: 'rgba(198,40,40,0.05)' } }}
           >
             <SourceIcon type={source.type} url={source.homepage} />
@@ -156,14 +155,81 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         <ListItemButton
           selected={isSavedActive}
           onClick={() => handleNavigate('/saved')}
-          sx={{ px: 2.5, py: 1, gap: 1.25, mb: 1, borderBottom: `1px solid ${BRAND.border}`, color: BRAND.sidebarText, '&.Mui-selected': activeItemSx, '&:hover': { bgcolor: 'rgba(198,40,40,0.05)' } }}
+          sx={{ px: 2.5, py: 1, gap: 1.25, borderBottom: `1px solid ${BRAND.border}`, color: BRAND.sidebarText, '&.Mui-selected': activeItemSx, '&:hover': { bgcolor: 'rgba(198,40,40,0.05)' } }}
         >
           <StarIcon fontSize="small" sx={{ color: isSavedActive ? BRAND.accent : BRAND.mutedText }} />
           <ListItemText primary="Saved" primaryTypographyProps={{ fontSize: 13.5, fontWeight: 600 }} />
           <Chip label="★" size="small" sx={{ bgcolor: BRAND.mutedText, color: '#fff', height: 20, fontSize: 11, fontWeight: 700 }} />
         </ListItemButton>
+        <ListItemButton
+          selected={isClustersActive}
+          onClick={() => handleNavigate('/clusters')}
+          sx={{ px: 2.5, py: 1, gap: 1.25, mb: 1, borderBottom: `1px solid ${BRAND.border}`, color: BRAND.sidebarText, '&.Mui-selected': activeItemSx, '&:hover': { bgcolor: 'rgba(198,40,40,0.05)' } }}
+        >
+          <ViewColumnIcon fontSize="small" sx={{ color: isClustersActive ? BRAND.accent : BRAND.mutedText }} />
+          <ListItemText primary="Clusters" primaryTypographyProps={{ fontSize: 13.5, fontWeight: 600 }} />
+        </ListItemButton>
 
-        {(['NEWS', 'REDDIT', 'TWITTER'] as const).map(renderSection)}
+        {!isClustersActive && (['NEWS', 'REDDIT', 'TWITTER'] as const).map(renderSection)}
+
+        {languages.length > 0 && !isClustersActive && (
+          <Box>
+            <Typography variant="caption" sx={{ px: 2.5, py: 0.5, display: 'block', color: BRAND.mutedText, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase' }}>
+              Language
+            </Typography>
+            <Box sx={{ px: 2.5, pb: 1, display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
+              {languages.map((lang) => (
+                <Chip
+                  key={lang}
+                  label={lang.toUpperCase()}
+                  size="small"
+                  onClick={() => setLanguage(activeLanguage === lang ? null : lang)}
+                  variant={activeLanguage === lang ? 'filled' : 'outlined'}
+                  sx={{
+                    fontSize: 11,
+                    height: 22,
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    ...(activeLanguage === lang && { bgcolor: BRAND.accent, color: '#fff', '&:hover': { bgcolor: BRAND.accent } }),
+                  }}
+                />
+              ))}
+            </Box>
+            <Divider sx={{ my: 1, borderColor: BRAND.border }} />
+          </Box>
+        )}
+
+        {!isClustersActive && (
+          <Box>
+            <Typography variant="caption" sx={{ px: 2.5, py: 0.5, display: 'block', color: BRAND.mutedText, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase' }}>
+              Category
+            </Typography>
+            <Box sx={{ px: 2.5, pb: 1, display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
+              {CATEGORY_VALUES.map((cat) => {
+                const colors = CATEGORY_COLORS[cat as CategoryValue]
+                const active = activeCategory === cat
+                return (
+                  <Chip
+                    key={cat}
+                    label={CATEGORY_LABELS[cat as CategoryValue]}
+                    size="small"
+                    onClick={() => setCategory(active ? null : cat)}
+                    sx={{
+                      fontSize: 11,
+                      height: 22,
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      bgcolor: active ? colors.text : colors.bg,
+                      color: active ? '#fff' : colors.text,
+                      border: `1px solid ${colors.text}20`,
+                      '&:hover': { bgcolor: colors.text, color: '#fff' },
+                    }}
+                  />
+                )
+              })}
+            </Box>
+          </Box>
+        )}
       </List>
     </Box>
   )

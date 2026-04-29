@@ -9,7 +9,7 @@ spring:
     ollama:
       base-url: ${prop.ai.ollama.base-url}
       chat:
-        model: qwen3:8b
+        model: qwen3-5:9b
         options:
           temperature: 0.2
           num_ctx: 8192

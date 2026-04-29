@@ -4,6 +4,7 @@ import type { FeedItemResponse } from '../../types/feedItem'
 import { SOURCE_COLORS } from '../../theme'
 import { relativeTime } from '../../utils/time'
 import { stripHtml } from '../../utils/sanitize'
+import { CATEGORY_LABELS, CATEGORY_COLORS, type CategoryValue } from '../../constants/categories'
 
 function SourceFavicon({ url }: { url: string }) {
   const [failed, setFailed] = React.useState(false)
@@ -93,6 +94,19 @@ export function FeedCard({ item, isActive, hasContent, onContentClick, onSaveTog
           >
             {colors.label}
           </Box>
+          {item.category && CATEGORY_COLORS[item.category as CategoryValue] && (
+            <Chip
+              label={CATEGORY_LABELS[item.category as CategoryValue] ?? item.category}
+              size="small"
+              sx={{
+                fontSize: 10,
+                height: 18,
+                fontWeight: 600,
+                bgcolor: CATEGORY_COLORS[item.category as CategoryValue].bg,
+                color: CATEGORY_COLORS[item.category as CategoryValue].text,
+              }}
+            />
+          )}
           <SourceFavicon url={item.sourceUrl} />
           <Typography
             component="a"

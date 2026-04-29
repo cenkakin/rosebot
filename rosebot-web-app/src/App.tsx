@@ -4,6 +4,7 @@ import { ProtectedRoute } from './features/auth/ProtectedRoute'
 import { Layout } from './features/layout/Layout'
 import { FeedPage } from './features/feed/FeedPage'
 import { SavedPage } from './features/saved/SavedPage'
+import { ClustersPage } from './features/clusters/ClustersPage'
 
 export default function App() {
   return (
@@ -13,6 +14,7 @@ export default function App() {
         <Route element={<Layout />}>
           <Route path="/" element={<FeedPage />} />
           <Route path="/saved" element={<SavedPage />} />
+          <Route path="/clusters" element={<ClustersPage />} />
         </Route>
       </Route>
     </Routes>

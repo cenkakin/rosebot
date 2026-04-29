@@ -4,17 +4,21 @@ import { getFeed } from '../../api/feed'
 interface FeedFilters {
   type?: string | null
   sourceId?: string | null
+  language?: string | null
+  category?: string | null
 }
 
-export function useInfiniteFeed({ type, sourceId }: FeedFilters) {
+export function useInfiniteFeed({ type, sourceId, language, category }: FeedFilters) {
   return useInfiniteQuery({
-    queryKey: ['feed', { type, sourceId }],
+    queryKey: ['feed', { type, sourceId, language, category }],
     queryFn: ({ pageParam }) =>
       getFeed({
         before: pageParam ?? undefined,
         limit: 20,
         type: type ?? undefined,
         sourceId: sourceId ? Number(sourceId) : undefined,
+        language: language ?? undefined,
+        category: category ?? undefined,
       }),
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (lastPage) =>

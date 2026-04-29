@@ -7,6 +7,8 @@ interface SavedParams {
   limit?: number
   sourceId?: number
   type?: string
+  language?: string
+  category?: string
 }
 
 export const getSaved = (params: SavedParams = {}): Promise<FeedItemResponse[]> =>

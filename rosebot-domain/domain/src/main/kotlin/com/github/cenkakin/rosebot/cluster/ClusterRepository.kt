@@ -26,6 +26,8 @@ class ClusterRepository(
                 CLUSTER.WINDOW_START,
                 CLUSTER.WINDOW_END,
                 SOURCE.TYPE,
+                FEED_ITEM.LANGUAGE,
+                FEED_ITEM.CATEGORY,
             ).from(CLUSTER)
             .leftJoin(FEED_ITEM)
             .on(FEED_ITEM.CLUSTER_ID.eq(CLUSTER.ID))

@@ -5,6 +5,7 @@ import com.github.cenkakin.rosebot.cluster.dto.ClusterMetaResponse
 import com.github.cenkakin.rosebot.cluster.dto.ClusterResponse
 import com.github.cenkakin.rosebot.feed.toFeedItemResponse
 import jooq.tables.references.CLUSTER
+import jooq.tables.references.FEED_ITEM
 import jooq.tables.references.SAVED_ITEM
 import jooq.tables.references.SOURCE
 import org.jooq.Record
@@ -15,13 +16,16 @@ import java.time.OffsetDateTime
 class ClusterService(
     private val clusterRepository: ClusterRepository,
 ) {
-    fun getActiveClusters(): List<ClusterResponse> {
+    fun getActiveClusters(category: String?): List<ClusterResponse> {
         val records = clusterRepository.findActive()
         return records
             .groupBy { it.get(CLUSTER.ID)!! }
             .map { (_, rows) ->
                 val first = rows.first()
                 val sourceMix = rows.mapNotNull { it.get(SOURCE.TYPE)?.literal }.groupingBy { it }.eachCount()
+                val languages = rows.mapNotNull { it.get(FEED_ITEM.LANGUAGE) }.distinct()
+                val dominantCategory = rows.mapNotNull { it.get(FEED_ITEM.CATEGORY)?.literal }
+                    .groupingBy { it }.eachCount().maxByOrNull { it.value }?.key
                 ClusterResponse(
                     id = first.get(CLUSTER.ID)!!,
                     label = first.get(CLUSTER.LABEL)!!,
@@ -30,8 +34,10 @@ class ClusterService(
                     windowStart = first.get(CLUSTER.WINDOW_START)!!,
                     windowEnd = first.get(CLUSTER.WINDOW_END)!!,
                     sourceMix = sourceMix,
+                    category = dominantCategory,
+                    languages = languages,
                 )
-            }
+            }.filter { category == null || it.category == category }
     }
 
     fun getClusterItems(

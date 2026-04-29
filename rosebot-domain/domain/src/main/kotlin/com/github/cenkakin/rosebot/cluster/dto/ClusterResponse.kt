@@ -10,4 +10,6 @@ data class ClusterResponse(
     val windowStart: OffsetDateTime,
     val windowEnd: OffsetDateTime,
     val sourceMix: Map<String, Int>,
+    val category: String?,
+    val languages: List<String>,
 )

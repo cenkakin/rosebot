@@ -11,6 +11,8 @@ export interface FeedItemResponse {
   author: string | null
   engagement: Record<string, unknown> | null
   publishedAt: string
+  language: string | null
+  category: string | null
   saved: boolean
   savedAt?: string
 }

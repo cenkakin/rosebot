@@ -19,6 +19,8 @@ class FeedItemRepository(
         limit: Int,
         sourceId: Long?,
         type: SourceType?,
+        language: String?,
+        category: ArticleCategory?,
     ): List<Record> =
         FeedItemQueryBuilder
             .baseQuery(dsl, userId)
@@ -27,10 +29,21 @@ class FeedItemRepository(
                     .noCondition()
                     .and(before?.let { FEED_ITEM.PUBLISHED_AT.lt(it) } ?: DSL.noCondition())
                     .and(sourceId?.let { FEED_ITEM.SOURCE_ID.eq(it) } ?: DSL.noCondition())
-                    .and(type?.let { SOURCE.TYPE.eq(it.toJooqEnum()) } ?: DSL.noCondition()),
+                    .and(type?.let { SOURCE.TYPE.eq(it.toJooqEnum()) } ?: DSL.noCondition())
+                    .and(language?.let { FEED_ITEM.LANGUAGE.eq(it) } ?: DSL.noCondition())
+                    .and(category?.let { FEED_ITEM.CATEGORY.eq(it.toJooqEnum()) } ?: DSL.noCondition()),
             ).orderBy(FEED_ITEM.PUBLISHED_AT.desc())
             .limit(limit)
             .fetch()
+
+    fun findLanguages(): List<String> =
+        dsl
+            .selectDistinct(FEED_ITEM.LANGUAGE)
+            .from(FEED_ITEM)
+            .where(FEED_ITEM.LANGUAGE.isNotNull)
+            .orderBy(FEED_ITEM.LANGUAGE.asc())
+            .fetch(FEED_ITEM.LANGUAGE)
+            .filterNotNull()
 
     fun findByIdForUser(
         userId: Long,

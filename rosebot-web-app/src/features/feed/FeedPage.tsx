@@ -1,12 +1,12 @@
 import { useQueryClient, useMutation } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
-import { useSearchParams } from 'react-router'
 import { Box, CircularProgress, Typography } from '@mui/material'
 import { getAppState, markVisited } from '../../api/appState'
 import { saveItem, unsaveItem } from '../../api/saved'
 import type { FeedItemResponse } from '../../types/feedItem'
 import { useInfiniteScroll } from '../../hooks/useInfiniteScroll'
 import { useToast } from '../../hooks/useToast'
+import { useFilterParams } from '../../hooks/useFilterParams'
 import { NewSinceBanner } from './NewSinceBanner'
 import { TimeDivider } from './TimeDivider'
 import { FeedCard } from './FeedCard'
@@ -40,9 +40,7 @@ function groupLabel(key: string): string {
 }
 
 export function FeedPage() {
-  const [searchParams] = useSearchParams()
-  const type = searchParams.get('type')
-  const sourceId = searchParams.get('sourceId')
+  const { type, sourceId, language, category } = useFilterParams()
 
   const [lastVisitedAt, setLastVisitedAt] = useState<string | null>(null)
   const [activePanelId, setActivePanelId] = useState<number | null>(null)
@@ -56,7 +54,7 @@ export function FeedPage() {
     markVisited()
   }, [])
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError } = useInfiniteFeed({ type, sourceId })
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError } = useInfiniteFeed({ type, sourceId, language, category })
 
   const allItems: FeedItemResponse[] = data?.pages.flat() ?? []
 
@@ -69,7 +67,7 @@ export function FeedPage() {
       saved ? unsaveItem(id) : saveItem(id),
     onMutate: async ({ id, saved }) => {
       await queryClient.cancelQueries({ queryKey: ['feed'] })
-      const queryKey = ['feed', { type, sourceId }]
+      const queryKey = ['feed', { type, sourceId, language, category }]
       const snapshot = queryClient.getQueryData(queryKey)
       queryClient.setQueryData(queryKey, (old: typeof data) => {
         if (!old) return old

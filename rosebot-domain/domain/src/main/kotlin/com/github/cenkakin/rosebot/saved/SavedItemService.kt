@@ -1,5 +1,6 @@
 package com.github.cenkakin.rosebot.saved
 
+import com.github.cenkakin.rosebot.feed.ArticleCategory
 import com.github.cenkakin.rosebot.feed.dto.FeedItemResponse
 import com.github.cenkakin.rosebot.feed.toFeedItemResponse
 import com.github.cenkakin.rosebot.source.SourceType
@@ -18,10 +19,17 @@ class SavedItemService(
         limit: Int,
         sourceId: Long?,
         type: String?,
+        language: String?,
+        category: String?,
     ): List<FeedItemResponse> {
         val beforeDt = before?.let { OffsetDateTime.parse(it) }
         val sourceType = type?.let { SourceType.valueOf(it) }
-        return savedItemRepository.findByUser(userId, beforeDt, limit, sourceId, sourceType).map { it.toFeedItemResponse() }
+        val articleCategory = category?.let {
+            runCatching { ArticleCategory.valueOf(it) }.getOrElse {
+                throw IllegalArgumentException("Unknown category: $category")
+            }
+        }
+        return savedItemRepository.findByUser(userId, beforeDt, limit, sourceId, sourceType, language, articleCategory).map { it.toFeedItemResponse() }
     }
 
     fun getSavedSources(userId: Long): List<SourceResponse> =

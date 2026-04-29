@@ -27,7 +27,9 @@ class SavedItemController(
         @RequestParam(defaultValue = "20") limit: Int,
         @RequestParam(required = false) sourceId: Long?,
         @RequestParam(required = false) type: String?,
-    ): List<FeedItemResponse> = service.getSaved(user.id, before, limit.coerceAtMost(50), sourceId, type)
+        @RequestParam(required = false) language: String?,
+        @RequestParam(required = false) category: String?,
+    ): List<FeedItemResponse> = service.getSaved(user.id, before, limit.coerceAtMost(50), sourceId, type, language, category)
 
     @GetMapping("/sources")
     fun getSavedSources(

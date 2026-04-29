@@ -1,11 +1,11 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
-import { useSearchParams } from 'react-router'
 import { Box, CircularProgress, Typography } from '@mui/material'
 import { saveItem, unsaveItem } from '../../api/saved'
 import type { FeedItemResponse } from '../../types/feedItem'
 import { useInfiniteScroll } from '../../hooks/useInfiniteScroll'
 import { useToast } from '../../hooks/useToast'
+import { useFilterParams } from '../../hooks/useFilterParams'
 import { FeedCard } from '../feed/FeedCard'
 import rosebotLogo from '../../assets/rosebot-logo.svg'
 import { FeedLayout } from '../feed/FeedLayout'
@@ -18,11 +18,9 @@ export function SavedPage() {
   const queryClient = useQueryClient()
   const { showToast, ToastSnackbar } = useToast()
 
-  const [searchParams] = useSearchParams()
-  const type = searchParams.get('type')
-  const sourceId = searchParams.get('sourceId')
+  const { type, sourceId, language, category } = useFilterParams()
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError } = useInfiniteSaved({ type, sourceId })
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError } = useInfiniteSaved({ type, sourceId, language, category })
 
   const allItems: FeedItemResponse[] = data?.pages.flat() ?? []
   const contentIds = useContentPrefetch(allItems)

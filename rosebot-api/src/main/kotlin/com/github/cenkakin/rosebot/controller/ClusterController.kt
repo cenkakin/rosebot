@@ -18,7 +18,9 @@ class ClusterController(
     private val service: ClusterService,
 ) {
     @GetMapping
-    fun listActive(): List<ClusterResponse> = service.getActiveClusters()
+    fun listActive(
+        @RequestParam(required = false) category: String?,
+    ): List<ClusterResponse> = service.getActiveClusters(category)
 
     @GetMapping("/{id}/items")
     fun getItems(

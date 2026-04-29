@@ -1,5 +1,7 @@
 package com.github.cenkakin.rosebot.saved
 
+import com.github.cenkakin.rosebot.feed.ArticleCategory
+import com.github.cenkakin.rosebot.feed.toJooqEnum
 import com.github.cenkakin.rosebot.source.SourceType
 import com.github.cenkakin.rosebot.source.toJooqEnum
 import jooq.tables.references.FEED_ITEM
@@ -19,6 +21,8 @@ class SavedItemRepository(
         limit: Int,
         sourceId: Long?,
         type: SourceType?,
+        language: String?,
+        category: ArticleCategory?,
     ): List<Record> =
         dsl
             .select(
@@ -37,6 +41,8 @@ class SavedItemRepository(
             .and(before?.let { SAVED_ITEM.SAVED_AT.lt(it) } ?: DSL.noCondition())
             .and(sourceId?.let { FEED_ITEM.SOURCE_ID.eq(it) } ?: DSL.noCondition())
             .and(type?.let { SOURCE.TYPE.eq(it.toJooqEnum()) } ?: DSL.noCondition())
+            .and(language?.let { FEED_ITEM.LANGUAGE.eq(it) } ?: DSL.noCondition())
+            .and(category?.let { FEED_ITEM.CATEGORY.eq(it.toJooqEnum()) } ?: DSL.noCondition())
             .orderBy(SAVED_ITEM.SAVED_AT.desc())
             .limit(limit)
             .fetch()

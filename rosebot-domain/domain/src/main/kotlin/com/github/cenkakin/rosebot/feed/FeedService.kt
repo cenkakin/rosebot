@@ -16,13 +16,22 @@ class FeedService(
         limit: Int,
         sourceId: Long?,
         type: String?,
+        language: String?,
+        category: String?,
     ): List<FeedItemResponse> {
         val beforeDt = before?.let { OffsetDateTime.parse(it) }
         val sourceType = type?.let { SourceType.valueOf(it) }
+        val articleCategory = category?.let {
+            runCatching { ArticleCategory.valueOf(it) }.getOrElse {
+                throw IllegalArgumentException("Unknown category: $category")
+            }
+        }
         return feedItemRepository
-            .findFeed(userId, beforeDt, limit, sourceId, sourceType)
+            .findFeed(userId, beforeDt, limit, sourceId, sourceType, language, articleCategory)
             .map { it.toResponse() }
     }
+
+    fun getLanguages(): List<String> = feedItemRepository.findLanguages()
 
     fun getById(
         userId: Long,
