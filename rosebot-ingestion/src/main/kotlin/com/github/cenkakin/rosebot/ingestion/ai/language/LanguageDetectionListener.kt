@@ -1,4 +1,4 @@
-package com.github.cenkakin.rosebot.ingestion.ai.summarisation
+package com.github.cenkakin.rosebot.ingestion.ai.language
 
 import com.github.cenkakin.rosebot.feed.FeedService
 import com.github.cenkakin.rosebot.ingestion.ingestion.FeedItemSavedEvent

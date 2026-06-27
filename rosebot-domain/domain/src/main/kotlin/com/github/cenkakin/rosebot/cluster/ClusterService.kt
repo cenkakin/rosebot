@@ -93,6 +93,6 @@ class ClusterService(
     private fun Record.toClusterItemResponse() =
         toFeedItemResponse(
             saved = get("saved", Boolean::class.java) ?: false,
-            savedAt = get(SAVED_ITEM.SAVED_AT)?.toInstant()?.toString(),
+            savedAt = get("savedAt", OffsetDateTime::class.java)?.toInstant()?.toString(),
         )
 }

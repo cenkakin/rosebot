@@ -1,4 +1,4 @@
-package com.github.cenkakin.rosebot.ingestion.ai.summarisation
+package com.github.cenkakin.rosebot.ingestion.ai.language
 
 import dev.failsafe.Failsafe
 import dev.failsafe.Fallback

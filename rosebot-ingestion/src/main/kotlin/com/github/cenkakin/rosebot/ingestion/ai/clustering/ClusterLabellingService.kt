@@ -34,8 +34,7 @@ class ClusterLabellingService(
                         }
                         
                         label must be 2-5 words in title case. summary must be 2-3 sentences.
-                        """,
-                        ).param("summaryList", summaryList)
+                        """.replace("{summaryList}", summaryList))
                 }.call()
                 .entity<ClusterLabel>()
         } finally {

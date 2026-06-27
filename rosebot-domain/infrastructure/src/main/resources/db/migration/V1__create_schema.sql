@@ -26,6 +26,7 @@ CREATE TABLE source (
     name       TEXT        NOT NULL,
     url        TEXT        NOT NULL UNIQUE,
     homepage   TEXT        NOT NULL,
+    stance      INT        NOT NULL,
     enabled    BOOLEAN     NOT NULL DEFAULT TRUE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
