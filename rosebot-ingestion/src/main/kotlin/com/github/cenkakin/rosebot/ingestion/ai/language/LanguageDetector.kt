@@ -1,4 +1,4 @@
-package com.github.cenkakin.rosebot.ingestion.ai.summarisation
+package com.github.cenkakin.rosebot.ingestion.ai.language
 
 import dev.failsafe.Failsafe
 import dev.failsafe.Fallback
@@ -53,7 +53,8 @@ class LanguageDetector(
                             .trim()
                             .lowercase()
                     response.takeIf { languageCode ->
-                        LANGUAGES.any { it == languageCode } } ?: UNDETERMINED
+                        LANGUAGES.any { it == languageCode }
+                    } ?: UNDETERMINED
                 },
             )
         } finally {

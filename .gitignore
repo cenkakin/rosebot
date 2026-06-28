@@ -55,3 +55,7 @@ plans
 mockups
 
 .superpowers
+# Brainstorming visual companion
+.superpowers/
+
+rosebot-domain/infrastructure/src/main/resources/db/migration/V2__seed_data.sql

@@ -9,6 +9,7 @@ import com.rometools.rome.io.XmlReader
 import org.jsoup.Jsoup
 import java.net.URL
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 class RssConnector : SourceConnector {
     override val type = SourceType.NEWS
@@ -18,6 +19,7 @@ class RssConnector : SourceConnector {
         return feed.entries.mapNotNull { entry ->
             val externalId = entry.uri ?: entry.link ?: return@mapNotNull null
             val publishedAt = (entry.publishedDate ?: entry.updatedDate)?.toInstant() ?: Instant.now()
+            if (publishedAt.isBefore(Instant.now().minus(7, ChronoUnit.DAYS))) return@mapNotNull null
             val updatedAt = entry.updatedDate?.toInstant()
             val summary =
                 entry.description
@@ -29,7 +31,7 @@ class RssConnector : SourceConnector {
                 externalId = externalId,
                 title = Jsoup.parse(entry.title ?: "").text(),
                 content = entry.contents.firstOrNull()?.value,
-                url = entry.link,
+                url = entry.link ?: entry.uri,
                 thumbnailUrl = null,
                 author =
                     entry.authors.firstOrNull()?.name

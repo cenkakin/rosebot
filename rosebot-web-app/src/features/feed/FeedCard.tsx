@@ -1,35 +1,14 @@
 import { Box, Card, CardContent, Chip, IconButton, Typography } from '@mui/material'
-import React from 'react'
 import type { FeedItemResponse } from '../../types/feedItem'
 import { SOURCE_COLORS } from '../../theme'
 import { relativeTime } from '../../utils/time'
 import { stripHtml } from '../../utils/sanitize'
-import { CATEGORY_LABELS, CATEGORY_COLORS, type CategoryValue } from '../../constants/categories'
-
-function SourceFavicon({ url }: { url: string }) {
-  const [failed, setFailed] = React.useState(false)
-  if (failed) return null
-  try {
-    const hostname = new URL(url).hostname
-    return (
-      <Box
-        component="img"
-        src={`https://www.google.com/s2/favicons?domain=${hostname}&sz=16`}
-        alt=""
-        onError={() => setFailed(true)}
-        sx={{ width: 16, height: 16, flexShrink: 0, borderRadius: '2px' }}
-      />
-    )
-  } catch {
-    return null
-  }
-}
+import { CATEGORY_COLORS, CATEGORY_LABELS, type CategoryValue } from '../../constants/categories'
+import { SourceFavicon } from '../../components/SourceFavicon'
 
 interface Props {
   item: FeedItemResponse
-  isActive: boolean
-  hasContent: boolean
-  onContentClick: (id: number) => void
+  onOpen: (item: FeedItemResponse) => void
   onSaveToggle: (id: number, saved: boolean) => void
 }
 
@@ -60,23 +39,23 @@ function EngagementMeta({ item }: { item: FeedItemResponse }) {
   return null
 }
 
-export function FeedCard({ item, isActive, hasContent, onContentClick, onSaveToggle }: Props) {
+export function FeedCard({ item, onOpen, onSaveToggle }: Props) {
   const colors = SOURCE_COLORS[item.sourceType]
 
   return (
     <Card
       variant="outlined"
+      onClick={() => onOpen(item)}
       sx={{
         mb: 1.5,
         borderRadius: 2.5,
-        borderColor: isActive ? 'primary.main' : '#eeddd5',
-        boxShadow: isActive ? '0 3px 12px rgba(198,40,40,.12)' : 'none',
+        borderColor: '#eeddd5',
+        cursor: 'pointer',
         transition: 'box-shadow .2s, border-color .2s',
         '&:hover': { boxShadow: '0 3px 12px rgba(44,24,16,.08)', borderColor: '#e0c8c0' },
       }}
     >
       <CardContent sx={{ p: '16px 18px', '&:last-child': { pb: '16px' } }}>
-        {/* Header */}
         <Box display="flex" alignItems="center" gap={1} mb={1}>
           <Box
             component="span"
@@ -108,16 +87,7 @@ export function FeedCard({ item, isActive, hasContent, onContentClick, onSaveTog
             />
           )}
           <SourceFavicon url={item.sourceUrl} />
-          <Typography
-            component="a"
-            href={item.sourceUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            variant="caption"
-            color="text.secondary"
-            fontWeight={500}
-            sx={{ textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}
-          >
+          <Typography variant="caption" color="text.secondary" fontWeight={500}>
             {item.sourceName}
           </Typography>
           <Box sx={{ ml: 'auto', textAlign: 'right' }}>
@@ -132,30 +102,25 @@ export function FeedCard({ item, isActive, hasContent, onContentClick, onSaveTog
           </Box>
           <IconButton
             size="small"
-            onClick={() => onSaveToggle(item.id, item.saved)}
+            onClick={(e) => {
+              e.stopPropagation()
+              onSaveToggle(item.id, item.saved)
+            }}
             sx={{ color: item.saved ? 'primary.main' : '#c0a898', p: 0.25 }}
           >
             {item.saved ? '★' : '☆'}
           </IconButton>
         </Box>
 
-        {/* Body */}
         <Box display="flex" gap={1.5} alignItems="flex-start">
           <Box flex={1} minWidth={0}>
             <Typography
-              component="a"
-              href={item.url}
-              target="_blank"
-              rel="noopener noreferrer"
               variant="body2"
               fontWeight={600}
               sx={{
-                display: 'block',
                 color: '#1a1008',
-                textDecoration: 'none',
                 lineHeight: 1.35,
                 mb: 0.75,
-                '&:hover': { color: 'primary.main' },
               }}
             >
               {item.title}
@@ -186,25 +151,11 @@ export function FeedCard({ item, isActive, hasContent, onContentClick, onSaveTog
           )}
         </Box>
 
-        {/* Footer */}
-        <Box display="flex" alignItems="center" justifyContent="space-between" mt={1}>
-          <EngagementMeta item={item} />
-          {hasContent && (
-            <Chip
-              label={isActive ? '📄 Content ✕' : '📄 Content ▸'}
-              size="small"
-              onClick={() => onContentClick(item.id)}
-              variant={isActive ? 'filled' : 'outlined'}
-              color={isActive ? 'primary' : 'default'}
-              sx={{
-                fontWeight: 600,
-                fontSize: 12,
-                cursor: 'pointer',
-                ml: 'auto',
-              }}
-            />
-          )}
-        </Box>
+        {item.engagement && (
+          <Box mt={1}>
+            <EngagementMeta item={item} />
+          </Box>
+        )}
       </CardContent>
     </Card>
   )

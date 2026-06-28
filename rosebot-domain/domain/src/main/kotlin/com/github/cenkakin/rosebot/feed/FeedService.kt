@@ -21,11 +21,12 @@ class FeedService(
     ): List<FeedItemResponse> {
         val beforeDt = before?.let { OffsetDateTime.parse(it) }
         val sourceType = type?.let { SourceType.valueOf(it) }
-        val articleCategory = category?.let {
-            runCatching { ArticleCategory.valueOf(it) }.getOrElse {
-                throw IllegalArgumentException("Unknown category: $category")
+        val articleCategory =
+            category?.let {
+                runCatching { ArticleCategory.valueOf(it) }.getOrElse {
+                    throw IllegalArgumentException("Unknown category: $category")
+                }
             }
-        }
         return feedItemRepository
             .findFeed(userId, beforeDt, limit, sourceId, sourceType, language, articleCategory)
             .map { it.toResponse() }
@@ -60,8 +61,9 @@ class FeedService(
     fun saveAiSummary(
         feedItemId: Long,
         aiSummary: String,
+        bullets: List<String>,
     ) {
-        feedItemRepository.saveAiSummary(feedItemId, aiSummary)
+        feedItemRepository.saveAiSummary(feedItemId, aiSummary, bullets)
         eventPublisher.publishEvent(SummaryCreatedEvent(feedItemId, aiSummary))
     }
 

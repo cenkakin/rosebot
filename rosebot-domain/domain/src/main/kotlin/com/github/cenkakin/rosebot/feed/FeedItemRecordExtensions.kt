@@ -41,6 +41,11 @@ internal fun Record.toFeedItemResponse(
         sourceUrl = get(SOURCE.HOMEPAGE)!!,
         title = get(FEED_ITEM.TITLE)!!,
         summary = get(FEED_ITEM.SUMMARY),
+        aiSummary = get(FEED_ITEM.AI_SUMMARY),
+        bullets =
+            get(FEED_ITEM.AI_SUMMARY_BULLETS)
+                ?.let { objectMapper.readValue<List<String>>(it.data()) }
+                ?: emptyList(),
         url = get(FEED_ITEM.URL)!!,
         thumbnailUrl = get(FEED_ITEM.THUMBNAIL_URL),
         author = get(FEED_ITEM.AUTHOR),

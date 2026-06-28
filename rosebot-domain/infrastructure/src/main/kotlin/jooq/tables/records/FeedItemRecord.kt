@@ -44,45 +44,49 @@ open class FeedItemRecord() : UpdatableRecordImpl<FeedItemRecord>(FeedItem.FEED_
         set(value): Unit = set(5, value)
         get(): String? = get(5) as String?
 
-    open var url: String?
+    open var aiSummaryBullets: JSONB?
         set(value): Unit = set(6, value)
-        get(): String? = get(6) as String?
+        get(): JSONB? = get(6) as JSONB?
 
-    open var thumbnailUrl: String?
+    open var url: String?
         set(value): Unit = set(7, value)
         get(): String? = get(7) as String?
 
-    open var author: String?
+    open var thumbnailUrl: String?
         set(value): Unit = set(8, value)
         get(): String? = get(8) as String?
 
-    open var engagement: JSONB?
+    open var author: String?
         set(value): Unit = set(9, value)
-        get(): JSONB? = get(9) as JSONB?
+        get(): String? = get(9) as String?
+
+    open var engagement: JSONB?
+        set(value): Unit = set(10, value)
+        get(): JSONB? = get(10) as JSONB?
 
     open var publishedAt: OffsetDateTime?
-        set(value): Unit = set(10, value)
-        get(): OffsetDateTime? = get(10) as OffsetDateTime?
-
-    open var updatedAt: OffsetDateTime?
         set(value): Unit = set(11, value)
         get(): OffsetDateTime? = get(11) as OffsetDateTime?
 
-    open var ingestedAt: OffsetDateTime?
+    open var updatedAt: OffsetDateTime?
         set(value): Unit = set(12, value)
         get(): OffsetDateTime? = get(12) as OffsetDateTime?
 
-    open var language: String?
+    open var ingestedAt: OffsetDateTime?
         set(value): Unit = set(13, value)
-        get(): String? = get(13) as String?
+        get(): OffsetDateTime? = get(13) as OffsetDateTime?
+
+    open var language: String?
+        set(value): Unit = set(14, value)
+        get(): String? = get(14) as String?
 
     open var clusterId: Long?
-        set(value): Unit = set(14, value)
-        get(): Long? = get(14) as Long?
+        set(value): Unit = set(15, value)
+        get(): Long? = get(15) as Long?
 
     open var category: ArticleCategory?
-        set(value): Unit = set(15, value)
-        get(): ArticleCategory? = get(15) as ArticleCategory?
+        set(value): Unit = set(16, value)
+        get(): ArticleCategory? = get(16) as ArticleCategory?
 
     // -------------------------------------------------------------------------
     // Primary key information
@@ -93,13 +97,14 @@ open class FeedItemRecord() : UpdatableRecordImpl<FeedItemRecord>(FeedItem.FEED_
     /**
      * Create a detached, initialised FeedItemRecord
      */
-    constructor(id: Long? = null, sourceId: Long? = null, externalId: String? = null, title: String? = null, summary: String? = null, aiSummary: String? = null, url: String? = null, thumbnailUrl: String? = null, author: String? = null, engagement: JSONB? = null, publishedAt: OffsetDateTime? = null, updatedAt: OffsetDateTime? = null, ingestedAt: OffsetDateTime? = null, language: String? = null, clusterId: Long? = null, category: ArticleCategory? = null): this() {
+    constructor(id: Long? = null, sourceId: Long? = null, externalId: String? = null, title: String? = null, summary: String? = null, aiSummary: String? = null, aiSummaryBullets: JSONB? = null, url: String? = null, thumbnailUrl: String? = null, author: String? = null, engagement: JSONB? = null, publishedAt: OffsetDateTime? = null, updatedAt: OffsetDateTime? = null, ingestedAt: OffsetDateTime? = null, language: String? = null, clusterId: Long? = null, category: ArticleCategory? = null): this() {
         this.id = id
         this.sourceId = sourceId
         this.externalId = externalId
         this.title = title
         this.summary = summary
         this.aiSummary = aiSummary
+        this.aiSummaryBullets = aiSummaryBullets
         this.url = url
         this.thumbnailUrl = thumbnailUrl
         this.author = author

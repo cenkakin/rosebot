@@ -1,4 +1,4 @@
-package com.github.cenkakin.rosebot.ingestion.ai.summarisation
+package com.github.cenkakin.rosebot.ingestion.ai.language
 
 data class LanguageDetectedEvent(
     val feedItemId: Long,

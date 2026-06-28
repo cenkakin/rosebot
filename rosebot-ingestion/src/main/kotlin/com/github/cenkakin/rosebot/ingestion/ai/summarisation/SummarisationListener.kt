@@ -1,6 +1,7 @@
 package com.github.cenkakin.rosebot.ingestion.ai.summarisation
 
 import com.github.cenkakin.rosebot.feed.FeedService
+import com.github.cenkakin.rosebot.ingestion.ai.language.LanguageDetectedEvent
 import org.slf4j.LoggerFactory
 import org.springframework.context.event.EventListener
 import org.springframework.scheduling.annotation.Async
@@ -17,14 +18,14 @@ class SummarisationListener(
     @EventListener
     fun onLanguageDetected(event: LanguageDetectedEvent) {
         runCatching {
-            val summary =
+            val result =
                 summarisationService.resolveWithKnownLanguage(
                     event.language,
                     event.title,
                     event.snippet,
                     event.content,
                 )
-            feedService.saveAiSummary(event.feedItemId, summary)
+            feedService.saveAiSummary(event.feedItemId, result.summary, result.bullets)
         }.onFailure {
             log.warn("[summarisation] feedItemId={} failed: {}", event.feedItemId, it.message)
             // Recovery handled by SummarisationJob

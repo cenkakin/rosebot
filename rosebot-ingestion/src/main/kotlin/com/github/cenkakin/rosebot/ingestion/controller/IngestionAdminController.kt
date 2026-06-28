@@ -3,7 +3,7 @@ package com.github.cenkakin.rosebot.ingestion.controller
 import com.github.cenkakin.rosebot.ingestion.ai.categorisation.CategorizationJob
 import com.github.cenkakin.rosebot.ingestion.ai.clustering.ClusteringJob
 import com.github.cenkakin.rosebot.ingestion.ai.embedding.EmbeddingJob
-import com.github.cenkakin.rosebot.ingestion.ai.summarisation.LanguageDetectionJob
+import com.github.cenkakin.rosebot.ingestion.ai.language.LanguageDetectionJob
 import com.github.cenkakin.rosebot.ingestion.ai.summarisation.SummarisationJob
 import com.github.cenkakin.rosebot.ingestion.ingestion.IngestionService
 import com.github.cenkakin.rosebot.source.SourceType

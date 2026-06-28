@@ -10,7 +10,7 @@ import com.github.cenkakin.rosebot.ingestion.ai.categorisation.CategorizationSer
 import com.github.cenkakin.rosebot.ingestion.ai.clustering.ClusterLabellingService
 import com.github.cenkakin.rosebot.ingestion.ai.embedding.EmbeddingRepository
 import com.github.cenkakin.rosebot.ingestion.ai.embedding.EmbeddingService
-import com.github.cenkakin.rosebot.ingestion.ai.summarisation.LanguageDetector
+import com.github.cenkakin.rosebot.ingestion.ai.language.LanguageDetector
 import com.github.cenkakin.rosebot.ingestion.ai.summarisation.SummarisationService
 import com.github.cenkakin.rosebot.ingestion.connector.SourceConnector
 import com.github.cenkakin.rosebot.ingestion.connector.news.RssConnector
@@ -34,7 +34,7 @@ class IngestionConfig(
     private val eventPublisher: ApplicationEventPublisher,
 ) {
     @Bean
-    fun llmSemaphore(): Semaphore = Semaphore(5)
+    fun llmSemaphore(): Semaphore = Semaphore(2)
 
     @Bean
     fun rssConnector(): SourceConnector = RssConnector()

@@ -4,13 +4,12 @@ import com.github.cenkakin.rosebot.cluster.dto.ClusterItemsResponse
 import com.github.cenkakin.rosebot.cluster.dto.ClusterMetaResponse
 import com.github.cenkakin.rosebot.cluster.dto.ClusterResponse
 import com.github.cenkakin.rosebot.feed.toFeedItemResponse
+import java.time.OffsetDateTime
 import jooq.tables.references.CLUSTER
 import jooq.tables.references.FEED_ITEM
-import jooq.tables.references.SAVED_ITEM
 import jooq.tables.references.SOURCE
 import org.jooq.Record
 import org.springframework.transaction.annotation.Transactional
-import java.time.OffsetDateTime
 
 @Transactional
 class ClusterService(
@@ -24,8 +23,13 @@ class ClusterService(
                 val first = rows.first()
                 val sourceMix = rows.mapNotNull { it.get(SOURCE.TYPE)?.literal }.groupingBy { it }.eachCount()
                 val languages = rows.mapNotNull { it.get(FEED_ITEM.LANGUAGE) }.distinct()
-                val dominantCategory = rows.mapNotNull { it.get(FEED_ITEM.CATEGORY)?.literal }
-                    .groupingBy { it }.eachCount().maxByOrNull { it.value }?.key
+                val dominantCategory =
+                    rows
+                        .mapNotNull { it.get(FEED_ITEM.CATEGORY)?.literal }
+                        .groupingBy { it }
+                        .eachCount()
+                        .maxByOrNull { it.value }
+                        ?.key
                 ClusterResponse(
                     id = first.get(CLUSTER.ID)!!,
                     label = first.get(CLUSTER.LABEL)!!,
@@ -93,6 +97,6 @@ class ClusterService(
     private fun Record.toClusterItemResponse() =
         toFeedItemResponse(
             saved = get("saved", Boolean::class.java) ?: false,
-            savedAt = get(SAVED_ITEM.SAVED_AT)?.toInstant()?.toString(),
+            savedAt = get("savedAt", OffsetDateTime::class.java)?.toInstant()?.toString(),
         )
 }

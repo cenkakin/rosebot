@@ -10,11 +10,10 @@ import { FeedCard } from '../feed/FeedCard'
 import rosebotLogo from '../../assets/rosebot-logo.svg'
 import { FeedLayout } from '../feed/FeedLayout'
 import { useInfiniteSaved } from './useInfiniteSaved'
-import { useContentPrefetch } from '../content/useContentPrefetch'
 import { ErrorMessage } from '../../components/ErrorMessage'
 
 export function SavedPage() {
-  const [activePanelId, setActivePanelId] = useState<number | null>(null)
+  const [activeItem, setActiveItem] = useState<FeedItemResponse | null>(null)
   const queryClient = useQueryClient()
   const { showToast, ToastSnackbar } = useToast()
 
@@ -23,7 +22,6 @@ export function SavedPage() {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError } = useInfiniteSaved({ type, sourceId, language, category })
 
   const allItems: FeedItemResponse[] = data?.pages.flat() ?? []
-  const contentIds = useContentPrefetch(allItems)
   const sentinelRef = useInfiniteScroll(fetchNextPage, !!hasNextPage)
 
   const toggleSave = useMutation({
@@ -35,13 +33,10 @@ export function SavedPage() {
     onSettled: () => queryClient.invalidateQueries({ queryKey: ['saved'] }),
   })
 
-  const activePanelItem = allItems.find((i) => i.id === activePanelId) ?? null
-
   return (
     <FeedLayout
-      activePanelId={activePanelId}
-      activePanelItem={activePanelItem}
-      onPanelClose={() => setActivePanelId(null)}
+      activePanelItem={activeItem}
+      onPanelClose={() => setActiveItem(null)}
     >
       <Typography variant="h6" fontWeight={700} mb={2}>
         Saved
@@ -59,9 +54,7 @@ export function SavedPage() {
         <FeedCard
           key={item.id}
           item={item}
-          isActive={activePanelId === item.id}
-          hasContent={contentIds.has(item.id)}
-          onContentClick={(id) => setActivePanelId((prev) => (prev === id ? null : id))}
+          onOpen={setActiveItem}
           onSaveToggle={(id, saved) => toggleSave.mutate({ id, saved })}
         />
       ))}

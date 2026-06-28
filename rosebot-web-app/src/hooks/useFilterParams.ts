@@ -1,4 +1,4 @@
-import { useSearchParams } from 'react-router'
+import {useSearchParams} from 'react-router'
 
 export function useFilterParams() {
   const [params, setParams] = useSearchParams()
@@ -34,10 +34,12 @@ export function useFilterParams() {
     sourceId: params.get('sourceId'),
     language: params.get('language'),
     category: params.get('category'),
+    view: params.get('view'),
     setType: (v: string | null) => set('type', v),
     setSourceId: (v: string | null) => set('sourceId', v),
     setLanguage: (v: string | null) => set('language', v),
     setCategory: (v: string | null) => set('category', v),
+    setView: (v: string | null) => set('view', v),
     setMultiple,
     clearAll: () => setParams({}, { replace: true }),
   }

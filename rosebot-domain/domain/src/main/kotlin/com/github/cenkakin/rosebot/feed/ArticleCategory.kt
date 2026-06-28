@@ -11,5 +11,4 @@ enum class ArticleCategory {
     SPORTS,
 }
 
-internal fun ArticleCategory.toJooqEnum(): jooq.enums.ArticleCategory =
-    jooq.enums.ArticleCategory.valueOf(name)
+internal fun ArticleCategory.toJooqEnum(): jooq.enums.ArticleCategory = jooq.enums.ArticleCategory.valueOf(name)

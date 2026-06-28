@@ -5,10 +5,10 @@ import com.github.cenkakin.rosebot.feed.dto.FeedItemResponse
 import com.github.cenkakin.rosebot.feed.toFeedItemResponse
 import com.github.cenkakin.rosebot.source.SourceType
 import com.github.cenkakin.rosebot.source.dto.SourceResponse
+import java.time.OffsetDateTime
 import jooq.tables.references.SAVED_ITEM
 import jooq.tables.references.SOURCE
 import org.jooq.Record
-import java.time.OffsetDateTime
 
 class SavedItemService(
     private val savedItemRepository: SavedItemRepository,
@@ -24,12 +24,15 @@ class SavedItemService(
     ): List<FeedItemResponse> {
         val beforeDt = before?.let { OffsetDateTime.parse(it) }
         val sourceType = type?.let { SourceType.valueOf(it) }
-        val articleCategory = category?.let {
-            runCatching { ArticleCategory.valueOf(it) }.getOrElse {
-                throw IllegalArgumentException("Unknown category: $category")
+        val articleCategory =
+            category?.let {
+                runCatching { ArticleCategory.valueOf(it) }.getOrElse {
+                    throw IllegalArgumentException("Unknown category: $category")
+                }
             }
+        return savedItemRepository.findByUser(userId, beforeDt, limit, sourceId, sourceType, language, articleCategory).map {
+            it.toFeedItemResponse()
         }
-        return savedItemRepository.findByUser(userId, beforeDt, limit, sourceId, sourceType, language, articleCategory).map { it.toFeedItemResponse() }
     }
 
     fun getSavedSources(userId: Long): List<SourceResponse> =

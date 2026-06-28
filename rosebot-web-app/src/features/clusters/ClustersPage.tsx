@@ -1,32 +1,66 @@
-import { useQuery } from '@tanstack/react-query'
+import { useState } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Box, CircularProgress, Typography } from '@mui/material'
 import { getClusters } from '../../api/clusters'
+import { saveItem, unsaveItem } from '../../api/saved'
 import { useFilterParams } from '../../hooks/useFilterParams'
-import { ClustersToolbar } from './ClustersToolbar'
+import { useToast } from '../../hooks/useToast'
+import type { FeedItemResponse } from '../../types/feedItem'
+import { ClustersToolbar, type ClusterView } from './ClustersToolbar'
 import { ClusterColumn } from './ClusterColumn'
+import { DigestStory } from './DigestStory'
+import { ContentPanel } from '../content/ContentPanel'
 import { ErrorMessage } from '../../components/ErrorMessage'
 
 export function ClustersPage() {
-  const { language, category, setLanguage, setCategory } = useFilterParams()
+  const { view, setView } = useFilterParams()
+  const activeView: ClusterView = view === 'columns' ? 'columns' : 'digest'
+
+  const [activeItem, setActiveItem] = useState<FeedItemResponse | null>(null)
+  const { showToast, ToastSnackbar } = useToast()
+  const queryClient = useQueryClient()
 
   const { data: clusters = [], isLoading, isError } = useQuery({
-    queryKey: ['clusters', { category }],
-    queryFn: () => getClusters({ category: category ?? undefined }),
+    queryKey: ['clusters'],
+    queryFn: () => getClusters({}),
     staleTime: 60_000,
   })
 
-  const filtered = language
-    ? clusters.filter((c) => c.languages.includes(language))
-    : clusters
+  const toggleSave = useMutation({
+    mutationFn: ({ id, saved }: { id: number; saved: boolean }) => (saved ? unsaveItem(id) : saveItem(id)),
+    onMutate: async ({ id, saved }) => {
+      await queryClient.cancelQueries({ queryKey: ['cluster-items'] })
+      const snapshot = queryClient.getQueriesData({ queryKey: ['cluster-items'] })
+      queryClient.setQueriesData({ queryKey: ['cluster-items'] }, (old: { pages: FeedItemResponse[][] } | undefined) => {
+        if (!old) return old
+        return {
+          ...old,
+          pages: old.pages.map((page: FeedItemResponse[]) =>
+            page.map((item) => (item.id === id ? { ...item, saved: !saved } : item)),
+          ),
+        }
+      })
+      return { snapshot }
+    },
+    onError: (_err, _vars, context) => {
+      if (context) {
+        for (const [queryKey, data] of context.snapshot) {
+          queryClient.setQueryData(queryKey, data)
+        }
+      }
+    },
+    onSuccess: (_d, { saved }) => showToast(saved ? 'Removed from saved' : 'Saved'),
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['cluster-items'] })
+      queryClient.removeQueries({ queryKey: ['saved'] })
+    },
+  })
+
+  const onSaveToggle = (id: number, saved: boolean) => toggleSave.mutate({ id, saved })
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
-      <ClustersToolbar
-        language={language}
-        category={category}
-        onLanguageChange={setLanguage}
-        onCategoryChange={setCategory}
-      />
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden', position: 'relative' }}>
+      <ClustersToolbar view={activeView} onViewChange={setView} />
 
       {isError && <ErrorMessage message="Failed to load clusters." />}
 
@@ -36,19 +70,32 @@ export function ClustersPage() {
         </Box>
       )}
 
-      {!isLoading && filtered.length === 0 && !isError && (
+      {!isLoading && clusters.length === 0 && !isError && (
         <Box display="flex" justifyContent="center" pt={8}>
           <Typography variant="body2" color="text.secondary">
-            No clusters match the current filters.
+            No clusters yet.
           </Typography>
         </Box>
       )}
 
-      <Box sx={{ display: 'flex', flex: 1, overflowX: 'auto', overflowY: 'hidden' }}>
-        {filtered.map((cluster) => (
-          <ClusterColumn key={cluster.id} cluster={cluster} />
-        ))}
-      </Box>
+      {activeView === 'columns' ? (
+        <Box sx={{ display: 'flex', flex: 1, overflowX: 'auto', overflowY: 'hidden' }}>
+          {clusters.map((cluster) => (
+            <ClusterColumn key={cluster.id} cluster={cluster} onOpen={setActiveItem} onSaveToggle={onSaveToggle} />
+          ))}
+        </Box>
+      ) : (
+        <Box sx={{ flex: 1, overflowY: 'auto', px: 3, py: 2.5 }}>
+          <Box sx={{ maxWidth: 880, mx: 'auto' }}>
+            {clusters.map((cluster) => (
+              <DigestStory key={cluster.id} cluster={cluster} onOpen={setActiveItem} onSaveToggle={onSaveToggle} />
+            ))}
+          </Box>
+        </Box>
+      )}
+
+      <ContentPanel item={activeItem} onClose={() => setActiveItem(null)} />
+      {ToastSnackbar}
     </Box>
   )
 }
