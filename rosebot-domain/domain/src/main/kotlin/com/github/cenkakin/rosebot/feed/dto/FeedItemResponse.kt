@@ -8,6 +8,8 @@ data class FeedItemResponse(
     val sourceUrl: String,
     val title: String,
     val summary: String?,
+    val aiSummary: String?,
+    val bullets: List<String>,
     val url: String,
     val thumbnailUrl: String?,
     val author: String?,

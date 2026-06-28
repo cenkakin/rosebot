@@ -7,3 +7,7 @@ export function relativeTime(iso: string): string {
   if (hours < 48) return 'Yesterday'
   return new Date(iso).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
 }
+
+export function shortDate(iso: string): string {
+  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+}

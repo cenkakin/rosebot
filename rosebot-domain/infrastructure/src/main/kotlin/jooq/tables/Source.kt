@@ -99,6 +99,11 @@ open class Source(
     val HOMEPAGE: TableField<SourceRecord, String?> = createField(DSL.name("homepage"), SQLDataType.CLOB.nullable(false), this, "")
 
     /**
+     * The column <code>public.source.stance</code>.
+     */
+    val STANCE: TableField<SourceRecord, Int?> = createField(DSL.name("stance"), SQLDataType.INTEGER.nullable(false), this, "")
+
+    /**
      * The column <code>public.source.enabled</code>.
      */
     val ENABLED: TableField<SourceRecord, Boolean?> = createField(DSL.name("enabled"), SQLDataType.BOOLEAN.nullable(false).defaultValue(DSL.field(DSL.raw("true"), SQLDataType.BOOLEAN)), this, "")

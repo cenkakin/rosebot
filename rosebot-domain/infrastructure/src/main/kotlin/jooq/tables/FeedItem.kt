@@ -114,6 +114,11 @@ open class FeedItem(
     val AI_SUMMARY: TableField<FeedItemRecord, String?> = createField(DSL.name("ai_summary"), SQLDataType.CLOB, this, "")
 
     /**
+     * The column <code>public.feed_item.ai_summary_bullets</code>.
+     */
+    val AI_SUMMARY_BULLETS: TableField<FeedItemRecord, JSONB?> = createField(DSL.name("ai_summary_bullets"), SQLDataType.JSONB, this, "")
+
+    /**
      * The column <code>public.feed_item.url</code>.
      */
     val URL: TableField<FeedItemRecord, String?> = createField(DSL.name("url"), SQLDataType.CLOB.nullable(false), this, "")

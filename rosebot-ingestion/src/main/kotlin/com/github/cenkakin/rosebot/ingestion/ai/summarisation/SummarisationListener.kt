@@ -18,14 +18,14 @@ class SummarisationListener(
     @EventListener
     fun onLanguageDetected(event: LanguageDetectedEvent) {
         runCatching {
-            val summary =
+            val result =
                 summarisationService.resolveWithKnownLanguage(
                     event.language,
                     event.title,
                     event.snippet,
                     event.content,
                 )
-            feedService.saveAiSummary(event.feedItemId, summary)
+            feedService.saveAiSummary(event.feedItemId, result.summary, result.bullets)
         }.onFailure {
             log.warn("[summarisation] feedItemId={} failed: {}", event.feedItemId, it.message)
             // Recovery handled by SummarisationJob

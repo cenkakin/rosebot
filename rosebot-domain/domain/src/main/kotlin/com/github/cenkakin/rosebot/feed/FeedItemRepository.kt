@@ -1,5 +1,6 @@
 package com.github.cenkakin.rosebot.feed
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.cenkakin.rosebot.source.SourceType
 import java.time.OffsetDateTime
 import jooq.tables.records.FeedItemRecord
@@ -7,8 +8,11 @@ import jooq.tables.references.FEED_ITEM
 import jooq.tables.references.FEED_ITEM_CONTENT
 import jooq.tables.references.SOURCE
 import org.jooq.DSLContext
+import org.jooq.JSONB
 import org.jooq.Record
 import org.jooq.impl.DSL
+
+private val bulletsMapper = jacksonObjectMapper()
 
 class FeedItemRepository(
     private val dsl: DSLContext,
@@ -117,10 +121,12 @@ class FeedItemRepository(
     fun saveAiSummary(
         feedItemId: Long,
         aiSummary: String,
+        bullets: List<String>,
     ) {
         dsl
             .update(FEED_ITEM)
             .set(FEED_ITEM.AI_SUMMARY, aiSummary)
+            .set(FEED_ITEM.AI_SUMMARY_BULLETS, JSONB.valueOf(bulletsMapper.writeValueAsString(bullets)))
             .where(FEED_ITEM.ID.eq(feedItemId))
             .execute()
     }

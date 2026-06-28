@@ -22,14 +22,14 @@ class SummarisationJob(
         log.info("[summarisation-job] processing {} items", pending.size)
         pending.forEach { item ->
             runCatching {
-                val summary =
+                val result =
                     summarisationService.resolveWithKnownLanguage(
                         item.language ?: LanguageDetector.UNDETERMINED,
                         item.title,
                         item.snippet,
                         item.content,
                     )
-                feedService.saveAiSummary(item.id, summary)
+                feedService.saveAiSummary(item.id, result.summary, result.bullets)
             }.onFailure {
                 log.error("[summarisation-job] feedItemId={} failed: {}", item.id, it.message)
             }

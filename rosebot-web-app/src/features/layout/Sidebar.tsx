@@ -14,11 +14,17 @@ import { useLanguages } from '../../hooks/useLanguages'
 import { CATEGORY_VALUES, CATEGORY_LABELS, CATEGORY_COLORS, type CategoryValue } from '../../constants/categories'
 
 const SIDEBAR_WIDTH = 220
+const COLLAPSED_COUNT = 6
 
 interface Props {
   mobileOpen: boolean
   onMobileClose: () => void
   isDesktop: boolean
+}
+
+const activeItemSx = {
+  bgcolor: '#fde8e0 !important',
+  color: BRAND.accent,
 }
 
 function SourceDot({ type }: { type: SourceResponse['type'] }) {
@@ -60,6 +66,70 @@ function SourceIcon({ type, url }: { type: SourceResponse['type']; url: string }
   return <SourceDot type={type} />
 }
 
+function SourceSection({
+  type,
+  items,
+  activeType,
+  activeSourceId,
+  onAll,
+  onSource,
+}: {
+  type: SourceResponse['type']
+  items: SourceResponse[]
+  activeType: string | null
+  activeSourceId: string | null
+  onAll: () => void
+  onSource: (id: number) => void
+}) {
+  const [expanded, setExpanded] = React.useState(false)
+  const colors = SOURCE_COLORS[type]
+  const allActive = activeType === type && !activeSourceId
+  const shown = expanded ? items : items.slice(0, COLLAPSED_COUNT)
+  const hasMore = items.length > COLLAPSED_COUNT
+
+  return (
+    <Box>
+      <Typography
+        variant="caption"
+        sx={{ px: 2.5, py: 0.5, display: 'block', color: BRAND.mutedText, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase' }}
+      >
+        {colors.label}
+      </Typography>
+      <ListItemButton
+        selected={allActive}
+        onClick={onAll}
+        sx={{ px: 2.5, py: 0.75, gap: 1.25, color: BRAND.sidebarText, '&.Mui-selected': activeItemSx, '&:hover': { bgcolor: 'rgba(198,40,40,0.05)' } }}
+      >
+        <SourceDot type={type} />
+        <ListItemText primary={`All ${colors.label}`} primaryTypographyProps={{ fontSize: 13.5 }} />
+      </ListItemButton>
+      {shown.map((source) => (
+        <ListItemButton
+          key={source.id}
+          selected={activeSourceId === String(source.id)}
+          onClick={() => onSource(source.id)}
+          sx={{ px: 2.5, py: 0.75, gap: 1.25, color: BRAND.sidebarText, '&.Mui-selected': activeItemSx, '&:hover': { bgcolor: 'rgba(198,40,40,0.05)' } }}
+        >
+          <SourceIcon type={source.type} url={source.homepage} />
+          <ListItemText primary={source.name} primaryTypographyProps={{ fontSize: 13.5 }} />
+        </ListItemButton>
+      ))}
+      {hasMore && (
+        <ListItemButton
+          onClick={() => setExpanded((v) => !v)}
+          sx={{ pl: '46px', pr: 2.5, py: 0.5, '&:hover': { bgcolor: 'rgba(198,40,40,0.05)' } }}
+        >
+          <ListItemText
+            primary={expanded ? 'Show less' : `Show all ${items.length}`}
+            primaryTypographyProps={{ fontSize: 12.5, fontWeight: 600, color: BRAND.accent }}
+          />
+        </ListItemButton>
+      )}
+      <Divider sx={{ my: 1, borderColor: BRAND.border }} />
+    </Box>
+  )
+}
+
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const navigate = useNavigate()
   const location = useLocation()
@@ -92,49 +162,6 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 
   const byType = (type: SourceResponse['type']) =>
     visibleSources.filter((s) => s.type === type && s.enabled)
-
-  const activeItemSx = {
-    bgcolor: '#fde8e0 !important',
-    color: BRAND.accent,
-  }
-
-  const renderSection = (type: SourceResponse['type']) => {
-    const items = byType(type)
-    if (items.length === 0) return null
-    const colors = SOURCE_COLORS[type]
-    const allActive = activeType === type && !activeSourceId
-
-    return (
-      <Box key={type}>
-        <Typography
-          variant="caption"
-          sx={{ px: 2.5, py: 0.5, display: 'block', color: BRAND.mutedText, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase' }}
-        >
-          {colors.label}
-        </Typography>
-        <ListItemButton
-          selected={allActive}
-          onClick={() => { setMultiple({ type, sourceId: null }); onNavigate?.() }}
-          sx={{ px: 2.5, py: 0.75, gap: 1.25, color: BRAND.sidebarText, '&.Mui-selected': activeItemSx, '&:hover': { bgcolor: 'rgba(198,40,40,0.05)' } }}
-        >
-          <SourceDot type={type} />
-          <ListItemText primary={`All ${colors.label}`} primaryTypographyProps={{ fontSize: 13.5 }} />
-        </ListItemButton>
-        {items.map((source) => (
-          <ListItemButton
-            key={source.id}
-            selected={activeSourceId === String(source.id)}
-            onClick={() => { setMultiple({ sourceId: String(source.id), type: null }); onNavigate?.() }}
-            sx={{ px: 2.5, py: 0.75, gap: 1.25, color: BRAND.sidebarText, '&.Mui-selected': activeItemSx, '&:hover': { bgcolor: 'rgba(198,40,40,0.05)' } }}
-          >
-            <SourceIcon type={source.type} url={source.homepage} />
-            <ListItemText primary={source.name} primaryTypographyProps={{ fontSize: 13.5 }} />
-          </ListItemButton>
-        ))}
-        <Divider sx={{ my: 1, borderColor: BRAND.border }} />
-      </Box>
-    )
-  }
 
   return (
     <Box sx={{ bgcolor: BRAND.bgDeep, height: '100%', overflowY: 'auto', py: 2 }}>
@@ -170,7 +197,22 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           <ListItemText primary="Clusters" primaryTypographyProps={{ fontSize: 13.5, fontWeight: 600 }} />
         </ListItemButton>
 
-        {!isClustersActive && (['NEWS', 'REDDIT', 'TWITTER'] as const).map(renderSection)}
+        {!isClustersActive &&
+          (['NEWS', 'REDDIT', 'TWITTER'] as const).map((type) => {
+            const items = byType(type)
+            if (items.length === 0) return null
+            return (
+              <SourceSection
+                key={type}
+                type={type}
+                items={items}
+                activeType={activeType}
+                activeSourceId={activeSourceId}
+                onAll={() => { setMultiple({ type, sourceId: null }); onNavigate?.() }}
+                onSource={(id) => { setMultiple({ sourceId: String(id), type: null }); onNavigate?.() }}
+              />
+            )
+          })}
 
         {languages.length > 0 && !isClustersActive && (
           <Box>

@@ -52,6 +52,7 @@ CREATE TABLE feed_item (
     title         TEXT        NOT NULL,
     summary       TEXT,
     ai_summary    TEXT,
+    ai_summary_bullets JSONB,
     url           TEXT        NOT NULL,
     thumbnail_url TEXT,
     author        TEXT,

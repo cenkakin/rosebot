@@ -1,105 +1,103 @@
-import { Box, Button, Drawer, Skeleton, Typography, useMediaQuery, useTheme } from '@mui/material'
-import type { FeedItemResponse } from '../../types/feedItem'
-import { useContent } from './useContent'
-import { HtmlContent } from '../../components/HtmlContent'
-import { SOURCE_COLORS } from '../../theme'
+import {useState} from 'react'
+import {Box, Button, Chip, Collapse, Dialog, Drawer, Skeleton, Typography, useMediaQuery, useTheme} from '@mui/material'
+import type {FeedItemResponse} from '../../types/feedItem'
+import {useContent} from './useContent'
+import {HtmlContent} from '../../components/HtmlContent'
+import {BRAND, SOURCE_COLORS} from '../../theme'
+import {shortDate} from '../../utils/time'
+import {CATEGORY_COLORS, CATEGORY_LABELS, type CategoryValue} from '../../constants/categories'
 
 interface Props {
-  itemId: number | null
   item: FeedItemResponse | null
   onClose: () => void
 }
 
-function PanelContent({ item, itemId, onClose }: { item: FeedItemResponse | null; itemId: number | null; onClose: () => void }) {
-  const { data: content, isLoading, isError } = useContent(itemId)
+function PanelBody({ item, onClose }: { item: FeedItemResponse; onClose: () => void }) {
+  const { data: content, isLoading} = useContent(item.id)
+  const [showFull, setShowFull] = useState(false)
+  const colors = SOURCE_COLORS[item.sourceType]
+  const categoryColors = item.category ? CATEGORY_COLORS[item.category as CategoryValue] : null
+  const categoryLabel = item.category ? (CATEGORY_LABELS[item.category as CategoryValue] ?? item.category) : null
 
   return (
     <>
-      {/* Header */}
-      <Box sx={{ p: '16px 18px 14px', borderBottom: '1px solid #f0e8e4', flexShrink: 0 }}>
-        <Box display="flex" alignItems="center" justifyContent="space-between" mb={0.75}>
-          {item && (
-            <Box
-              component="span"
-              sx={{
-                fontSize: 11,
-                fontWeight: 700,
-                px: 1,
-                py: 0.25,
-                borderRadius: 0.5,
-                bgcolor: SOURCE_COLORS[item.sourceType].badgeBg,
-                color: SOURCE_COLORS[item.sourceType].badgeText,
-                textTransform: 'uppercase',
-              }}
-            >
-              {SOURCE_COLORS[item.sourceType].label}
-            </Box>
+      <Box sx={{ p: '16px 20px 12px', borderBottom: `1px solid ${BRAND.cardBorder}`, flexShrink: 0 }}>
+        <Box display="flex" alignItems="center" gap={1} mb={1}>
+          <Box component="span" sx={{ fontSize: 11, fontWeight: 700, px: 1, py: 0.25, borderRadius: 0.5, bgcolor: colors.badgeBg, color: colors.badgeText, textTransform: 'uppercase' }}>
+            {colors.label}
+          </Box>
+          {categoryColors && categoryLabel && (
+            <Chip label={categoryLabel} size="small" sx={{ fontSize: 10, height: 18, fontWeight: 600, bgcolor: categoryColors.bg, color: categoryColors.text }} />
           )}
-          <Button
-            size="small"
-            onClick={onClose}
-            sx={{ ml: 'auto', minWidth: 0, color: '#9e9e9e', fontWeight: 400, fontSize: 18, lineHeight: 1, p: '2px 6px' }}
-          >
+          {item.language && <Chip label={item.language.toUpperCase()} size="small" sx={{ fontSize: 10, height: 18 }} />}
+          <Typography variant="caption" sx={{ color: BRAND.mutedText, ml: 'auto', whiteSpace: 'nowrap' }}>
+            {item.sourceName} · {shortDate(item.publishedAt)}
+          </Typography>
+          <Button onClick={onClose} sx={{ minWidth: 0, color: '#9e9e9e', fontSize: 18, lineHeight: 1, p: '2px 6px' }}>
             ✕
           </Button>
         </Box>
-        {item && (
-          <>
-            <Typography variant="body1" fontWeight={700} sx={{ lineHeight: 1.35 }}>
-              {item.title}
-            </Typography>
-            <Typography variant="caption" color="text.secondary" mt={0.5} display="block">
-              {item.sourceName}
-            </Typography>
-          </>
-        )}
+        <Typography variant="h6" fontWeight={800} sx={{ lineHeight: 1.25, fontSize: 19 }}>
+          {item.title}
+        </Typography>
       </Box>
 
-      {/* Body */}
-      <Box sx={{ flex: 1, overflowY: 'auto', p: 2.25 }}>
-        <Typography
-          variant="caption"
-          sx={{ fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', color: '#9e9e9e', mb: 1, display: 'block' }}
-        >
-          Full Content
-        </Typography>
-        {isLoading && (
-          <Box display="flex" flexDirection="column" gap={1}>
-            <Skeleton variant="text" width="100%" />
-            <Skeleton variant="text" width="90%" />
-            <Skeleton variant="text" width="95%" />
-            <Skeleton variant="text" width="80%" />
+      <Box sx={{ flex: 1, overflowY: 'auto', p: '16px 20px', display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+        {(item.aiSummary || item.bullets.length > 0) && (
+          <Box sx={{ background: 'linear-gradient(180deg,#fff6f9,#fff)', border: `1px solid ${BRAND.accent}33`, borderRadius: 3, p: 1.75 }}>
+            <Typography variant="caption" sx={{ fontWeight: 800, letterSpacing: 0.8, textTransform: 'uppercase', color: BRAND.accent, display: 'block', mb: 0.75 }}>
+              ✦ AI Summary
+            </Typography>
+            {item.aiSummary && (
+              <Typography variant="body2" sx={{ color: BRAND.textPrimary, lineHeight: 1.55 }}>
+                {item.aiSummary}
+              </Typography>
+            )}
+            {item.bullets.length > 0 && (
+              <Box component="ul" sx={{ m: '10px 0 0', pl: 0, listStyle: 'none' }}>
+                {item.bullets.map((b, i) => (
+                  <Box component="li" key={`${item.id}-${i}`} sx={{ position: 'relative', pl: 2, py: 0.4, fontSize: 12.5, color: '#4a3428', lineHeight: 1.45, '&:before': { content: '"›"', position: 'absolute', left: 2, color: BRAND.accent, fontWeight: 800 } }}>
+                    {b}
+                  </Box>
+                ))}
+              </Box>
+            )}
           </Box>
         )}
-        {isError && (
-          <Typography variant="body2" color="text.secondary">
-            Content unavailable.
-          </Typography>
+
+        {(content) && (
+          <Box>
+            <Typography
+              variant="caption"
+              onClick={() => setShowFull((v) => !v)}
+              sx={{ color: BRAND.accent, fontWeight: 600, cursor: 'pointer', display: 'inline-block', mb: 0.5 }}
+            >
+              {showFull ? '▾ Full article text' : '▸ Full article text'}
+            </Typography>
+            <Collapse in={showFull}>
+              {isLoading && (
+                <Box display="flex" flexDirection="column" gap={1}>
+                  <Skeleton variant="text" width="100%" />
+                  <Skeleton variant="text" width="90%" />
+                  <Skeleton variant="text" width="95%" />
+                </Box>
+              )}
+              {content && <HtmlContent html={content.content} />}
+            </Collapse>
+          </Box>
         )}
-        {content && <HtmlContent html={content.content} />}
       </Box>
 
-      {/* Footer */}
-      {item && (
-        <Box sx={{ p: '14px 18px', borderTop: '1px solid #f0e8e4', flexShrink: 0 }}>
-          <Button
-            component="a"
-            href={item.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            variant="contained"
-            fullWidth
-            sx={{ textTransform: 'none', fontWeight: 600 }}
-          >
-            ↗ Open full article
-          </Button>
-        </Box>
-      )}
+      <Box sx={{ p: '12px 20px', borderTop: `1px solid ${BRAND.cardBorder}`, flexShrink: 0 }}>
+        <Button component="a" href={item.url} target="_blank" rel="noopener noreferrer" variant="contained" fullWidth sx={{ textTransform: 'none', fontWeight: 600 }}>
+          ↗ Open full article
+        </Button>
+      </Box>
     </>
   )
 }
 
-export function ContentPanel({ itemId, item, onClose }: Props) {
+export function ContentPanel({ item, onClose }: Props) {
   const muiTheme = useTheme()
   const isMobile = useMediaQuery(muiTheme.breakpoints.down('sm'))
 
@@ -107,35 +105,24 @@ export function ContentPanel({ itemId, item, onClose }: Props) {
     return (
       <Drawer
         anchor="bottom"
-        open={!!itemId}
+        open={!!item}
         onClose={onClose}
-        sx={{ '& .MuiDrawer-paper': { maxHeight: '60vh', display: 'flex', flexDirection: 'column', borderRadius: '12px 12px 0 0' } }}
+        sx={{ '& .MuiDrawer-paper': { maxHeight: '75vh', display: 'flex', flexDirection: 'column', borderRadius: '12px 12px 0 0' } }}
       >
-        <PanelContent itemId={itemId} item={item} onClose={onClose} />
+        {item && <PanelBody item={item} onClose={onClose} />}
       </Drawer>
     )
   }
 
   return (
-    <Box
-      sx={{
-        width: 360,
-        flexShrink: 0,
-        bgcolor: '#fff',
-        borderLeft: '1px solid #eeddd5',
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden',
-        transform: itemId ? 'translateX(0)' : 'translateX(100%)',
-        transition: 'transform .3s ease',
-        position: 'absolute',
-        right: 0,
-        top: 0,
-        bottom: 0,
-        boxShadow: '-4px 0 16px rgba(0,0,0,.08)',
-      }}
+    <Dialog
+      open={!!item}
+      onClose={onClose}
+      maxWidth="sm"
+      fullWidth
+      PaperProps={{ sx: { borderRadius: 4, maxHeight: '82vh', display: 'flex', flexDirection: 'column' } }}
     >
-      <PanelContent itemId={itemId} item={item} onClose={onClose} />
-    </Box>
+      {item && <PanelBody item={item} onClose={onClose} />}
+    </Dialog>
   )
 }

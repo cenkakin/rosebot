@@ -7,6 +7,8 @@ export interface FeedItemResponse {
   title: string
   url: string
   summary: string | null
+  aiSummary: string | null
+  bullets: string[]
   thumbnailUrl: string | null
   author: string | null
   engagement: Record<string, unknown> | null

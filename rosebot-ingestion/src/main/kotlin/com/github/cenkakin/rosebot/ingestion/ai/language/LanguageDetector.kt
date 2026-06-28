@@ -53,7 +53,8 @@ class LanguageDetector(
                             .trim()
                             .lowercase()
                     response.takeIf { languageCode ->
-                        LANGUAGES.any { it == languageCode } } ?: UNDETERMINED
+                        LANGUAGES.any { it == languageCode }
+                    } ?: UNDETERMINED
                 },
             )
         } finally {

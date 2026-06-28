@@ -1,69 +1,43 @@
-import { Box, Chip, Typography } from '@mui/material'
-import { CATEGORY_VALUES, CATEGORY_LABELS, CATEGORY_COLORS, type CategoryValue } from '../../constants/categories'
-import { useLanguages } from '../../hooks/useLanguages'
+import { Box, ToggleButton, ToggleButtonGroup } from '@mui/material'
 import { BRAND } from '../../theme'
 
+export type ClusterView = 'digest' | 'columns'
+
 interface Props {
-  language: string | null
-  category: string | null
-  onLanguageChange: (lang: string | null) => void
-  onCategoryChange: (cat: string | null) => void
+  view: ClusterView
+  onViewChange: (view: ClusterView) => void
 }
 
-export function ClustersToolbar({ language, category, onLanguageChange, onCategoryChange }: Props) {
-  const languages = useLanguages()
-
+export function ClustersToolbar({ view, onViewChange }: Props) {
   return (
-    <Box sx={{ px: 2, py: 1.5, borderBottom: `1px solid ${BRAND.border}`, display: 'flex', flexDirection: 'column', gap: 1 }}>
-      {languages.length > 0 && (
-        <Box display="flex" alignItems="center" gap={1} flexWrap="wrap">
-          <Typography variant="caption" sx={{ color: BRAND.mutedText, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', mr: 0.5 }}>
-            Language
-          </Typography>
-          {languages.map((lang) => (
-            <Chip
-              key={lang}
-              label={lang.toUpperCase()}
-              size="small"
-              onClick={() => onLanguageChange(language === lang ? null : lang)}
-              variant={language === lang ? 'filled' : 'outlined'}
-              sx={{
-                fontSize: 11,
-                height: 22,
-                fontWeight: 600,
-                ...(language === lang && { bgcolor: BRAND.accent, color: '#fff', '&:hover': { bgcolor: BRAND.accent } }),
-              }}
-            />
-          ))}
-        </Box>
-      )}
-
-      <Box display="flex" alignItems="center" gap={1} flexWrap="wrap">
-        <Typography variant="caption" sx={{ color: BRAND.mutedText, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', mr: 0.5 }}>
-          Category
-        </Typography>
-        {CATEGORY_VALUES.map((cat) => {
-          const colors = CATEGORY_COLORS[cat as CategoryValue]
-          const active = category === cat
-          return (
-            <Chip
-              key={cat}
-              label={CATEGORY_LABELS[cat as CategoryValue]}
-              size="small"
-              onClick={() => onCategoryChange(active ? null : cat)}
-              sx={{
-                fontSize: 11,
-                height: 22,
-                fontWeight: 600,
-                bgcolor: active ? colors.text : colors.bg,
-                color: active ? '#fff' : colors.text,
-                border: `1px solid ${colors.text}20`,
-                '&:hover': { bgcolor: colors.text, color: '#fff' },
-              }}
-            />
-          )
-        })}
-      </Box>
+    <Box sx={{ px: 2, py: 1.25, borderBottom: `1px solid ${BRAND.border}`, display: 'flex', alignItems: 'center' }}>
+      <ToggleButtonGroup
+        value={view}
+        exclusive
+        size="small"
+        onChange={(_e, next) => {
+          if (next) onViewChange(next as ClusterView)
+        }}
+        sx={{
+          ml: 'auto',
+          '& .MuiToggleButton-root': {
+            px: 1.5,
+            py: 0.25,
+            fontSize: 11,
+            fontWeight: 700,
+            textTransform: 'none',
+            color: BRAND.mutedText,
+            border: `1px solid ${BRAND.border}`,
+          },
+          '& .Mui-selected': {
+            color: `${BRAND.accent} !important`,
+            bgcolor: `${BRAND.bgSidebarActive} !important`,
+          },
+        }}
+      >
+        <ToggleButton value="columns">▦ Columns</ToggleButton>
+        <ToggleButton value="digest">☰ Digest</ToggleButton>
+      </ToggleButtonGroup>
     </Box>
   )
 }

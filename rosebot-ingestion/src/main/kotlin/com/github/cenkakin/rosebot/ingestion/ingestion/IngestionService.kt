@@ -41,20 +41,25 @@ class IngestionService(
                 }
 
         val start = System.currentTimeMillis()
-        val drafts = connector.fetch(source)
-        var newCount = 0
-        var dupeCount = 0
+        try {
+            val drafts = connector.fetch(source)
+            var newCount = 0
+            var dupeCount = 0
 
-        drafts.forEach { draft ->
-            if (feedItemIngestionService.ingest(source.id, draft)) newCount++ else dupeCount++
+            drafts.forEach { draft ->
+                if (feedItemIngestionService.ingest(source.id, draft)) newCount++ else dupeCount++
+            }
+
+            log.info(
+                "[ingestion] source={} new={} dupes={} duration={}ms",
+                source.name,
+                newCount,
+                dupeCount,
+                System.currentTimeMillis() - start,
+            )
+        } catch (e: Exception) {
+            log.error("[ingestion] source={} failed: {}", source.name, e.message, e)
         }
 
-        log.info(
-            "[ingestion] source={} new={} dupes={} duration={}ms",
-            source.name,
-            newCount,
-            dupeCount,
-            System.currentTimeMillis() - start,
-        )
     }
 }

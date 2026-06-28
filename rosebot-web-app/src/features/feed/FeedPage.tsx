@@ -1,4 +1,4 @@
-import { useQueryClient, useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { Box, CircularProgress, Typography } from '@mui/material'
 import { getAppState, markVisited } from '../../api/appState'
@@ -12,10 +12,9 @@ import { TimeDivider } from './TimeDivider'
 import { FeedCard } from './FeedCard'
 import { FeedLayout } from './FeedLayout'
 import { useInfiniteFeed } from './useInfiniteFeed'
-import { useContentPrefetch } from '../content/useContentPrefetch'
 import { ErrorMessage } from '../../components/ErrorMessage'
 
-type TimeGroup = 'new' | 'today' | 'yesterday' | string   // string = weekday name
+type TimeGroup = 'new' | 'today' | 'yesterday' | string
 
 function getTimeGroup(publishedAt: string, lastVisitedAt: string | null): TimeGroup {
   const pub = new Date(publishedAt)
@@ -43,12 +42,11 @@ export function FeedPage() {
   const { type, sourceId, language, category } = useFilterParams()
 
   const [lastVisitedAt, setLastVisitedAt] = useState<string | null>(null)
-  const [activePanelId, setActivePanelId] = useState<number | null>(null)
+  const [activeItem, setActiveItem] = useState<FeedItemResponse | null>(null)
   const { showToast, ToastSnackbar } = useToast()
 
   const queryClient = useQueryClient()
 
-  // Load app-state and mark visited on mount
   useEffect(() => {
     getAppState().then((s) => setLastVisitedAt(s.lastVisitedAt))
     markVisited()
@@ -58,10 +56,8 @@ export function FeedPage() {
 
   const allItems: FeedItemResponse[] = data?.pages.flat() ?? []
 
-  const contentIds = useContentPrefetch(allItems)
   const sentinelRef = useInfiniteScroll(fetchNextPage, !!hasNextPage)
 
-  // Save / unsave mutation with optimistic update
   const toggleSave = useMutation({
     mutationFn: ({ id, saved }: { id: number; saved: boolean }) =>
       saved ? unsaveItem(id) : saveItem(id),
@@ -93,7 +89,6 @@ export function FeedPage() {
     },
   })
 
-  // Group items by time bucket
   const grouped: Array<{ key: string; items: FeedItemResponse[] }> = []
   for (const item of allItems) {
     const key = getTimeGroup(item.publishedAt, lastVisitedAt)
@@ -109,13 +104,10 @@ export function FeedPage() {
     ? allItems.filter((i) => new Date(i.publishedAt) > new Date(lastVisitedAt)).length
     : 0
 
-  const activePanelItem = allItems.find((i) => i.id === activePanelId) ?? null
-
   return (
     <FeedLayout
-      activePanelId={activePanelId}
-      activePanelItem={activePanelItem}
-      onPanelClose={() => setActivePanelId(null)}
+      activePanelItem={activeItem}
+      onPanelClose={() => setActiveItem(null)}
     >
       {lastVisitedAt && newCount > 0 && (
         <NewSinceBanner count={newCount} lastVisitedAt={lastVisitedAt} />
@@ -136,9 +128,7 @@ export function FeedPage() {
             <FeedCard
               key={item.id}
               item={item}
-              isActive={activePanelId === item.id}
-              hasContent={contentIds.has(item.id)}
-              onContentClick={(id) => setActivePanelId((prev) => (prev === id ? null : id))}
+              onOpen={setActiveItem}
               onSaveToggle={(id, saved) => toggleSave.mutate({ id, saved })}
             />
           ))}
