@@ -45,7 +45,9 @@ export function DigestStory({ cluster, onOpen, onSaveToggle }: Props) {
         borderRadius: 3.5,
         bgcolor: '#fffdfb',
         p: 2,
-        mb: 1.75,
+        mb: 2,
+        breakInside: 'avoid',
+        WebkitColumnBreakInside: 'avoid',
       }}
     >
       <Box display="flex" justifyContent="space-between" alignItems="baseline" gap={1}>

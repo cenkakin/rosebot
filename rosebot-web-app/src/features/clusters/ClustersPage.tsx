@@ -116,7 +116,14 @@ export function ClustersPage() {
         </Box>
       ) : (
         <Box sx={{ flex: 1, overflowY: 'auto', px: 3, py: 2.5 }}>
-          <Box sx={{ maxWidth: 880, mx: 'auto' }}>
+          <Box
+            sx={{
+              maxWidth: 1280,
+              mx: 'auto',
+              columnGap: '20px',
+              columnCount: { xs: 1, lg: 2 },
+            }}
+          >
             {clusters.map((cluster) => (
               <DigestStory key={cluster.id} cluster={cluster} onOpen={setActiveItem} onSaveToggle={onSaveToggle} />
             ))}
