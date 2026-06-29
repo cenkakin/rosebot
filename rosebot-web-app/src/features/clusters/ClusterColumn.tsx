@@ -1,22 +1,29 @@
-import {useEffect, useRef, useState} from 'react'
-import {Box, Chip, CircularProgress, Typography} from '@mui/material'
-import type {ClusterResponse} from '../../types/cluster'
-import type {FeedItemResponse} from '../../types/feedItem'
-import {CompactArticleRow} from './CompactArticleRow'
-import {useClusterItems} from './useClusterItems'
-import {shortDate} from '../../utils/time'
-import {BRAND} from '../../theme'
-import {CATEGORY_COLORS, CATEGORY_LABELS, type CategoryValue} from '../../constants/categories'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { Box, Chip, CircularProgress, Typography } from '@mui/material'
+import type { ClusterResponse } from '../../types/cluster'
+import type { FeedItemResponse } from '../../types/feedItem'
+import { CompactArticleRow } from './CompactArticleRow'
+import { useClusterItems } from './useClusterItems'
+import { shortDate } from '../../utils/time'
+import { BRAND } from '../../theme'
+import { CATEGORY_COLORS, CATEGORY_LABELS, type CategoryValue } from '../../constants/categories'
 
 interface Props {
   cluster: ClusterResponse
   onOpen: (item: FeedItemResponse) => void
   onSaveToggle: (id: number, saved: boolean) => void
+  minHeaderHeight?: number
+  onHeaderRef?: (el: HTMLDivElement | null) => void
 }
 
-export function ClusterColumn({ cluster, onOpen, onSaveToggle }: Props) {
+export function ClusterColumn({ cluster, onOpen, onSaveToggle, minHeaderHeight, onHeaderRef }: Props) {
   const ref = useRef<HTMLDivElement>(null)
   const [visible, setVisible] = useState(false)
+
+  const headerRef = useCallback(
+    (el: HTMLDivElement | null) => { onHeaderRef?.(el) },
+    [onHeaderRef],
+  )
 
   useEffect(() => {
     const el = ref.current
@@ -40,7 +47,10 @@ export function ClusterColumn({ cluster, onOpen, onSaveToggle }: Props) {
       ref={ref}
       sx={{ width: 320, flexShrink: 0, display: 'flex', flexDirection: 'column', borderRight: `1px solid ${BRAND.border}`, height: '100%', overflow: 'hidden' }}
     >
-      <Box sx={{ px: 2, py: 1.5, borderBottom: `1px solid ${BRAND.border}`, flexShrink: 0 }}>
+      <Box
+        ref={headerRef}
+        sx={{ px: 2, py: 1.5, borderBottom: `1px solid ${BRAND.border}`, flexShrink: 0, minHeight: minHeaderHeight }}
+      >
         <Typography variant="subtitle2" fontWeight={800} sx={{ lineHeight: 1.3, mb: 0.5 }}>
           {cluster.label}
         </Typography>

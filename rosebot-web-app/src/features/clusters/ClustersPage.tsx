@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Box, CircularProgress, Typography } from '@mui/material'
 import { getClusters } from '../../api/clusters'
@@ -17,14 +17,37 @@ export function ClustersPage() {
   const activeView: ClusterView = view === 'columns' ? 'columns' : 'digest'
 
   const [activeItem, setActiveItem] = useState<FeedItemResponse | null>(null)
+  const [minHeaderHeight, setMinHeaderHeight] = useState<number | undefined>(undefined)
   const { showToast, ToastSnackbar } = useToast()
   const queryClient = useQueryClient()
+
+  const headerEls = useRef<Map<number, HTMLDivElement>>(new Map())
 
   const { data: clusters = [], isLoading, isError } = useQuery({
     queryKey: ['clusters'],
     queryFn: () => getClusters({}),
     staleTime: 60_000,
   })
+
+  useEffect(() => {
+    if (activeView !== 'columns' || clusters.length === 0) return
+    const frame = requestAnimationFrame(() => {
+      let max = 0
+      headerEls.current.forEach((el) => {
+        if (el) max = Math.max(max, el.scrollHeight)
+      })
+      if (max > 0) setMinHeaderHeight(max)
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [activeView, clusters])
+
+  const makeHeaderRef = useCallback(
+    (clusterId: number) => (el: HTMLDivElement | null) => {
+      if (el) headerEls.current.set(clusterId, el)
+      else headerEls.current.delete(clusterId)
+    },
+    [],
+  )
 
   const toggleSave = useMutation({
     mutationFn: ({ id, saved }: { id: number; saved: boolean }) => (saved ? unsaveItem(id) : saveItem(id)),
@@ -81,7 +104,14 @@ export function ClustersPage() {
       {activeView === 'columns' ? (
         <Box sx={{ display: 'flex', flex: 1, overflowX: 'auto', overflowY: 'hidden' }}>
           {clusters.map((cluster) => (
-            <ClusterColumn key={cluster.id} cluster={cluster} onOpen={setActiveItem} onSaveToggle={onSaveToggle} />
+            <ClusterColumn
+              key={cluster.id}
+              cluster={cluster}
+              onOpen={setActiveItem}
+              onSaveToggle={onSaveToggle}
+              minHeaderHeight={minHeaderHeight}
+              onHeaderRef={makeHeaderRef(cluster.id)}
+            />
           ))}
         </Box>
       ) : (
